@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - gathurUP - Getting Friends Togathur™</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles_app.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form">
+            <div class="centered-logo">
+                <img src="gathurUP.png" alt="gatherUP_logo Logo" class="login-logo">
+            </div>
+            <div id="loginView">
+                <h2>Howdy, welcome back!</h2>
+                <input type="email" id="emailInput" placeholder="Email" required>
+                <input type="password" id="passwordInput" placeholder="Password" required>
+                <button id="emailLoginSubmitBtn" class="submit-btn">Login</button>
+                <div class="auth-separator">
+                    <div class="line"></div>
+                    <span>or</span>
+                    <div class="line"></div>
+                </div>
+            
+                    Don't have an account? <button id="showSignupBtn" class="link-button">Sign up</button>
+                </p>
+            </div>
+            <div id="signupView" style="display: none;">
+                <h2>Create Account</h2>
+                <input type="text" id="signupNameInput" placeholder="Full Name" required>
+                <input type="email" id="signupEmailInput" placeholder="Email" required>
+                <input type="password" id="signupPasswordInput" placeholder="Password" required>
+                <input type="password" id="signupConfirmPasswordInput" placeholder="Confirm Password" required>
+                <button id="emailSignupBtn" class="submit-btn">Sign Up</button>
+                <p class="signup-text">
+                    Already have an account? <button id="showLoginBtn" class="link-button">Login</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Add these styles inline for now, you can move them to styles_app.css later */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .login-form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .centered-logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .login-logo {
+            max-width: 195px;  /* Increased from 150px by 30% */
+            height: auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .google-btn {
+            background: white;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .google-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .auth-separator {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .auth-separator .line {
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .auth-separator span {
+            margin: 0 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .link-button {
+            background: none;
+            border: none;
+            color: #0066cc;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0;
+            font: inherit;
+            width: auto;
+        }
+
+        .link-button:hover {
+            color: #0052a3;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 10px;
+            }
+            
+            .login-form {
+                padding: 20px;
+            }
+        }
+    </style>
+
+    <script type="module">
+        import { firebaseConfig } from './firebase-config.js';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        function toggleViews(showSignup) {
+            document.getElementById('loginView').style.display = showSignup ? 'none' : 'block';
+            document.getElementById('signupView').style.display = showSignup ? 'block' : 'none';
+        }
+
+        document.getElementById('showSignupBtn').addEventListener('click', () => toggleViews(true));
+        document.getElementById('showLoginBtn').addEventListener('click', () => toggleViews(false));
+
+        document.getElementById('emailLoginSubmitBtn').addEventListener('click', async () => {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Error logging in with email:", error);
+                alert("Error logging in with email");
+            }
+        });
+
+        document.getElementById('emailSignupBtn').addEventListener('click', async () => {
+            const name = document.getElementById('signupNameInput').value;
+            const email = document.getElementById('signupEmailInput').value;
+            const password = document.getElementById('signupPasswordInput').value;
+            const confirmPassword = document.getElementById('signupConfirmPasswordInput').value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords don't match");
+                return;
+            }
+
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters");
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                // Set display name as entered name
+                if (userCredential.user) {
+                    await updateProfile(userCredential.user, {
+                        displayName: name
+                    });
+                }
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Error signing up:", error);
+                alert(error.message || "Error signing up");
+            }
+        });
+    </script>
+</body>
+</html>

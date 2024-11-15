@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Girls and Getaways</title>
+    <link rel="stylesheet" href="styles2.css">
+    <script type="module" src="app2.js"></script>
+</head>
+<body>
+    
+
+    <!-- Main App Container -->
+    <div id="mainContainer" style="display: none;">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="gathurUP.png" alt="gatherUP Logo" />
+                    <div class="logo-tagline">Getting Friends Togathur™</div>
+                </div>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-profile-header">
+                    <div class="user-name-container">
+                        <div class="user-greeting">Howdy,</div>
+                        <span id="userName"></span>
+                    </div>
+                    <button class="settings-button" data-tab="profile">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="tab-button active" data-tab="createEvent">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                    Create Event
+                </button>
+                <button class="tab-button" data-tab="events">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Events
+                </button>
+                <button class="tab-button" data-tab="tribes">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    People and Groups
+                </button>
+                <button class="tab-button" data-tab="instructions">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    Instructions
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Create Event View -->
+            <div id="createEventView" class="tab-content active">
+                <div class="content-header">
+                    <h1>Create New Event</h1>
+                </div>
+                
+                <div class="content-card">
+                    <form id="eventForm">
+                        <div class="form-group">
+                            <label for="tribeSelect">Select Group</label>
+                            <select id="tribeSelect" required>
+                                <option value="">Choose a group...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventTitle">Event Title</label>
+                            <input type="text" id="eventTitle" required placeholder="Enter event title">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventDescription">Description</label>
+                            <textarea id="eventDescription" placeholder="Enter event description"></textarea>
+                        </div>
+
+                        <div class="event-type">
+                            <h3>Event Poll Type</h3>
+                            <label class="radio-label">
+                                <input type="radio" name="eventType" value="specific" checked>
+                                Specific Date
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="eventType" value="range">
+                                Date Range
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="eventType" value="dayOfWeek">
+                                Day of Week
+                            </label>
+                        </div>
+
+                        <div class="date-input">
+                            <div class="date-field-group">
+                                <div class="date-field specific-date">
+                                    <label for="specificDateInput">Date</label>
+                                    <input type="date" id="specificDateInput">
+                                    <button type="button" id="addSpecificDateBtn" onclick="addDate()">Add Date</button>
+                                </div>
+
+                                <div class="date-field range-date" style="display: none;">
+                                    <div class="range-inputs">
+                                        <div>
+                                            <label for="startDateInput">Start Date</label>
+                                            <input type="date" id="startDateInput">
+                                        </div>
+                                        <div>
+                                            <label for="endDateInput">End Date</label>
+                                            <input type="date" id="endDateInput">
+                                        </div>
+                                    </div>
+                                    <button type="button" id="addDateBtn" onclick="addDate()">Add Date Range</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="dayOfWeekSelector" class="day-of-week-container" style="display: none;">
+                            <div class="day-checkboxes">
+                                <label><input type="checkbox" name="daysOfWeek" value="Sunday"> Sunday</label>
+                                <label><input type="checkbox" name="daysOfWeek" value="Monday"> Monday</label>
+                                <label><input type="checkbox" name="daysOfWeek" value="Tuesday"> Tuesday</label>
+                                <label><input type="checkbox" name="daysOfWeek" value="Wednesday"> Wednesday</label>
+                                <label><input type="checkbox" name="daysOfWeek" value="Thursday"> Thursday</label>
+                                <label><input type="checkbox" name="daysOfWeek" value="Friday"> Friday</label>
+                                <label><input type="checkbox" name="daysOfWeek" value="Saturday"> Saturday</label>
+                            </div>
+                            <button type="button" id="addDaysBtn" onclick="addDaysOfWeek()">Add Days</button>
+                        </div>
+
+                        <div id="datesList" class="dates-list"></div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="anonymousResponses">
+                                Make Responses Anonymous
+                            </label>
+                        </div>
+
+                        <div class="submit-container">
+                            <button type="submit" class="primary-button">Create Event</button>
+                        </div>
+                    </form>
+
+                    <div id="shareLink" style="display: none;">
+                        <h3>Share this Event</h3>
+                        <div class="event-link-container">
+                            <input type="text" id="shareLinkInput" readonly>
+                            <button onclick="copyEventLink()" class="copy-button">Copy Link</button>
+                            <button onclick="openEventLink()" class="go-button">Open</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events View -->
+            <div id="eventsView" class="tab-content">
+                <div class="content-header">
+                    <h1>Events</h1>
+                </div>
+                
+                <div class="events-list-container">
+                    <div class="events-list">
+                        <div class="events-table-header">
+                            <div class="event-col">Event</div>
+                            <div class="group-col">Group</div>
+                            <div class="actions-col">Actions</div>
+                        </div>
+                        <div id="eventsList" class="events-rows"></div>
+                    </div>
+                </div>
+            </div>
+
+<!-- Replace the tribes view content -->
+<div id="tribesView" class="tab-content">
+    <div class="content-header">
+        <h1>People and Groups</h1>
+        <div class="section-tabs">
+            <button class="section-tab active" data-section="people">People</button>
+            <button class="section-tab" data-section="groups">Groups</button>
+        </div>
+    </div>
+    
+    <div class="section-content active" id="peopleSection">
+    <div class="section-container">
+        <h2>People</h2>
+        <p class="section-tip">Tip: Add each of your friends you plan to invite to various events including yourself.</p>
+        <form id="personForm" class="add-person-form">
+            <input type="text" id="personName" placeholder="Enter full name" required maxlength="50">
+            <button type="submit" class="primary-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
+        </form>
+        <div id="peopleList" class="list-container"></div>
+    </div>
+</div>
+
+    <div class="section-content" id="groupsSection">
+        <div class="section-container">
+            <div id="tribesList" class="list-container"></div>
+            
+            <h2 class="mt-24">Create New Group</h2>
+            <form id="tribeForm" class="add-form">
+                <div class="form-group">
+                    <input type="text" id="tribeName" placeholder="Enter group name" required>
+                </div>
+                
+                <div class="member-selection">
+                    <h3>Select Group Members</h3>
+                    <div class="member-selection-header">
+                        <button type="button" id="selectAllMembers" class="secondary-button">Select All</button>
+                    </div>
+                    <div id="memberCheckboxes" class="checkbox-container"></div>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" id="tribeFormSubmit" class="primary-button">Create Group</button>
+                    <button type="reset" class="secondary-button">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Instructions View -->
+<div id="instructionsView" class="tab-content">
+    <div class="content-header">
+        <h1>Instructions</h1>
+    </div>
+    <div class="content-card">
+        <h2>Welcome to Girls and Getaways!</h2>
+        <div class="instruction-sections">
+            <div class="instruction-section">
+                <h3>Step 1: Add People</h3>
+                <p>First, head over to the <strong>Groups</strong> tab. In the <strong>People</strong> section, you can add all the fabulous ladies who will be part of any of your events. Just enter their full names and click <strong>Add Person</strong>.</p>
+            </div>
+
+            <div class="instruction-section">
+                <h3>Step 2: Create Groups</h3>
+                <p>Next, still in the <strong>Groups</strong> tab, create your groups. Enter a group name and select the members from the list of people you added. Groups can be for your travel buddies, book club, or any other gathering. Click <strong>Create Group</strong> to save.</p>
+            </div>
+
+            <div class="instruction-section">
+                <h3>Step 3: Create Events</h3>
+                <p>Switch to the <strong>Create Event</strong> tab and choose from three event types:</p>
+                <ul>
+                    <li><strong>Specific Date:</strong> Add individual dates for each proposed meetup</li>
+                    <li><strong>Date Range:</strong> Select start and end dates for potential trips</li>
+                    <li><strong>Day of Week:</strong> Choose specific days for regular meetups</li>
+                </ul>
+            </div>
+
+            <div class="instruction-section">
+                <h3>Step 4: Manage Responses</h3>
+                <p>For each event you can:</p>
+                <ul>
+                    <li>Enable anonymous voting</li>
+                    <li>Share the event link with your group</li>
+                    <li>Track responses in real-time</li>
+                    <li>Edit event details anytime</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile View -->
+<div id="profileView" class="tab-content">
+    <div class="content-header">
+        <h1>Profile Settings</h1>
+    </div>
+    <div class="content-card">
+        <form id="profileForm" class="profile-form">
+            <div class="form-group">
+                <label for="profileName">Display Name</label>
+                <input type="text" id="profileName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="profileEmail">Email Address</label>
+                <input type="email" id="profileEmail" required>
+            </div>
+
+            <div class="profile-actions">
+                <button type="submit" class="primary-button">Update Profile</button>
+                <button type="button" id="logoutBtn" class="secondary-button">Logout</button>
+            </div>
+        </form>
+
+        <div class="danger-zone">
+            <h3>Danger Zone</h3>
+            <p class="warning-text">Once you delete your account, there is no going back. Please be certain.</p>
+            <button id="deleteAccountBtn" class="delete-account-button">Delete Account</button>
+        </div>
+    </div>
+</div>
+</main>
+</div>
+
+<!-- Mobile Menu Toggle (visible on small screens) -->
+<button id="mobileMenuToggle" class="mobile-menu-toggle">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<line x1="3" y1="12" x2="21" y2="12"></line>
+<line x1="3" y1="6" x2="21" y2="6"></line>
+<line x1="3" y1="18" x2="21" y2="18"></line>
+</svg>
+</button>
+</body>
+</html>
