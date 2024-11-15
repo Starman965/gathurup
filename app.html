@@ -26,6 +26,7 @@
                     <div class="user-name-container">
                         <div class="user-greeting">Howdy,</div>
                         <span id="userName"></span>
+                        <div id="premiumBadge" class="premium-badge">Premium Member</div>
                     </div>
                     <button class="settings-button" data-tab="profile">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -37,7 +38,13 @@
             </div>
             
             <nav class="sidebar-nav">
-                <button class="tab-button active" data-tab="createEvent">
+                    <button class="tab-button active" data-tab="welcome">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                    </svg>
+                    Welcome
+                </button>
+                <button class="tab-button " data-tab="createEvent">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
                     Create Event
                 </button>
@@ -50,16 +57,74 @@
                     People and Groups
                 </button>
                 <button class="tab-button" data-tab="instructions">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4"/>
+                        <path d="M12 8h.01"/>
+                    </svg>
                     Instructions
                 </button>
             </nav>
+            
+            <div class="quote-container">
+                <blockquote>
+                    "Failing to plan is planning to fail."
+                    <footer>— Benjamin Franklin</footer>
+                </blockquote>
+            </div>
         </aside>
 
         <!-- Main Content Area -->
         <main class="main-content">
+                        <div id="welcomeView" class="tab-content active">
+                <div class="content-header">
+                    <h1>Welcome to gathurUP! 🎉</h1>
+                </div>
+                
+                <div class="content-card welcome-card">
+                    <div class="welcome-section">
+                        <h2>Howdy, Beta Tester! 👋</h2>
+                        <p>We're thrilled to have you as one of our founding users! You're now part of something special - helping us shape the future of how friends get together. To say "Thank You" we made you a Premium Member.</table></p>
+                        
+                        <div class="welcome-feature">
+                            <h3>What's gathurUP?</h3>
+                            <p>Simply put, we're here to solve that age-old problem: "When can everyone get together?" No more endless text threads, confusing email chains, or frustrating back-and-forth. Just easy, clear date planning for your group activities.</p>
+                        </div>
+            
+                        <div class="welcome-feature">
+                            <h3>Beta Program Details 🚀</h3>
+                            <p>As a beta tester, you're using gathurUP in its early stages. We have big plans for the future, but right now we're focused on perfecting our core feature: helping friends find the ideal date(s) to get together.</p>
+                            
+                            <div class="beta-notes">
+                                <p><strong>Please Note:</strong></p>
+                                <ul>
+                                    <li>Best viewed on iPad or desktop (mobile optimization coming soon!)</li>
+                                    <li>Yes, you can let your friends know about using the app. Just remind them it's in Beta</li>
+                                    <li>Send feedback and bug reports to: <a href="mailto:demandgendave@gmail.com">demandgendave@gmail.com</a></li>
+                                    <li>Your feedback shapes our future features!</li>
+                                </ul>
+                            </div>
+                        </div>
+            
+                        <div class="welcome-feature">
+                            <h3>Ready to Get Started? 🎯</h3>
+                            <p>1. Head over to the <strong>Instructions</strong> page for a quick tour</p>
+                            <p>2. Add your friends in the <strong>People and Groups</strong> section</p>
+                            <p>3. Create your first event and watch the magic happen!</p>
+                        </div>
+            
+                        <div class="welcome-cta">
+                            <p>Thanks for being part of our journey! Let's make getting together easier for everyone. 🌟</p>
+                            <p> Your Friends, Tiffanie and David Lewis</p>
+                            <button onclick="switchTab('instructions')" class="primary-button">
+                                Start by Reading the Instructions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Create Event View -->
-            <div id="createEventView" class="tab-content active">
+            <div id="createEventView" class="tab-content">
                 <div class="content-header">
                     <h1>Create New Event</h1>
                 </div>

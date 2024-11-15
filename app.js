@@ -38,6 +38,7 @@ let currentUser = null;
 let editingEventId = null;
 let lastSelectedDate = null;
 
+
 // Utility Functions
 function getUserRef() {
     if (!currentUser) throw new Error('No user logged in');
@@ -1170,7 +1171,31 @@ window.deleteTribe = async function(tribeId) {
         alert('Error deleting group');
     }
 };
-
+// Add this to your auth state change handler or where you load user data
+function updateUserProfile(user) {
+    if (user) {
+        const userName = document.getElementById('userName');
+        const premiumBadge = document.getElementById('premiumBadge');
+        
+        // Set user name
+        userName.textContent = user.displayName;
+        
+        // Show premium badge for beta users
+        // You'll need to check your database for the beta status
+        const userRef = ref(database, `users/${user.uid}`);
+        get(userRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                // Assuming you have a 'beta' field in your user data
+                if (userData.beta === true) {
+                    premiumBadge.classList.add('visible');
+                } else {
+                    premiumBadge.classList.remove('visible');
+                }
+            }
+        });
+    }
+}
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
     // Add authentication event listeners
@@ -1326,3 +1351,5 @@ window.removeDate = function(startDate, endDate) {
 };
 window.showEventsList = showEventsList;
 window.showEventDetail = showEventDetail;
+// Make switchTab available globally
+window.switchTab = switchTab;
