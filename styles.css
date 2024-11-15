@@ -594,6 +594,10 @@ textarea {
     background: white;
 }
 
+.share-section .action-button {
+    flex-shrink: 0;
+}
+
 /* Date Selection */
 .date-input {
     margin: 24px 0;

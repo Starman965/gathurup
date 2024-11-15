@@ -619,8 +619,19 @@ function renderEventDetail(eventId, eventData) {
 
                 <div class="share-section">
                     <input class="event-link" type="text" readonly value="${getVoteUrl(eventId)}" data-event-id="${eventId}">
-                    <button class="copy-button" onclick="copyEventLink('${eventId}')">Copy Link</button>
-                    <button class="go-button" onclick="openEventLink('${eventId}')">Open</button>
+                    <button class="action-button share" onclick="copyEventLink('${eventId}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg>
+                    </button>
+                    <button class="action-button" onclick="openEventLink('${eventId}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
