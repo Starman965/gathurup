@@ -532,7 +532,7 @@ async function showEventDetail(eventId) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M15 18l-6-6 6-6"/>
                         </svg>
-                        Back to Events
+                        Back to Events List
                     </button>
                 </div>
             </div>
@@ -551,7 +551,7 @@ async function showEventDetail(eventId) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M15 18l-6-6 6-6"/>
                         </svg>
-                        Back to Events
+                        Back to Events List
                     </button>
                     <div class="error-message">
                         Error loading event details. Please try again.
@@ -569,7 +569,7 @@ function renderEventDetail(eventId, eventData) {
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M15 18l-6-6 6-6"/>
             </svg>
-            Back to Events
+            Back to Events List
         </button>
 
         <div class="detail-header">
