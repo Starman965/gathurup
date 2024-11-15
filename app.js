@@ -688,9 +688,19 @@ function renderVotesSummary(eventData) {
         const noVotes = Object.values(participants).filter(p => p.votes[index] === 0).length;
         const isMaxVotes = yesVotes === maxYesVotes && maxYesVotes > 0;
 
+        // Determine display text based on whether it's a specific date or range
+        let displayText;
+        if (date.start === date.end) {
+            // For specific dates, just show the single date
+            displayText = formatDateForDisplay(date.start);
+        } else {
+            // For date ranges, show the range
+            displayText = `${formatDateForDisplay(date.start)} to ${formatDateForDisplay(date.end)}`;
+        }
+
         return `
             <div class="vote-card ${isMaxVotes ? 'best-date' : ''}">
-                <div class="vote-date">${date.displayRange}</div>
+                <div class="vote-date">${displayText}</div>
                 <div class="vote-stats">
                     <div class="stat-item yes-votes">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
