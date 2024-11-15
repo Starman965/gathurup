@@ -458,7 +458,31 @@ textarea {
     color: #666;
     transition: all 0.2s ease;
 }
+.tab-button svg,
+.action-button svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+}
+@media (max-width: 1024px) {
+    .tab-button svg,
+    .action-button svg {
+        width: 24px;
+        height: 24px;
+    }
+}
 
+@media (max-width: 768px) {
+    .tab-button svg,
+    .action-button svg {
+        width: 28px;
+        height: 28px;
+    }
+}
 .action-button:hover {
     background: #f0f0f0;
     color: var(--subhead-color);
