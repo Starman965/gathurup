@@ -1138,3 +1138,43 @@ textarea {
     margin: 8px 0 16px 0;
     font-style: italic;
 }
+
+/* Hero Section */
+.hero-section {
+    background: url('hero-bg.jpg') no-repeat center center/cover;
+    color: white;
+    text-align: center;
+    padding: 60px 20px; /* Increased padding */
+}
+
+.hero-section .logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px; /* Reduced margin */
+}
+
+.hero-section .logo-container img {
+    max-width: 300px; /* Increased max-width */
+    height: auto;
+}
+
+.hero-section h1 {
+    font-size: 3.5em; /* Increased font size */
+    margin-bottom: 10px; /* Reduced margin */
+}
+
+.hero-section p {
+    font-size: 1.5em; /* Increased font size */
+    margin-bottom: 40px;
+}
+
+.hero-section .cta-button {
+    background-color: #ff4081;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+}
