@@ -1324,3 +1324,11 @@ textarea {
     align-items: center;
     gap: 4px; /* Adjust the gap between checkbox and label text as needed */
 }
+.submit-container {
+    display: flex;
+    gap: 12px;
+}
+
+.cancel-edit-btn {
+    margin-right: 12px;
+}

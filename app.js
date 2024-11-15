@@ -857,17 +857,21 @@ window.editEventDates = async function(eventId) {
             throw new Error('Event not found');
         }
 
-        // Switch to create event view
+        // Switch to create event view and update header
         switchTab('createEvent');
+        document.querySelector('.content-header h1').textContent = 'Edit Event';
         
         // Populate form with existing data
         document.getElementById('eventTitle').value = eventData.title;
-        document.getElementById('eventDescription').value = eventData.description;
+        document.getElementById('eventDescription').value = eventData.description || '';
         document.getElementById('tribeSelect').value = eventData.tribeId;
         
         // Set event type
-        document.querySelector(`input[name="eventType"][value="${eventData.type}"]`).checked = true;
-        handleEventTypeChange();
+        const eventTypeRadio = document.querySelector(`input[name="eventType"][value="${eventData.type}"]`);
+        if (eventTypeRadio) {
+            eventTypeRadio.checked = true;
+            handleEventTypeChange();
+        }
         
         // Load existing dates
         selectedDates = eventData.dates.map(date => {
@@ -894,10 +898,10 @@ window.editEventDates = async function(eventId) {
         if (!document.querySelector('.cancel-edit-btn')) {
             const cancelBtn = document.createElement('button');
             cancelBtn.type = 'button';
-            cancelBtn.className = 'cancel-edit-btn';
+            cancelBtn.className = 'cancel-edit-btn secondary-button';
             cancelBtn.textContent = 'Cancel Edit';
             cancelBtn.onclick = cancelEventEdit;
-            submitBtn.parentNode.appendChild(cancelBtn);
+            submitBtn.parentNode.insertBefore(cancelBtn, submitBtn);
         }
 
         document.getElementById('anonymousResponses').checked = eventData.anonymous || false;
@@ -905,6 +909,15 @@ window.editEventDates = async function(eventId) {
         console.error('Error loading event for editing:', error);
         alert('Error loading event for editing');
     }
+};
+
+window.cancelEventEdit = function() {
+    editingEventId = null;
+    document.querySelector('#eventForm button[type="submit"]').textContent = 'Create Event';
+    document.querySelector('.content-header h1').textContent = 'Create New Event';
+    const cancelBtn = document.querySelector('.cancel-edit-btn');
+    if (cancelBtn) cancelBtn.remove();
+    resetEventForm();
 };
 
 window.deleteEvent = async function(eventId) {
