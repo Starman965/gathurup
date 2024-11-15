@@ -160,6 +160,10 @@
             display: flex;
             align-items: center;
         }
+              .logo {
+            max-width: 200px;
+            width: 100%; /* Ensures it scales responsively */
+            height: auto; /* Maintains aspect ratio */
         .next {
             right: 0;
             border-radius: 3px 0 0 3px;
@@ -185,7 +189,7 @@
     </div>
     <div class="hero-section">
         <div class="logo-container">
-            <img src="gathurUP.png" alt="gathurUP Logo">
+            <img src="gathurUP.png" alt="gathurUP Logo" class="logo">
         </div>
         <button class="cta-button" onclick="window.location.href='login.html'">Sign Up Now</button>
     </div>
