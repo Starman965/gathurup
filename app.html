@@ -165,48 +165,50 @@
                             </label>
                         </div>
 
-                        <div class="date-input">
-                            <div class="date-field-group">
-                                <div class="date-field specific-date">
+                                                <div class="date-input">
+                            <!-- Specific Date -->
+                            <div id="specificDateSection" class="date-field specific-date">
+                                <div class="date-field-row">
+                                    <div>
+                                        <label for="specificDateInput">Date</label>
+                                        <input type="date" id="specificDateInput">
+                                    </div>
+                                    <button type="button" id="addSpecificDateBtn" onclick="addDate()">Add Date</button>
+                                </div>
+                            </div>
+                        
+                            <!-- Date Range -->
+                            <div id="rangeDateSection" class="date-field range-date" style="display: none;">
+                                <div class="range-inputs">
                                     <div class="date-field-row">
                                         <div>
-                                            <label for="specificDateInput">Date</label>
-                                            <input type="date" id="specificDateInput">
+                                            <label for="startDateInput">Start Date</label>
+                                            <input type="date" id="startDateInput">
                                         </div>
-                                        <button type="button" id="addSpecificDateBtn" onclick="addDate()">Add Date</button>
-                                    </div>
-                                </div>
-
-                                <div class="date-field range-date" style="display: none;">
-                                    <div class="range-inputs">
-                                        <div class="date-field-row">
-                                            <div>
-                                                <label for="startDateInput">Start Date</label>
-                                                <input type="date" id="startDateInput">
-                                            </div>
-                                            <div>
-                                                <label for="endDateInput">End Date</label>
-                                                <input type="date" id="endDateInput">
-                                            </div>
-                                            <button type="button" id="addDateBtn" onclick="addDate()">Add Date Range</button>
+                                        <div>
+                                            <label for="endDateInput">End Date</label>
+                                            <input type="date" id="endDateInput">
                                         </div>
+                                        <button type="button" id="addDateBtn" onclick="addDate()">Add Date Range</button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="days-of-week-container">
-                            <div class="days-of-week-checkboxes">
-                                <!-- Your checkboxes here -->
-                                <label><input type="checkbox" name="daysOfWeek" value="Monday"> Monday</label>
-                                <label><input type="checkbox" name="daysOfWeek" value="Tuesday"> Tuesday</label>
-                                <label><input type="checkbox" name="daysOfWeek" value="Wednesday"> Wednesday</label>
-                                <label><input type="checkbox" name="daysOfWeek" value="Thursday"> Thursday</label>
-                                <label><input type="checkbox" name="daysOfWeek" value="Friday"> Friday</label>
-                                <label><input type="checkbox" name="daysOfWeek" value="Saturday"> Saturday</label>
-                                <label><input type="checkbox" name="daysOfWeek" value="Sunday"> Sunday</label>
+                        
+                            <!-- Day of Week -->
+                            <div id="dayOfWeekSection" class="date-field" style="display: none;">
+                                <div class="days-of-week-container">
+                                    <div class="days-of-week-checkboxes">
+                                        <label><input type="checkbox" name="daysOfWeek" value="Monday"> Monday</label>
+                                        <label><input type="checkbox" name="daysOfWeek" value="Tuesday"> Tuesday</label>
+                                        <label><input type="checkbox" name="daysOfWeek" value="Wednesday"> Wednesday</label>
+                                        <label><input type="checkbox" name="daysOfWeek" value="Thursday"> Thursday</label>
+                                        <label><input type="checkbox" name="daysOfWeek" value="Friday"> Friday</label>
+                                        <label><input type="checkbox" name="daysOfWeek" value="Saturday"> Saturday</label>
+                                        <label><input type="checkbox" name="daysOfWeek" value="Sunday"> Sunday</label>
+                                    </div>
+                                    <button type="button" id="addDaysBtn" onclick="addDaysOfWeek()">Add Days</button>
+                                </div>
                             </div>
-                            <button type="button" id="addDaysBtn" onclick="addDaysOfWeek()">Add Days</button>
                         </div>
 
                         <div id="datesList" class="dates-list"></div>

@@ -743,7 +743,14 @@ function renderIndividualResponses(eventData) {
                 <thead>
                     <tr>
                         <th>Name</th>
-                        ${eventData.dates.map(date => `<th>${date.displayRange}</th>`).join('')}
+                        ${eventData.dates.map(date => {
+                            // Check if it's a specific date
+                            if (date.start === date.end) {
+                                return `<th>${formatDateForDisplay(date.start)}</th>`;
+                            } else {
+                                return `<th>${date.displayRange}</th>`;
+                            }
+                        }).join('')}
                     </tr>
                 </thead>
                 <tbody>
@@ -942,42 +949,36 @@ function switchTab(tabName) {
 
 function handleEventTypeChange() {
     const eventType = document.querySelector('input[name="eventType"]:checked')?.value;
-    const specificDateField = document.querySelector('.specific-date');
-    const rangeDateField = document.querySelector('.range-date');
-    const dayOfWeekSelector = document.getElementById('dayOfWeekSelector');
-    const addSpecificDateBtn = document.getElementById('addSpecificDateBtn');
-    const addDateBtn = document.getElementById('addDateBtn');
-    const addDaysBtn = document.getElementById('addDaysBtn');
+    const specificDateSection = document.getElementById('specificDateSection');
+    const rangeDateSection = document.getElementById('rangeDateSection');
+    const dayOfWeekSection = document.getElementById('dayOfWeekSection');
 
-    if (!eventType || !specificDateField || !rangeDateField || !dayOfWeekSelector || 
-        !addSpecificDateBtn || !addDateBtn || !addDaysBtn) {
-        return;
-    }
+    // Hide all sections first
+    specificDateSection.style.display = 'none';
+    rangeDateSection.style.display = 'none';
+    dayOfWeekSection.style.display = 'none';
 
-    // Hide all fields first
-    specificDateField.style.display = 'none';
-    rangeDateField.style.display = 'none';
-    dayOfWeekSelector.style.display = 'none';
-    addSpecificDateBtn.style.display = 'none';
-    addDateBtn.style.display = 'none';
-    addDaysBtn.style.display = 'none';
-
-    // Show relevant fields based on event type
+    // Show the appropriate section based on event type
     switch(eventType) {
         case 'specific':
-            specificDateField.style.display = 'block';
-            addSpecificDateBtn.style.display = 'block';
+            specificDateSection.style.display = 'block';
             break;
         case 'range':
-            rangeDateField.style.display = 'block';
-            addDateBtn.style.display = 'block';
+            rangeDateSection.style.display = 'block';
             break;
         case 'dayOfWeek':
-            dayOfWeekSelector.style.display = 'block';
-            addDaysBtn.style.display = 'block';
+            dayOfWeekSection.style.display = 'block';
             break;
     }
 }
+
+// Make sure event listeners are set up
+document.querySelectorAll('input[name="eventType"]').forEach(radio => {
+    radio.addEventListener('change', handleEventTypeChange);
+});
+
+// Call on page load to set initial state
+handleEventTypeChange();
 
 // People and Tribes Management Functions
 async function addPerson(e) {
