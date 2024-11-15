@@ -149,7 +149,8 @@
                         </div>
 
                         <div class="event-type">
-                            <h3>Event Poll Type</h3>
+                            <h3>Find Your Ideal Dates</h3>
+                            <p class="section-tip">Tip: Choose specific date if you need to find a single date to meet up. Use Date Range for offering ranges to choose from for a multi-day event. Use Day of the Week for finding a consistent day, like Mon - Sun, to meet.</p>
                             <label class="radio-label">
                                 <input type="radio" name="eventType" value="specific" checked>
                                 Specific Date
@@ -167,36 +168,43 @@
                         <div class="date-input">
                             <div class="date-field-group">
                                 <div class="date-field specific-date">
-                                    <label for="specificDateInput">Date</label>
-                                    <input type="date" id="specificDateInput">
-                                    <button type="button" id="addSpecificDateBtn" onclick="addDate()">Add Date</button>
+                                    <div class="date-field-row">
+                                        <div>
+                                            <label for="specificDateInput">Date</label>
+                                            <input type="date" id="specificDateInput">
+                                        </div>
+                                        <button type="button" id="addSpecificDateBtn" onclick="addDate()">Add Date</button>
+                                    </div>
                                 </div>
 
                                 <div class="date-field range-date" style="display: none;">
                                     <div class="range-inputs">
-                                        <div>
-                                            <label for="startDateInput">Start Date</label>
-                                            <input type="date" id="startDateInput">
-                                        </div>
-                                        <div>
-                                            <label for="endDateInput">End Date</label>
-                                            <input type="date" id="endDateInput">
+                                        <div class="date-field-row">
+                                            <div>
+                                                <label for="startDateInput">Start Date</label>
+                                                <input type="date" id="startDateInput">
+                                            </div>
+                                            <div>
+                                                <label for="endDateInput">End Date</label>
+                                                <input type="date" id="endDateInput">
+                                            </div>
+                                            <button type="button" id="addDateBtn" onclick="addDate()">Add Date Range</button>
                                         </div>
                                     </div>
-                                    <button type="button" id="addDateBtn" onclick="addDate()">Add Date Range</button>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="dayOfWeekSelector" class="day-of-week-container" style="display: none;">
-                            <div class="day-checkboxes">
-                                <label><input type="checkbox" name="daysOfWeek" value="Sunday"> Sunday</label>
+                        <div class="days-of-week-container">
+                            <div class="days-of-week-checkboxes">
+                                <!-- Your checkboxes here -->
                                 <label><input type="checkbox" name="daysOfWeek" value="Monday"> Monday</label>
                                 <label><input type="checkbox" name="daysOfWeek" value="Tuesday"> Tuesday</label>
                                 <label><input type="checkbox" name="daysOfWeek" value="Wednesday"> Wednesday</label>
                                 <label><input type="checkbox" name="daysOfWeek" value="Thursday"> Thursday</label>
                                 <label><input type="checkbox" name="daysOfWeek" value="Friday"> Friday</label>
                                 <label><input type="checkbox" name="daysOfWeek" value="Saturday"> Saturday</label>
+                                <label><input type="checkbox" name="daysOfWeek" value="Sunday"> Sunday</label>
                             </div>
                             <button type="button" id="addDaysBtn" onclick="addDaysOfWeek()">Add Days</button>
                         </div>
@@ -319,7 +327,7 @@
             <div class="instruction-section">
                 <h3>Step 3: Create Events</h3>
                 <p>Use the <strong>Create Event</strong> tab to set up your gathering. Choose from:</p>
-                <ul>
+                <ul></ul>
                     <li><strong>Specific Date:</strong> Perfect for one-day events like dinners or meetings</li>
                     <li><strong>Date Range:</strong> Ideal for planning trips or multi-day events</li>
                     <li><strong>Day of Week:</strong> Great for recurring events like weekly game nights</li>

@@ -1286,3 +1286,41 @@ textarea {
     margin-bottom: 16px;
     font-size: 1.1em;
 }
+
+/* Date Field Row */
+.date-field-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 24px; /* Increased from 16px to 24px */
+}
+
+.date-field-row > div {
+    flex: 1;
+}
+
+.date-field-row button {
+    height: 40px;
+    white-space: nowrap;
+    margin-left: 15px; /* Added margin to the left of the button */
+}
+
+.range-inputs .date-field-row > div {
+    flex: 1;
+}
+.days-of-week-container {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Adjust the gap as needed */
+}
+
+.days-of-week-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; /* Adjust the gap between checkboxes as needed */ 
+}
+
+.days-of-week-checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Adjust the gap between checkbox and label text as needed */
+}

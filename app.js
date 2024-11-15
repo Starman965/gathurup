@@ -929,6 +929,14 @@ function switchTab(tabName) {
     if (selectedButton && selectedContent) {
         selectedButton.classList.add('active');
         selectedContent.classList.add('active');
+        
+        // Close mobile menu if window width is mobile size
+        if (window.innerWidth <= 1024) {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('active');
+            }
+        }
     }
 }
 
