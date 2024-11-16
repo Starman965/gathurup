@@ -8,69 +8,46 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const auth = getAuth(app);
 
-
+// Function to load admin data
 async function loadAdminData() {
     try {
         const usersRef = ref(database, 'users');
         const usersSnapshot = await get(usersRef);
-        const users = usersSnapshot.val() || {};
+        const usersData = usersSnapshot.val() || {};
 
-        // Calculate statistics
-        const totalUsers = Object.keys(users).length;
-        let totalEvents = 0;
-        let totalPeople = 0;
-        let activeThisWeek = 0;
-        const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-
-        const recentUsers = [];
-        
-        for (const [uid, userData] of Object.entries(users)) {
-            // Count events
-            if (userData.events) {
-                totalEvents += Object.keys(userData.events).length;
-            }
-            
-            // Count people
-            if (userData.people) {
-                totalPeople += Object.keys(userData.people).length;
-            }
-
-            // Check last activity
-            if (userData.lastActive && userData.lastActive > oneWeekAgo) {
-                activeThisWeek++;
-            }
-
-            // Collect recent user data
-            recentUsers.push({
-                name: userData.displayName || 'Anonymous',
-                email: userData.email || 'No email',
-                joined: userData.joined || 'Unknown',
-                eventCount: userData.events ? Object.keys(userData.events).length : 0
-            });
+        const totalUsers = Object.keys(usersData).length;
+        const totalUsersElement = document.getElementById('totalUsers');
+        if (totalUsersElement) {
+            totalUsersElement.textContent = totalUsers;
         }
 
-        // Update UI
-        document.getElementById('totalUsers').textContent = totalUsers;
-        document.getElementById('totalEvents').textContent = totalEvents;
-        document.getElementById('totalPeople').textContent = totalPeople;
-        document.getElementById('activeUsers').textContent = activeThisWeek;
+        let totalEvents = 0;
+        let totalPeople = 0;
 
-        // Render recent users table
-        const tbody = document.querySelector('#recentUsers tbody');
-        tbody.innerHTML = recentUsers
-            .sort((a, b) => b.joined - a.joined)
-            .slice(0, 10)
-            .map(user => `
-                <tr>
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td>${new Date(user.joined).toLocaleDateString()}</td>
-                    <td>${user.eventCount}</td>
-                </tr>
-            `).join('');
+        Object.entries(usersData).forEach(([uid, userData]) => {
+            totalEvents += Object.keys(userData.events || {}).length;
+            totalPeople += Object.keys(userData.people || {}).length;
+        });
 
+        const totalEventsElement = document.getElementById('totalEvents');
+        if (totalEventsElement) {
+            totalEventsElement.textContent = totalEvents;
+        }
+
+        const totalPeopleElement = document.getElementById('totalPeople');
+        if (totalPeopleElement) {
+            totalPeopleElement.textContent = totalPeople;
+        }
     } catch (error) {
         console.error('Error loading admin data:', error);
-        alert('Error loading admin data');
     }
 }
+
+// Initialize auth state observer
+onAuthStateChanged(auth, (user) => {
+    if (user && user.uid === 'kC82SNBlA8eeutg3JjpfPSSbjvs1') {
+        loadAdminData();
+    } else {
+        window.location.href = 'login.html';
+    }
+});
