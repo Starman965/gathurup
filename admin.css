@@ -1,0 +1,146 @@
+:root {
+    --tiffany-blue: #81D8D0;
+    --header-bg: #000000;
+    --green: #6CE6CB;
+    --red: #CB6ce6;
+    --border-color: #E5E5E5;
+    --subhead-color: #2C3E50;
+    --bg-color: #F9FAFB;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-color);
+    color: var(--subhead-color);
+    line-height: 1.6;
+}
+
+.admin-container {
+    min-height: 100vh;
+}
+
+.admin-header {
+    background: white;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.logo-container img {
+    max-width: 187.5px;
+    height: auto;
+}
+
+.admin-badge {
+    font-size: 0.875rem;
+    color: var(--tiffany-blue);
+    font-weight: 500;
+    margin-top: 0.25rem;
+}
+
+.admin-content {
+    padding: 2rem;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+}
+
+.stat-card h3 {
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+    color: var(--subhead-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--subhead-color);
+}
+
+.stat-trend {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.trend-up {
+    color: var(--green);
+}
+
+.trend-down {
+    color: var(--red);
+}
+
+.data-section {
+    margin-top: 2rem;
+}
+
+.data-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+}
+
+.data-card h3 {
+    margin: 0 0 1rem 0;
+    color: var(--subhead-color);
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    font-weight: 500;
+    color: var(--subhead-color);
+    background: var(--bg-color);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .admin-content {
+        padding: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gathurUP Admin Dashboard</title>
+    <link rel="stylesheet" href="admin.css">
+    <script type="module" src="admin.js"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <div class="logo-container">
+                <img src="gathurUP.png" alt="gatherUP Logo" />
+                <div class="admin-badge">Admin Dashboard</div>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div class="stat-value" id="totalUsers">Loading...</div>
+                    <div class="stat-trend" id="usersTrend"></div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Total Events</h3>
+                    <div class="stat-value" id="totalEvents">Loading...</div>
+                    <div class="stat-trend" id="eventsTrend"></div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Total People</h3>
+                    <div class="stat-value" id="totalPeople">Loading...</div>
+                    <div class="stat-trend" id="peopleTrend"></div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Active This Week</h3>
+                    <div class="stat-value" id="activeUsers">Loading...</div>
+                </div>
+            </div>
+
+            <div class="data-section">
+                <div class="data-card">
+                    <h3>Recent Users</h3>
+                    <div class="table-container">
+                        <table id="recentUsers">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Joined</th>
+                                    <th>Events</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
