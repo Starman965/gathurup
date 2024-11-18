@@ -699,13 +699,14 @@ function renderVotesSummary(eventData) {
         const noVotes = Object.values(participants).filter(p => p.votes[index] === 0).length;
         const isMaxVotes = yesVotes === maxYesVotes && maxYesVotes > 0;
 
-        // Determine display text based on whether it's a specific date or range
+        // Determine display text based on date type
         let displayText;
-        if (date.start === date.end) {
-            // For specific dates, just show the single date
+        if (date.type === 'dayOfWeek') {
+            // Handle day of week display separately
+            displayText = `Every: ${date.days.join(', ')}`;
+        } else if (date.start === date.end) {
             displayText = formatDateForDisplay(date.start);
         } else {
-            // For date ranges, show the range
             displayText = `${formatDateForDisplay(date.start)} to ${formatDateForDisplay(date.end)}`;
         }
 
@@ -743,11 +744,13 @@ function renderIndividualResponses(eventData) {
                     <tr>
                         <th>Name</th>
                         ${eventData.dates.map(date => {
-                            // Check if it's a specific date
-                            if (date.start === date.end) {
+                            if (date.type === 'dayOfWeek') {
+                                // Handle day of week display in header
+                                return `<th>Every: ${date.days.join(', ')}</th>`;
+                            } else if (date.start === date.end) {
                                 return `<th>${formatDateForDisplay(date.start)}</th>`;
                             } else {
-                                return `<th>${date.displayRange}</th>`;
+                                return `<th>${formatDateForDisplay(date.start)} to ${formatDateForDisplay(date.end)}</th>`;
                             }
                         }).join('')}
                     </tr>
