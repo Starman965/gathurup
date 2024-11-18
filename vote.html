@@ -63,136 +63,122 @@
         let currentVotes = [];
         let voterName = '';
 
-        function formatDateRange(dateRange) {
-            if (dateRange.type === 'dayOfWeek') {
-                return dateRange.days.join('<br>');
-            }
-            
-            const startDate = new Date(dateRange.start + 'T00:00:00');
-            const endDate = new Date(dateRange.end + 'T00:00:00');
-            
-            // Check if it's a specific date (start equals end)
-            if (dateRange.start === dateRange.end) {
-                const dayOfWeek = startDate.toLocaleDateString('en-US', {
-                    weekday: 'short',
-                    timeZone: 'UTC'
-                });
-                const date = startDate.toLocaleDateString('en-US', {
-                    month: '2-digit',
-                    day: '2-digit',
-                    year: '2-digit',
-                    timeZone: 'UTC'
-                });
-                return `${dayOfWeek}<br>${date}`;
-            }
-            
-            // If it's a date range, use the original format
-            return `${startDate.toLocaleDateString('en-US', {
-                month: '2-digit',
-                day: '2-digit',
-                year: '2-digit',
-                timeZone: 'UTC'
-            })} to ${endDate.toLocaleDateString('en-US', {
-                month: '2-digit',
-                day: '2-digit',
-                year: '2-digit',
-                timeZone: 'UTC'
-            })}`;
+       function formatDateRange(dateRange) {
+    if (dateRange.type === 'dayOfWeek') {
+        // Now just return the single day since each is its own option
+        return dateRange.days[0];
+    }
+    
+    const startDate = new Date(dateRange.start + 'T00:00:00');
+    const endDate = new Date(dateRange.end + 'T00:00:00');
+    
+    // Check if it's a specific date (start equals end)
+    if (dateRange.start === dateRange.end) {
+        const dayOfWeek = startDate.toLocaleDateString('en-US', {
+            weekday: 'short',
+            timeZone: 'UTC'
+        });
+        const date = startDate.toLocaleDateString('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            year: '2-digit',
+            timeZone: 'UTC'
+        });
+        return `${dayOfWeek}<br>${date}`;
+    }
+    
+    // If it's a date range, use the original format
+    return `${startDate.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: '2-digit',
+        timeZone: 'UTC'
+    })} to ${endDate.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: '2-digit',
+        timeZone: 'UTC'
+    })}`;
+}
+
+function renderVotingTable(event) {
+    const container = document.getElementById('votingTableContainer');
+    const table = document.createElement('table');
+    table.className = 'voting-table';
+    
+    const headerRow = document.createElement('tr');
+    headerRow.innerHTML = `<th>Name</th>`;
+
+    // Add anonymous notice if enabled
+    if (event.anonymous) {
+        const notice = document.createElement('div');
+        notice.className = 'anonymous-notice';
+        notice.textContent = 'Responses are anonymous. You can only see your own response.';
+        container.appendChild(notice);
+    }
+
+    // Create header for each date option
+    event.dates.forEach(dateRange => {
+        headerRow.innerHTML += `
+            <th>
+                <div class="date-header">
+                    ${formatDateRange(dateRange)}
+                </div>
+            </th>`;
+    });
+    
+    table.appendChild(headerRow);
+
+    // Voting row - always visible
+    const votingRow = document.createElement('tr');
+    votingRow.className = 'current-voter';
+    votingRow.innerHTML = `<td><strong>${voterName}</strong></td>`;
+    
+    // Initialize votes
+    const existingVotes = event.participants?.[voterName]?.votes;
+    currentVotes = existingVotes || new Array(event.dates.length).fill(-1);
+
+    // Create voting cells
+    currentVotes.forEach((vote, index) => {
+        let cellClass = 'vote-pending';
+        let cellContent = '?';
+
+        if (vote === 2) {
+            cellClass = 'vote-yes';
+            cellContent = '✓';
+        } else if (vote === 0) {
+            cellClass = 'vote-no';
+            cellContent = '✗';
         }
+        
+        const td = document.createElement('td');
+        td.className = cellClass;
+        td.textContent = cellContent;
+        td.dataset.index = index;
+        td.addEventListener('click', () => window.toggleVote(index));
+        votingRow.appendChild(td);
+    });
+    table.appendChild(votingRow);
 
-        function renderVotingTable(event) {
-            const container = document.getElementById('votingTableContainer');
-            const table = document.createElement('table');
-            table.className = 'voting-table';
-            
-            const headerRow = document.createElement('tr');
-            headerRow.innerHTML = `<th>Name</th>`;
-
-            // Add anonymous notice if enabled
-            if (event.anonymous) {
-                const notice = document.createElement('div');
-                notice.className = 'anonymous-notice';
-                notice.textContent = 'Responses are anonymous. You can only see your own response.';
-                container.appendChild(notice);
-            }
-
-            // Handle different date formats in header
-            if (event.type === 'dayOfWeek') {
-                // For day of week events, create a column for each day
-                event.dates[0].days.forEach(day => {
-                    headerRow.innerHTML += `
-                        <th>
-                            <div class="date-header">
-                                ${day}
-                            </div>
-                        </th>`;
+    // Other participants' rows - only if not anonymous
+    if (!event.anonymous) {
+        Object.entries(event.participants || {}).forEach(([name, data]) => {
+            if (name !== voterName) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${name}</td>`;
+                data.votes.forEach(vote => {
+                    const symbol = vote === 2 ? '✓' : vote === 0 ? '✗' : '?';
+                    const voteClass = vote === 2 ? 'vote-yes' : vote === 0 ? 'vote-no' : 'vote-pending';
+                    row.innerHTML += `<td class="${voteClass}">${symbol}</td>`;
                 });
-            } else {
-                // Original date range handling
-                event.dates.forEach(dateRange => {
-                    headerRow.innerHTML += `
-                        <th>
-                            <div class="date-header">
-                                ${formatDateRange(dateRange)}
-                            </div>
-                        </th>`;
-                });
+                table.appendChild(row);
             }
-            table.appendChild(headerRow);
+        });
+    }
 
-            // Voting row - always visible
-            const votingRow = document.createElement('tr');
-            votingRow.className = 'current-voter';
-            votingRow.innerHTML = `<td><strong>${voterName}</strong></td>`;
-            
-            // Initialize votes
-            const existingVotes = event.participants?.[voterName]?.votes;
-            const numOptions = event.type === 'dayOfWeek' ? 
-                event.dates[0].days.length : 
-                event.dates.length;
-            currentVotes = existingVotes || new Array(numOptions).fill(-1);
-
-            // Modify the voting cells creation
-            currentVotes.forEach((vote, index) => {
-                let cellClass = 'vote-pending';
-                let cellContent = '?';
-
-                if (vote === 2) {
-                    cellClass = 'vote-yes';
-                    cellContent = '✓';
-                } else if (vote === 0) {
-                    cellClass = 'vote-no';
-                    cellContent = '✗';
-                }
-                
-                const td = document.createElement('td');
-                td.className = cellClass;
-                td.textContent = cellContent;
-                td.dataset.index = index; // Add data attribute for index
-                td.addEventListener('click', () => window.toggleVote(index)); // Add direct event listener
-                votingRow.appendChild(td);
-            });
-            table.appendChild(votingRow);
-
-            // Other participants' rows - only if not anonymous
-            if (!event.anonymous) {
-                Object.entries(event.participants || {}).forEach(([name, data]) => {
-                    if (name !== voterName) {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `<td>${name}</td>`;
-                        data.votes.forEach(vote => {
-                            const symbol = vote === 2 ? '✓' : '✗';
-                            const voteClass = vote === 2 ? 'vote-yes' : 'vote-no';
-                            row.innerHTML += `<td class="${voteClass}">${symbol}</td>`;
-                        });
-                        table.appendChild(row);
-                    }
-                });
-            }
-
-            container.innerHTML = '';
-            container.appendChild(table);
-        }
+    container.innerHTML = '';
+    container.appendChild(table);
+}
 
         window.toggleVote = function(index) {
             const currentValue = currentVotes[index];
