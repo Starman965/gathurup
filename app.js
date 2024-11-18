@@ -224,29 +224,30 @@ async function createEvent(e) {
         return;
     }
 
-    const eventData = {
-        title: document.getElementById('eventTitle').value,
-        description: document.getElementById('eventDescription').value,
-        type: document.querySelector('input[name="eventType"]:checked').value,
-        anonymous: document.getElementById('anonymousResponses').checked,
-        dates: selectedDates.map(dateRange => {
-            if (dateRange.type === 'dayOfWeek') {
-                return {
-                    type: 'dayOfWeek',
-                    days: dateRange.days,
-                    displayRange: `Days: ${dateRange.days.join(', ')}`
-                };
-            }
+const eventData = {
+    title: document.getElementById('eventTitle').value,
+    description: document.getElementById('eventDescription').value?.trim() || '',
+    type: document.querySelector('input[name="eventType"]:checked').value,
+    anonymous: document.getElementById('anonymousResponses').checked,
+    dates: selectedDates.map(dateRange => {
+        if (dateRange.type === 'dayOfWeek') {
+            // Each day is already a separate entry with single-item days array
             return {
-                start: dateRange.start,
-                end: dateRange.end,
-                displayRange: `${formatDateForDisplay(dateRange.start)} to ${formatDateForDisplay(dateRange.end)}`
+                type: 'dayOfWeek',
+                days: dateRange.days,  // Will be a single-item array from addDaysOfWeek
+                displayRange: dateRange.days[0]  // Just show the single day
             };
-        }),
-        userId: currentUser.uid,
-        created: new Date().toISOString(),
-        tribeId: tribeId
-    };
+        }
+        return {
+            start: dateRange.start,
+            end: dateRange.end,
+            displayRange: `${formatDateForDisplay(dateRange.start)} to ${formatDateForDisplay(dateRange.end)}`
+        };
+    }),
+    userId: currentUser.uid,
+    created: new Date().toISOString(),
+    tribeId: tribeId
+};
 
     try {
         let eventRef;
