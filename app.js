@@ -702,8 +702,8 @@ function renderVotesSummary(eventData) {
         // Determine display text based on date type
         let displayText;
         if (date.type === 'dayOfWeek') {
-            // Handle day of week display separately
-            displayText = `Every: ${date.days.join(', ')}`;
+            // Display single day
+            displayText = date.days[0];  // Each day should be its own option
         } else if (date.start === date.end) {
             displayText = formatDateForDisplay(date.start);
         } else {
@@ -745,8 +745,8 @@ function renderIndividualResponses(eventData) {
                         <th>Name</th>
                         ${eventData.dates.map(date => {
                             if (date.type === 'dayOfWeek') {
-                                // Handle day of week display in header
-                                return `<th>Every: ${date.days.join(', ')}</th>`;
+                                // Display single day in header
+                                return `<th>${date.days[0]}</th>`;
                             } else if (date.start === date.end) {
                                 return `<th>${formatDateForDisplay(date.start)}</th>`;
                             } else {
