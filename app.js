@@ -614,8 +614,8 @@ function renderEventDetail(eventId, eventData) {
         <div class="detail-content">
             <div class="detail-section">
                 <div class="description-section">
-    <p class="description-text">${(eventData && eventData.description) ? eventData.description.trim() : 'No description provided'}</p>
-</div>
+                    <p class="description-text">${eventData.description || 'No description provided'}</p>
+                </div>
 
                 <div class="share-section">
                     <input class="event-link" type="text" readonly value="${getVoteUrl(eventId)}" data-event-id="${eventId}">
@@ -699,14 +699,13 @@ function renderVotesSummary(eventData) {
         const noVotes = Object.values(participants).filter(p => p.votes[index] === 0).length;
         const isMaxVotes = yesVotes === maxYesVotes && maxYesVotes > 0;
 
-        // Determine display text based on date type
+        // Determine display text based on whether it's a specific date or range
         let displayText;
-        if (date.type === 'dayOfWeek') {
-            // Display single day
-            displayText = date.days[0];  // Each day should be its own option
-        } else if (date.start === date.end) {
+        if (date.start === date.end) {
+            // For specific dates, just show the single date
             displayText = formatDateForDisplay(date.start);
         } else {
+            // For date ranges, show the range
             displayText = `${formatDateForDisplay(date.start)} to ${formatDateForDisplay(date.end)}`;
         }
 
@@ -744,13 +743,11 @@ function renderIndividualResponses(eventData) {
                     <tr>
                         <th>Name</th>
                         ${eventData.dates.map(date => {
-                            if (date.type === 'dayOfWeek') {
-                                // Display single day in header
-                                return `<th>${date.days[0]}</th>`;
-                            } else if (date.start === date.end) {
+                            // Check if it's a specific date
+                            if (date.start === date.end) {
                                 return `<th>${formatDateForDisplay(date.start)}</th>`;
                             } else {
-                                return `<th>${formatDateForDisplay(date.start)} to ${formatDateForDisplay(date.end)}</th>`;
+                                return `<th>${date.displayRange}</th>`;
                             }
                         }).join('')}
                     </tr>
