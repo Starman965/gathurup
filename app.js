@@ -614,8 +614,8 @@ function renderEventDetail(eventId, eventData) {
         <div class="detail-content">
             <div class="detail-section">
                 <div class="description-section">
-                    <p class="description-text">${eventData.description || 'No description provided'}</p>
-                </div>
+    <p class="description-text">${(eventData && eventData.description) ? eventData.description.trim() : 'No description provided'}</p>
+</div>
 
                 <div class="share-section">
                     <input class="event-link" type="text" readonly value="${getVoteUrl(eventId)}" data-event-id="${eventId}">
