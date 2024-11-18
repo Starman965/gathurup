@@ -381,15 +381,14 @@ window.addDaysOfWeek = function() {
         return;
     }
 
-    const selectedDays = Array.from(checkboxes).map(cb => cb.value);
-    const dateRange = {
-        type: 'dayOfWeek',
-        days: selectedDays
-    };
+    // Add each selected day as a separate date option
+    Array.from(checkboxes).forEach(cb => {
+        selectedDates.push({
+            type: 'dayOfWeek',
+            days: [cb.value]  // Each day is its own option
+        });
+    });
 
-    // Remove any existing day of week entries
-    selectedDates = selectedDates.filter(d => !d.type || d.type !== 'dayOfWeek');
-    selectedDates.push(dateRange);
     renderDates();
 
     // Uncheck all checkboxes
@@ -402,11 +401,12 @@ function renderDates() {
         if (dateRange.type === 'dayOfWeek') {
             return `
                 <div class="date-tag">
-                    Days of Week: ${dateRange.days.join(', ')}
-                    <button onclick="removeDate('dayOfWeek')">&times;</button>
+                    ${dateRange.days[0]}
+                    <button onclick="removeDate('dayOfWeek', '${dateRange.days[0]}')">&times;</button>
                 </div>
             `;
         }
+        
         const isSpecificDate = dateRange.start === dateRange.end;
         const displayText = isSpecificDate ? 
             formatDateForDisplay(dateRange.start) :
@@ -420,6 +420,7 @@ function renderDates() {
         `;
     }).join('');
 }
+
 // Event Listing and Detail Functions
 function loadEvents() {
     if (!currentUser) return;
@@ -686,12 +687,10 @@ function renderEventDetail(eventId, eventData) {
 
 function renderVotesSummary(eventData) {
     const participants = eventData.participants || {};
-    // Calculate yes votes for each date
     const yesVotesPerDate = eventData.dates.map((_, index) => 
         Object.values(participants).filter(p => p.votes[index] === 2).length
     );
     
-    // Find the maximum number of yes votes
     const maxYesVotes = Math.max(...yesVotesPerDate);
 
     return eventData.dates.map((date, index) => {
@@ -699,11 +698,9 @@ function renderVotesSummary(eventData) {
         const noVotes = Object.values(participants).filter(p => p.votes[index] === 0).length;
         const isMaxVotes = yesVotes === maxYesVotes && maxYesVotes > 0;
 
-        // Determine display text based on date type
         let displayText;
         if (date.type === 'dayOfWeek') {
-            // Display single day
-            displayText = date.days[0];  // Each day should be its own option
+            displayText = date.days[0];  // Display single day
         } else if (date.start === date.end) {
             displayText = formatDateForDisplay(date.start);
         } else {
@@ -733,7 +730,6 @@ function renderVotesSummary(eventData) {
         `;
     }).join('');
 }
-
 function renderIndividualResponses(eventData) {
     const participants = eventData.participants || {};
     
@@ -745,8 +741,7 @@ function renderIndividualResponses(eventData) {
                         <th>Name</th>
                         ${eventData.dates.map(date => {
                             if (date.type === 'dayOfWeek') {
-                                // Display single day in header
-                                return `<th>${date.days[0]}</th>`;
+                                return `<th>${date.days[0]}</th>`;  // Single day header
                             } else if (date.start === date.end) {
                                 return `<th>${formatDateForDisplay(date.start)}</th>`;
                             } else {
@@ -1365,14 +1360,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Attach necessary functions to window object for HTML access
 window.addDate = addDate;
-window.removeDate = function(startDate, endDate) {
-    if (startDate === 'dayOfWeek') {
-        selectedDates = selectedDates.filter(d => d.type !== 'dayOfWeek');
+window.removeDate = function(start, end) {
+    if (start === 'dayOfWeek') {
+        // Remove specific day of week
+        selectedDates = selectedDates.filter(d => 
+            !(d.type === 'dayOfWeek' && d.days[0] === end)
+        );
     } else {
-        selectedDates = selectedDates.filter(d => !(d.start === startDate && d.end === endDate));
+        // Remove regular date range
+        selectedDates = selectedDates.filter(d => 
+            !(d.start === start && d.end === end)
+        );
     }
     renderDates();
 };
+
 window.showEventsList = showEventsList;
 window.showEventDetail = showEventDetail;
 // Make switchTab available globally
