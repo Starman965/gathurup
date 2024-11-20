@@ -30,7 +30,7 @@
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="eventType" value="extended" checked>
-                        Extended Planning (Location, Dates, Activities)
+                        Extended Planning (Location, Budget, Dates, Activities)
                     </label>
                 </div>
             </div>
@@ -63,6 +63,47 @@
                     <p>Upload a banner image for your event page (1200 x 300 pixels recommended)</p>
                     <div class="form-group">
                         <input type="text" placeholder="Image URL">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card mt-24">
+            <div class="section-container">
+                <h2 class="section-title">Budget Ranges</h2>
+                <div class="description-section">
+                    <p>Add budget range options for your group to choose from</p>
+                </div>
+                <div class="form-group">
+                    <div class="date-field-row">
+                        <div>
+                            <input type="number" placeholder="Min Amount" class="name-select">
+                        </div>
+                        <div>
+                            <input type="number" placeholder="Max Amount" class="name-select">
+                        </div>
+                        <div>
+                            <input type="text" placeholder="Description (e.g., 'Basic Package')" class="name-select">
+                        </div>
+                        <button class="submit-btn">Add Range</button>
+                    </div>
+                </div>
+                <div class="dates-list">
+                    <div class="date-tag">
+                        $500-750 (Basic Package)
+                        <button>&times;</button>
+                    </div>
+                    <div class="date-tag">
+                        $750-1000 (Standard Package)
+                        <button>&times;</button>
+                    </div>
+                    <div class="date-tag">
+                        $1000-1500 (Premium Package)
+                        <button>&times;</button>
+                    </div>
+                    <div class="date-tag">
+                        $1500+ (Luxury Package)
+                        <button>&times;</button>
                     </div>
                 </div>
             </div>
@@ -134,6 +175,35 @@
 
         <div class="content-card mt-24">
             <div class="section-container">
+                <h2 class="section-title">Activity Suggestions</h2>
+                <div class="form-group">
+                    <input type="text" placeholder="Activity Name" class="name-select">
+                    <textarea placeholder="Activity Description" rows="2" class="mt-24"></textarea>
+                    <div class="date-field-row mt-24">
+                        <div>
+                            <input type="text" placeholder="Duration (e.g., '3 hours')" class="name-select">
+                        </div>
+                        <div>
+                            <input type="text" placeholder="Prerequisites (if any)" class="name-select">
+                        </div>
+                    </div>
+                </div>
+                <div class="dates-list">
+                    <div class="date-tag">
+                        Spa Day & Champagne Brunch
+                        <button>&times;</button>
+                    </div>
+                    <div class="date-tag">
+                        Private Yacht Party
+                        <button>&times;</button>
+                    </div>
+                </div>
+                <button class="submit-btn">Add Activity</button>
+            </div>
+        </div>
+
+        <div class="content-card mt-24">
+            <div class="section-container">
                 <h2 class="section-title">Settings</h2>
                 <div class="checkbox-container">
                     <label class="checkbox-label">
@@ -141,6 +211,9 @@
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" checked> Allow activity suggestions
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" checked> Allow budget preferences
                     </label>
                 </div>
             </div>
