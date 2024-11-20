@@ -1,0 +1,191 @@
+import { useState } from 'react';
+import { ChevronDown, ChevronRight, Plus, X } from 'lucide-react';
+
+export default function EventAdmin() {
+  const [eventType, setEventType] = useState('simple');
+  const [enabledPhases, setEnabledPhases] = useState({
+    budget: false,
+    location: false,
+    dates: true,
+    activities: false
+  });
+  
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-4">Create New Event</h1>
+        
+        {/* Basic Info Section */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 className="text-lg font-medium mb-4">Event Details</h2>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Event Title</label>
+              <input 
+                type="text"
+                className="w-full p-2 border rounded-md"
+                placeholder="Enter event title"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <textarea 
+                className="w-full p-2 border rounded-md"
+                rows={3}
+                placeholder="Describe your event"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Group</label>
+              <select className="w-full p-2 border rounded-md">
+                <option>Choose a group...</option>
+                <option>Bride Squad</option>
+                <option>Book Club</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Event Type</label>
+              <div className="flex gap-4">
+                <label className="flex items-center">
+                  <input 
+                    type="radio"
+                    name="eventType"
+                    value="simple"
+                    checked={eventType === 'simple'}
+                    onChange={(e) => setEventType(e.target.value)}
+                    className="mr-2"
+                  />
+                  Simple (Dates Only)
+                </label>
+                <label className="flex items-center">
+                  <input 
+                    type="radio"
+                    name="eventType"
+                    value="extended"
+                    checked={eventType === 'extended'}
+                    onChange={(e) => setEventType(e.target.value)}
+                    className="mr-2"
+                  />
+                  Extended Planning
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Planning Phases Section */}
+        {eventType === 'extended' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-medium mb-4">Planning Phases</h2>
+            
+            {/* Budget Phase */}
+            <div className="border-b pb-4 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox"
+                    checked={enabledPhases.budget}
+                    onChange={(e) => setEnabledPhases({...enabledPhases, budget: e.target.checked})}
+                  />
+                  <h3 className="font-medium">Budget Range Poll</h3>
+                </div>
+                <ChevronDown className="w-5 h-5 text-gray-500" />
+              </div>
+              {enabledPhases.budget && (
+                <div className="pl-6">
+                  <button className="flex items-center gap-2 text-sm text-teal-600 hover:text-teal-700">
+                    <Plus className="w-4 h-4" />
+                    Add Budget Range
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            {/* Location Phase */}
+            <div className="border-b pb-4 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox"
+                    checked={enabledPhases.location}
+                    onChange={(e) => setEnabledPhases({...enabledPhases, location: e.target.checked})}
+                  />
+                  <h3 className="font-medium">Location Options</h3>
+                </div>
+                <ChevronDown className="w-5 h-5 text-gray-500" />
+              </div>
+              {enabledPhases.location && (
+                <div className="pl-6">
+                  <button className="flex items-center gap-2 text-sm text-teal-600 hover:text-teal-700">
+                    <Plus className="w-4 h-4" />
+                    Add Location
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            {/* Dates Phase */}
+            <div className="border-b pb-4 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox"
+                    checked={enabledPhases.dates}
+                    onChange={(e) => setEnabledPhases({...enabledPhases, dates: e.target.checked})}
+                  />
+                  <h3 className="font-medium">Date Options</h3>
+                </div>
+                <ChevronDown className="w-5 h-5 text-gray-500" />
+              </div>
+              {enabledPhases.dates && (
+                <div className="pl-6">
+                  <button className="flex items-center gap-2 text-sm text-teal-600 hover:text-teal-700">
+                    <Plus className="w-4 h-4" />
+                    Add Date Option
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            {/* Activities Phase */}
+            <div className="border-b pb-4 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox"
+                    checked={enabledPhases.activities}
+                    onChange={(e) => setEnabledPhases({...enabledPhases, activities: e.target.checked})}
+                  />
+                  <h3 className="font-medium">Activities Poll</h3>
+                </div>
+                <ChevronDown className="w-5 h-5 text-gray-500" />
+              </div>
+              {enabledPhases.activities && (
+                <div className="pl-6">
+                  <button className="flex items-center gap-2 text-sm text-teal-600 hover:text-teal-700">
+                    <Plus className="w-4 h-4" />
+                    Add Activity
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {/* Action Buttons */}
+        <div className="mt-6 flex gap-4">
+          <button className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600">
+            Create Event
+          </button>
+          <button className="px-4 py-2 border rounded-md hover:bg-gray-50">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
