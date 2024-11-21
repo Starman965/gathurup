@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guys Western Adventure | gathurUP</title>
+    <link rel="stylesheet" href="styles_vote.css">
+    <style>
+        .event-header {
+            position: relative;
+            width: 100%;
+            background: #2F3E46;  /* Deep earth tone */
+            border-radius: 12px;
+            padding: 40px 30px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .travel-note {
+            background: rgba(47, 62, 70, 0.1);
+            border-left: 4px solid #2F3E46;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .destination-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .destination-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .destination-details {
+            padding: 20px;
+        }
+
+        .destination-highlights {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .highlight-tag {
+            background: rgba(47, 62, 70, 0.1);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.9em;
+            color: #2F3E46;
+        }
+
+        .activity-level {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .level-moderate {
+            background: #CAD2C5;
+            color: #2F3E46;
+        }
+
+        .level-challenging {
+            background: #84A98C;
+            color: white;
+        }
+
+        .weather-note {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .destination-highlights {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <div class="logo-container">
+            <a href="https://gathurup.com/app.html">
+                <img src="gathurUP.png" alt="gathurUP Logo">
+            </a>
+        </div>
+    </div>
+
+    <div class="event-header">
+        <h1>The Great Western Adventure 🏜️</h1>
+        <p>Epic landscapes. Outdoor adventures. Good times with the guys.</p>
+    </div>
+
+    <div class="event-details">
+        <div class="description-section">
+            <p>Time for our annual guys trip! We're looking at three incredible Western destinations, each offering unique adventures from hiking and golf to off-road exploring and more. Let's nail down the details and make this happen.</p>
+        </div>
+
+        <div class="travel-note">
+            <strong>Trip Duration:</strong> 4-5 days
+            <div class="deadline-badge">Need to lock in plans by July 15th for best rates</div>
+        </div>
+
+        <!-- 1. Date Selection -->
+        <div class="section-header">
+            <h2 class="section-title">1. Date Preference</h2>
+            <p>Looking at September/October for ideal weather conditions</p>
+        </div>
+        <div class="voting-table">
+            <table class="voting-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>
+                            <div class="date-header">
+                                Sep<br>14-18
+                            </div>
+                        </th>
+                        <th>
+                            <div class="date-header">
+                                Sep<br>21-25
+                            </div>
+                        </th>
+                        <th>
+                            <div class="date-header">
+                                Oct<br>5-9
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="current-voter">
+                        <td><strong>You</strong></td>
+                        <td class="vote-pending">?</td>
+                        <td class="vote-pending">?</td>
+                        <td class="vote-pending">?</td>
+                    </tr>
+                    <tr>
+                        <td>Mike</td>
+                        <td class="vote-yes">✓</td>
+                        <td class="vote-no">✗</td>
+                        <td class="vote-yes">✓</td>
+                    </tr>
+                    <tr>
+                        <td>James</td>
+                        <td class="vote-no">✗</td>
+                        <td class="vote-yes">✓</td>
+                        <td class="vote-yes">✓</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- 2. Budget Section -->
+        <div class="section-header">
+            <h2 class="section-title">2. Budget Target</h2>
+            <p>Per person, including accommodation, main activities, and group transportation</p>
+        </div>
+        <div class="budget-options">
+            <div class="budget-card">
+                <div class="budget-amount">$1,200-1,500</div>
+                <div class="budget-description">Basic package: Standard lodging, core activities</div>
+            </div>
+            <div class="budget-card selected">
+                <div class="budget-amount">$1,500-2,000</div>
+                <div class="budget-description">Adventure package: Better lodging, more activities</div>
+            </div>
+            <div class="budget-card">
+                <div class="budget-amount">$2,000-2,500</div>
+                <div class="budget-description">Premium package: Luxury lodging, all activities</div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- 3. Destination Options -->
+        <div class="section-header">
+            <h2 class="section-title">3. Location Preference</h2>
+        </div>
+        
+        <div class="destination-card">
+            <img src="sedona.jpg" alt="Sedona Red Rocks" class="destination-image">
+            <div class="destination-details">
+                <h3>Sedona, Arizona</h3>
+                <div class="destination-highlights">
+                    <span class="highlight-tag">🏃‍♂️ World-class Hiking</span>
+                    <span class="highlight-tag">🚙 Off-road Adventures</span>
+                    <span class="highlight-tag">⛳ Championship Golf</span>
+                    <span class="highlight-tag">🍺 Craft Breweries</span>
+                </div>
+                <p>Red rock landscapes, epic outdoor adventures, and great nightlife. Base for Grand Canyon day trip.</p>
+                <div class="activity-level level-moderate">Moderate Activity Level</div>
+                <div class="weather-note">Sept/Oct: Highs 75-85°F, perfect hiking weather</div>
+                <div class="vote-buttons">
+                    <button class="vote-button">👍 Yes!</button>
+                    <button class="vote-button">👎 No</button>
+                    <button class="vote-button">❓ Maybe</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="destination-card">
+            <img src="montana.jpg" alt="Montana Wilderness" class="destination-image">
+            <div class="destination-details">
+                <h3>Big Sky, Montana</h3>
+                <div class="destination-highlights">
+                    <span class="highlight-tag">🎣 World-class Fishing</span>
+                    <span class="highlight-tag">🏃‍♂️ Hiking Trails</span>
+                    <span class="highlight-tag">🐎 Horseback Riding</span>
+                    <span class="highlight-tag">🍖 Ranch Experiences</span>
+                </div>
+                <p>Mountain adventure basecamp. Close to Yellowstone. Authentic Western experience.</p>
+                <div class="activity-level level-challenging">More Active/Adventurous</div>
+                <div class="weather-note">Sept/Oct: Highs 60-70°F, cool evenings</div>
+                <div class="vote-buttons">
+                    <button class="vote-button">👍 Yes!</button>
+                    <button class="vote-button">👎 No</button>
+                    <button class="vote-button">❓ Maybe</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="destination-card">
+            <img src="moab.jpg" alt="Moab Utah" class="destination-image">
+            <div class="destination-details">
+                <h3>Moab, Utah</h3>
+                <div class="destination-highlights">
+                    <span class="highlight-tag">🚴‍♂️ Mountain Biking</span>
+                    <span class="highlight-tag">🚙 4x4 Adventures</span>
+                    <span class="highlight-tag">🏃‍♂️ Hiking</span>
+                    <span class="highlight-tag">🌅 National Parks</span>
+                </div>
+                <p>Adventure sports capital. Access to Arches and Canyonlands National Parks.</p>
+                <div class="activity-level level-challenging">More Active/Adventurous</div>
+                <div class="weather-note">Sept/Oct: Highs 70-85°F, perfect desert conditions</div>
+                <div class="vote-buttons">
+                    <button class="vote-button">👍 Yes!</button>
+                    <button class="vote-button">👎 No</button>
+                    <button class="vote-button">❓ Maybe</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- 4. Activities Section -->
+        <div class="section-header">
+            <h2 class="section-title">4. Activity Interests</h2>
+            <p>Vote on activities you'd like included. We'll plan for 3-4 group activities.</p>
+        </div>
+
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-header">
+                    <div class="activity-title">4x4 Desert Adventure</div>
+                    <div class="activity-votes">
+                        <div class="vote-count">👍 6</div>
+                        <div class="vote-count">👎 1</div>
+                    </div>
+                </div>
+                <div class="activity-description">
+                    Full-day guided off-road expedition with professional drivers. Includes lunch and photography stops.
+                </div>
+                <div class="activity-meta">
+                    <span>Duration: 6-7 hours</span>
+                    <span>Difficulty: Moderate</span>
+                    <span>Cost: $225/person</span>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-header">
+                    <div class="activity-title">Golf Package</div>
+                    <div class="activity-votes">
+                        <div class="vote-count">👍 5</div>
+                        <div class="vote-count">👎 2</div>
+                    </div>
+                </div>
+                <div class="activity-description">
+                    Two rounds at championship courses. Club rental available. Includes cart and range balls.
+                </div>
+                <div class="activity-meta">
+                    <span>Duration: Two mornings</span>
+                    <span>Difficulty: Any skill level</span>
+                    <span>Cost: $195/person</span>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-header">
+                    <div class="activity-title">Guided Hiking + Photography</div>
+                    <div class="activity-votes">
+                        <div class="vote-count">👍 7</div>
+                        <div class="vote-count">👎 1</div>
+                    </div>
+                </div>
+                <div class="activity-description">
+                    Sunrise hike with professional photographer/guide. Learn landscape photography basics.
+                </div>
+                <div class="activity-meta">
+                    <span>Duration: 4 hours</span>
+                    <span>Difficulty: Moderate</span>
+                    <span>Cost: $145/person</span>
+                </div>
+            </div>
+
+            <div class="suggest-activity">
+                <div style="margin-bottom: 10px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </div>
+                <div>Suggest an Activity</div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- 5. Packing Section -->
+        <div class="section-header">
+            <h2 class="section-title">5. Gear & Packing List</h2>
+            <p>Essential gear and clothing for our adventure</p>
+        </div>
+
+        <div class="packing-categories">
+            <div class="packing-category">
+                <div class="category-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"/>
+                    </svg>
+                    Essential Gear
+                </div>
+                <ul class="packing-list">
+                    <li class="packing-item">
+                        <span>✓ Hiking boots/shoes (broken in)</span>
+                        <span class="item-suggested-by">Mike</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Day pack (20-30L)</span>
+                        <span class="item-suggested-by">James</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Water bottles/bladder (3L capacity)</span>
+                        <span class="item-suggested-by">Tom</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Headlamp or flashlight</span>
+                        <span class="item-suggested-by">Dave</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Multi-tool or pocket knife</span>
+                        <span class="item-suggested-by">John</span>
+                    </li>
+                </ul>
+                <div class="add-item-form">
+                    <input type="text" placeholder="Suggest essential gear...">
+                    <button class="add-item-button">Add</button>
+                </div>
+            </div>
+
+            <div class="packing-category">
+                <div class="category-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <path d="M16 10a4 4 0 0 1-8 0"/>
+                    </svg>
+                    Clothing
+                </div>
+                <ul class="packing-list">
+                    <li class="packing-item">
+                        <span>✓ Quick-dry hiking shirts/pants</span>
+                        <span class="item-suggested-by">Mike</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Light jacket/fleece for mornings</span>
+                        <span class="item-suggested-by">Bob</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Sun hat and sunglasses</span>
+                        <span class="item-suggested-by">Steve</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Sturdy hiking socks (3-4 pairs)</span>
+                        <span class="item-suggested-by">Rick</span>
+                    </li>
+                </ul>
+                <div class="add-item-form">
+                    <input type="text" placeholder="Suggest clothing items...">
+                    <button class="add-item-button">Add</button>
+                </div>
+            </div>
+
+            <div class="packing-category">
+                <div class="category-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Safety & Protection
+                </div>
+                <ul class="packing-list">
+                    <li class="packing-item">
+                        <span>✓ High SPF sunscreen</span>
+                        <span class="item-suggested-by">Tom</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ First aid kit basics</span>
+                        <span class="item-suggested-by">James</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Insect repellent</span>
+                        <span class="item-suggested-by">Dave</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Personal medications</span>
+                        <span class="item-suggested-by">John</span>
+                    </li>
+                </ul>
+                <div class="add-item-form">
+                    <input type="text" placeholder="Suggest safety items...">
+                    <button class="add-item-button">Add</button>
+                </div>
+            </div>
+
+            <div class="packing-category">
+                <div class="category-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                    </svg>
+                    Electronics & Extras
+                </div>
+                <ul class="packing-list">
+                    <li class="packing-item">
+                        <span>✓ Phone & portable charger</span>
+                        <span class="item-suggested-by">Rick</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Camera (optional)</span>
+                        <span class="item-suggested-by">Mike</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Portable bluetooth speaker</span>
+                        <span class="item-suggested-by">Steve</span>
+                    </li>
+                    <li class="packing-item">
+                        <span>✓ Sunglasses (polarized recommended)</span>
+                        <span class="item-suggested-by">Bob</span>
+                    </li>
+                </ul>
+                <div class="add-item-form">
+                    <input type="text" placeholder="Suggest additional items...">
+                    <button class="add-item-button">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Notes Section -->
+        <div class="travel-note" style="margin-top: 30px;">
+            <strong>Important Reminders:</strong>
+            <ul style="margin-top: 10px; margin-bottom: 0;">
+                <li>Most activities require advance booking</li>
+                <li>Consider travel insurance for adventure activities</li>
+                <li>Bring cash for tips and small purchases</li>
+                <li>Download offline maps before the trip</li>
+            </ul>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <button class="submit-btn">Lock In My Preferences</button>
+    </div>
+
+    <div style="text-align: center; margin: 20px 0; color: #666;">
+        <p>&copy; 2024 Created by Tiffanie and David Lewis</p>
+    </div>
+
+    <script>
+        // Handle budget card selection
+        document.querySelectorAll('.budget-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.budget-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+            });
+        });
+
+        // Handle packing suggestions
+        document.querySelectorAll('.add-item-form').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = form.querySelector('input');
+                const list = form.parentElement.querySelector('.packing-list');
+                if (input.value.trim()) {
+                    const li = document.createElement('li');
+                    li.className = 'packing-item';
+                    li.innerHTML = `
+                        <span>✓ ${input.value}</span>
+                        <span class="item-suggested-by">You</span>
+                    `;
+                    list.appendChild(li);
+                    input.value = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
