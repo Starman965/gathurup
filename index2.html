@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gathurUP - For Getting Friends Together Easily</title>
+    <link rel="icon" href="gathurup.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles_enhanced.css">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="gathurUP helps you get friends together easily by finding the best dates for everyone.">
+    <meta name="keywords" content="gathurUP, event planning, group scheduling, find dates, get together">
+    <meta name="author" content="Tiffanie and David Lewis">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="gathurUP - For Getting Friends Together Easily" />
+    <meta property="og:description" content="gathurUP helps you get friends together easily by finding the best dates for everyone." />
+    <meta property="og:url" content="https://www.gathurup.com" />
+    <meta property="og:image" content="https://www.gathurup.com/gathurUP_teal_1200.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="1200" />
+    <meta property="og:type" content="website" />
+</head>
+<body>
+    <div id="mainContainer">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="gathurUP.png" alt="gathurUP Logo">
+                    <span class="logo-tagline">Getting Friends Together Easily™</span>
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-profile-header">
+                    <div class="user-name-container">
+                        <span class="user-greeting">Welcome back,</span>
+                        <span id="userName"></span>
+                    </div>
+                    <button class="settings-button" data-tab="profile">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="premium-badge" id="premiumBadge">Beta Member</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="tab-button active" data-tab="events">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Events
+                </button>
+                
+                <button class="tab-button" data-tab="createEvent">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="16"/>
+                        <line x1="8" y1="12" x2="16" y2="12"/>
+                    </svg>
+                    Create Event
+                </button>
+
+                <button class="tab-button" data-tab="tribes">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    Groups
+                </button>
+
+                <button class="tab-button" data-tab="welcome">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    Help
+                </button>
+            </nav>
+
+            <div class="quote-container">
+                <blockquote>"Life is not measured by the number of breaths we take, but by the moments that take our breath away."</blockquote>
+                <footer>- Maya Angelou</footer>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Events View -->
+            <div id="eventsView" class="tab-content active">
+                <div class="content-header">
+                    <h1>My Events</h1>
+                </div>
+                <div id="eventsList"></div>
+                <div id="eventDetailView" style="display: none;"></div>
+            </div>
+
+            <!-- Create Event View -->
+            <div id="createEventView" class="tab-content">
+                <div class="content-header">
+                    <h1>Create New Event</h1>
+                </div>
+                <div class="content-card">
+                    <!-- Event Type Selection -->
+                    <div class="event-type-selector">
+                        <h3>Event Type</h3>
+                        <div class="event-type-options">
+                            <button class="event-type-btn active" data-type="standard">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Standard Event
+                            </button>
+                            <button class="event-type-btn" data-type="special">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                    <path d="M2 17l10 5 10-5"/>
+                                    <path d="M2 12l10 5 10-5"/>
+                                </svg>
+                                Special Event
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Standard Event Form -->
+                    <form id="eventForm" class="event-form">
+                        <!-- Your existing event form content -->
+                    </form>
+
+                    <!-- Special Event Form -->
+                    <form id="specialEventForm" class="event-form" style="display: none;">
+                        <!-- Enhanced event form content -->
+                    </form>
+                </div>
+            </div>
+
+            <!-- Other views remain the same -->
+        </div>
+    </div>
+
+    <!-- Mobile menu toggle -->
+    <button id="mobileMenuToggle" class="mobile-menu-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+    </button>
+
+    <!-- Firebase Scripts -->
+    <script type="module" src="app_enhanced.js"></script>
+</body>
+</html>
