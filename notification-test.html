@@ -6,6 +6,11 @@
     <title>gathurUP Notification Test</title>
     <link rel="icon" href="gathurup.ico" type="image/x-icon">
     <link rel="stylesheet" href="styles_vote.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="gathurUP">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <style>
         .notification-container {
             max-width: 600px;
@@ -58,181 +63,152 @@
             transition: all 0.2s ease;
         }
 
-        .test-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .test-button:hover:not(:disabled) {
-            background: var(--header-bg);
-            transform: translateY(-1px);
-        }
-
-        .log-container {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
+        #permissionStatus {
             margin-top: 20px;
-            font-family: monospace;
-            max-height: 200px;
-            overflow-y: auto;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
         }
 
-        .log-entry {
-            margin: 5px 0;
-            padding: 5px;
-            border-bottom: 1px solid var(--border-color);
+        .granted {
+            background-color: var(--green);
+            color: white;
         }
 
-        .error-log {
-            color: var(--red);
+        .denied {
+            background-color: var(--red);
+            color: white;
         }
 
-        .success-log {
-            color: var(--green);
+        .platform-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="header-container">
-        <div class="logo-container">
-            <a href="https://gathurup.com/app.html">
-                <img src="gathurUP.png" alt="gathurUP Logo">
-            </a>
-        </div>
-        <div class="header-text">
-            <h1>Notification Test Page</h1>
-            <p>Test push notifications for gathurUP</p>
-        </div>
-    </div>
-
     <div class="notification-container">
+        <div class="platform-info" id="platformInfo"></div>
         <div class="status-card">
-            <h2>Notification Status</h2>
-            <div id="statusContainer">
-                <div class="status-item">
-                    <div id="firebaseStatus" class="status-indicator status-pending"></div>
-                    <span>Firebase Initialization</span>
-                </div>
-                <div class="status-item">
-                    <div id="swStatus" class="status-indicator status-pending"></div>
-                    <span>Service Worker Registration</span>
-                </div>
-                <div class="status-item">
-                    <div id="permissionStatus" class="status-indicator status-pending"></div>
-                    <span>Notification Permission</span>
-                </div>
-                <div class="status-item">
-                    <div id="tokenStatus" class="status-indicator status-pending"></div>
-                    <span>FCM Token</span>
-                </div>
+            <div class="status-item">
+                <div class="status-indicator status-success"></div>
+                <span>Notification 1</span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator status-pending"></div>
+                <span>Notification 2</span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator status-error"></div>
+                <span>Notification 3</span>
             </div>
         </div>
-
-        <button id="testButton" class="test-button" disabled>
-            Send Test Notification
-        </button>
-
-        <div id="logContainer" class="log-container"></div>
+        <button class="test-button" onclick="requestAndShowNotification()">Test Notification</button>
+        <div id="permissionStatus"></div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-messaging.js";
-        import { firebaseConfig } from './firebase-config.js';
-
-        // Logging function
-        function log(message, type = 'info') {
-            const logContainer = document.getElementById('logContainer');
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${type}-log`;
-            entry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
-            logContainer.appendChild(entry);
-            logContainer.scrollTop = logContainer.scrollHeight;
-        }
-
-        // Update status indicator
-        function updateStatus(id, status) {
-            const indicator = document.getElementById(id);
-            indicator.className = `status-indicator status-${status}`;
-        }
-
-        // Initialize Firebase
-        try {
-            const app = initializeApp(firebaseConfig);
-            updateStatus('firebaseStatus', 'success');
-            log('Firebase initialized successfully', 'success');
-        } catch (error) {
-            updateStatus('firebaseStatus', 'error');
-            log('Firebase initialization failed: ' + error.message, 'error');
-            return;
-        }
-
-        // Register Service Worker
+    <script>
+        // Add this at the start of your script section
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('firebase-messaging-sw.js')
-                .then((registration) => {
-                    updateStatus('swStatus', 'success');
-                    log('Service Worker registered', 'success');
-                    initializeMessaging();
-                })
-                .catch((error) => {
-                    updateStatus('swStatus', 'error');
-                    log('Service Worker registration failed: ' + error.message, 'error');
-                });
-        } else {
-            updateStatus('swStatus', 'error');
-            log('Service Workers not supported', 'error');
-        }
-
-        // Initialize messaging
-        function initializeMessaging() {
-            const messaging = getMessaging();
-            
-            // Request permission and get token
-            Notification.requestPermission()
-                .then((permission) => {
-                    if (permission === 'granted') {
-                        updateStatus('permissionStatus', 'success');
-                        log('Notification permission granted', 'success');
-                        
-                        // Get FCM token
-                        getToken(messaging, { 
-                            vapidKey: 'RJ1LxE1kQOHwsKIw91wz5RY_lg1GgbpcOAFlMTlcuqY'
-                        })
-                            .then((token) => {
-                                updateStatus('tokenStatus', 'success');
-                                log('FCM Token received', 'success');
-                                document.getElementById('testButton').disabled = false;
-                            })
-                            .catch((error) => {
-                                updateStatus('tokenStatus', 'error');
-                                log('FCM Token failed: ' + error.message, 'error');
-                            });
-                    } else {
-                        updateStatus('permissionStatus', 'error');
-                        log('Notification permission denied', 'error');
-                    }
-                });
-
-            // Handle incoming messages
-            onMessage(messaging, (payload) => {
-                log('Message received: ' + JSON.stringify(payload), 'success');
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
             });
         }
 
-        // Test button handler
-        document.getElementById('testButton').addEventListener('click', () => {
-            log('Sending test notification...');
-            // You would typically trigger a cloud function here
-            // For testing, we'll just show a native notification
-            if ('Notification' in window) {
-                new Notification('Test Notification', {
-                    body: 'This is a test notification from gathurUP',
-                    icon: 'gathurUP.png'
-                });
+        function detectPlatform() {
+            const platformInfo = document.getElementById('platformInfo');
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+            
+            if (isIOS) {
+                platformInfo.innerHTML = `
+                    ℹ��� iOS Detected: To enable notifications:
+                    <br>1. Tap Share button in Safari
+                    <br>2. Select "Add to Home Screen"
+                    <br>3. Open gathurUP from home screen
+                    <br>
+                    <br>Note: iOS notifications are limited even in PWA mode
+                `;
+            } else if (isMobile && !isPWA) {
+                platformInfo.innerHTML = `
+                    ⚠️ Mobile browser detected. For notifications:
+                    <br>1. Install as PWA (Add to Home Screen)
+                    <br>2. Reopen from home screen
+                `;
+            } else {
+                platformInfo.innerHTML = `
+                    ✅ You're on ${isPWA ? 'PWA' : 'desktop'}. Notifications should work after permission.
+                `;
             }
+        }
+
+        // Check platform and notification permission on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            detectPlatform();
+            checkNotificationPermission();
         });
+
+        function checkNotificationPermission() {
+            const status = document.getElementById('permissionStatus');
+            if (!("Notification" in window)) {
+                status.textContent = "This browser does not support notifications";
+                status.className = "denied";
+                return;
+            }
+
+            status.textContent = `Notification permission: ${Notification.permission}`;
+            status.className = Notification.permission === 'granted' ? 'granted' : 'denied';
+        }
+
+        async function requestAndShowNotification() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            
+            if (isIOS && !window.matchMedia('(display-mode: standalone)').matches) {
+                alert("Please install this app to your home screen first for notifications to work.");
+                return;
+            }
+            
+            if (!("Notification" in window)) {
+                alert("This browser does not support notifications");
+                return;
+            }
+
+            try {
+                let permission = Notification.permission;
+
+                if (permission === "default") {
+                    permission = await Notification.requestPermission();
+                }
+
+                if (permission === "granted") {
+                    const notification = new Notification("gathurUP Notification", {
+                        body: "This is a test notification from gathurUP!",
+                        icon: "gathurup.ico",
+                        tag: "test-notification",
+                        timestamp: Date.now()
+                    });
+
+                    notification.onclick = function() {
+                        window.focus();
+                        notification.close();
+                    };
+                }
+            } catch (error) {
+                console.error("Notification error:", error);
+                alert("Error showing notification: " + error.message);
+            }
+
+            checkNotificationPermission();
+        }
     </script>
 </body>
 </html>
