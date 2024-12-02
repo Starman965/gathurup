@@ -252,6 +252,12 @@ textarea {
     background: #6BC0B8;
 }
 
+/* Hello there
+/* Specific styles for add-date-button and add-location-button */
+.add-date-button,
+.add-location-button {
+    width: 100%; /* Ensure full width */
+}
 .secondary-button {
     height: 40px;
     padding: 8px 24px;
