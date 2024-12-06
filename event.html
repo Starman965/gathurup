@@ -523,7 +523,7 @@
                     datePreferences: votes,
                     locationPreferences: locationVotes
                 });
-                alert('Preferences submitted successfully.');
+                // alert('Preferences submitted successfully.');  commented out to prevent alert
                 // Redirect to confirmation.html with query parameters
                 window.location.href = `confirmation.html?event=${eventId}&user=${userId}&name=${name}`;
             } catch (error) {
