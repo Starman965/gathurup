@@ -162,22 +162,22 @@
         }
 
         function formatDateForDisplay(dateStr, options = {}) {
+            if (!dateStr) return '';
             const date = new Date(dateStr);
-            // Add one day to compensate for UTC conversion
-            date.setDate(date.getDate() + 1);
             return date.toLocaleDateString('en-US', {
                 timeZone: currentTimezone,
                 weekday: options.weekday || 'long',
                 month: options.month || 'long',
                 day: 'numeric',
+                year: 'numeric',
                 ...options
             });
         }
 
         function formatTimeForDisplay(timeStr, dateStr) {
+            if (!timeStr || !dateStr) return '';
             const [hours, minutes] = timeStr.split(':');
             const date = new Date(dateStr);
-            date.setDate(date.getDate() + 1); // Add one day to compensate for UTC conversion
             date.setHours(parseInt(hours), parseInt(minutes));
             
             return date.toLocaleTimeString('en-US', {
@@ -294,12 +294,22 @@
         }
 
         function consolidateAndSortDates(dates) {
+            // Handle case when dates is undefined or empty
+            if (!dates || dates.length === 0) {
+                return [];
+            }
+
+            // Group dates by start date
             const datesMap = dates.reduce((acc, dateObj) => {
+                if (!dateObj || !dateObj.start) return acc;
+                
                 const dateKey = dateObj.start;
                 if (!acc[dateKey]) {
                     acc[dateKey] = {
                         date: dateObj.start,
-                        times: []
+                        end: dateObj.end || dateObj.start,
+                        times: [],
+                        displayRange: dateObj.displayRange
                     };
                 }
                 if (dateObj.time) {
@@ -552,7 +562,7 @@
                     indicator.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12" y2="17"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
                     </svg>`;
             }
         }
@@ -563,195 +573,34 @@
             const eventSnap = await get(eventRef);
             const event = eventSnap.val();
 
-            // Load existing votes for current user
-            const userVotesRef = ref(database, `users/${userId}/events/${eventId}/votes/${selectedFullName}/datePreferences`);
-            const userVotesSnap = await get(userVotesRef);
-            const userVotes = userVotesSnap.val() || {};
-
-                       const getVoteIndicator = (dateId) => {
-                const vote = userVotes[dateId];
-                let icon, bgColor = '#FEF3C7', textColor = '#D97706';
-                
-                if (vote === 'yes') {
-                    bgColor = '#81D8D0';
-                    textColor = '#ffffff';
-                    icon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
-                    </svg>`;
-                } else if (vote === 'no') {
-                    bgColor = '#FEE2E2';
-                    textColor = '#DC2626';
-                    icon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
-                    </svg>`;
-                } else {
-                    icon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12" y2="17"/>
-                    </svg>`;
-                }
-                
-                return `<div class="vote-indicator" style="background-color: ${bgColor}; color: ${textColor};">${icon}</div>`;
-            };
+            if (!event || !event.dates || event.dates.length === 0) {
+                container.innerHTML = '<p class="no-dates">No valid dates found</p>';
+                return;
+            }
 
             let html = '';
-
-            if (event.type === 'range') {
-                // Group dates by month/year for range events
-                const monthGroups = {};
-                event.dates.forEach(dateObj => {
-                    const date = new Date(dateObj.start);
-                    const monthKey = date.toLocaleDateString('en-US', { 
-                        month: 'long', 
-                        year: 'numeric',
-                        timeZone: currentTimezone 
-                    });
-                    
-                    if (!monthGroups[monthKey]) {
-                        monthGroups[monthKey] = [];
-                    }
-                    monthGroups[monthKey].push(dateObj);
-                });
-
-                html = Object.entries(monthGroups).map(([month, ranges]) => `
-                    <div class="month-group">
-                        <div class="month-header" onclick="toggleMonth('${month}')">
-                            <div class="month-header-content">
-                                <h3>${month}</h3>
-                                <span class="expand-hint">Expand to select your preference for the ${ranges.length} date range${ranges.length > 1 ? 's' : ''} provided</span>
-                            </div>
-                            <svg class="expand-icon" viewBox="0 0 24 24">
-                                <path d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                        <div class="date-ranges" id="month-${month.replace(/\s+/g, '-')}" style="display: none;">
-                            ${ranges.map(dateObj => `
-                                <div class="range-card" data-date="${dateObj.start}">
-                                    <div class="time-slot-content">
-                                        <button class="date-vote-button" onclick="toggleSingleDateVote('${dateObj.start}')">
-                                            ${getVoteIndicator(dateObj.start)}
-                                        </button>
-                                        <div class="time-info">
-                                            <p class="time">${formatDateForDisplay(dateObj.start)} - ${formatDateForDisplay(dateObj.end)}</p>
-                                            <p class="votes">Click the icon to set your preference</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                // Single dates (with or without time slots)
-                html = event.dates.map(dateObj => {
-                    const date = new Date(dateObj.start);
-                    date.setDate(date.getDate() + 1); // Adjust for timezone
-                    const month = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-                    const day = date.getDate();
-
-                    if (dateObj.time) {
-                        return `
-                            <div class="date-card" data-date="${dateObj.start}">
-                                <div class="month-header" onclick="toggleDate('${dateObj.start}')">
-                                    <div class="month-header-content">
-                                        <div class="date-info">
-                                            <div class="date-badge">
-                                                <span class="month">${month}</span>
-                                                <span class="day">${day}</span>
-                                            </div>
-                                            <div class="date-details">
-                                                <h3>Expand to select your preference for the slot(s) provided</h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <svg class="expand-icon" viewBox="0 0 24 24">
-                                        <path d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                                <div class="date-ranges" style="display: none;">
-                                    <div class="time-slot" data-time-id="${dateObj.start}T${dateObj.time}">
-                                        <div class="time-slot-content">
-                                            <button class="date-vote-button" onclick="toggleVote('${dateObj.start}', '${dateObj.time}')">
-                                                ${getVoteIndicator(`${dateObj.start}T${dateObj.time}`)}
-                                            </button>
-                                            <div class="time-info">
-                                                <p class="time">${formatTimeForDisplay(dateObj.time, dateObj.start)}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
             
-                    } else {
-                        return `
-                            <div class="date-card single-date" data-date="${dateObj.start}">
-                                <div class="content-wrapper">
-                                    <div class="date-info">
-                                        <div class="date-badge">
-                                            <span class="month">${month}</span>
-                                            <span class="day">${day}</span>
-                                        </div>
-                                        <div class="date-details">
-                                            <h3>${formatDateForDisplay(dateObj.start, { 
-                                                weekday: 'long',
-                                                month: 'long',
-                                                day: 'numeric',
-                                                year: 'numeric'
-                                            })}</h3>
-                                        </div>
-                                    </div>
-                                    <button class="date-vote-button" onclick="toggleVote('${dateObj.start}')">
-                                        ${getVoteIndicator(dateObj.start)}
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    }
-                }).join('');
+            if (event.type === 'range') {
+                html = renderRangeDates(event.dates);
+            } else {
+                const consolidatedDates = consolidateAndSortDates(event.dates);
+                console.log('Consolidated dates:', consolidatedDates); // Debug log
+                
+                if (consolidatedDates.length === 0) {
+                    html = '<p class="no-dates">No valid dates found</p>';
+                } else {
+                    html = consolidatedDates.map(dateObj => {
+                        if (dateObj.times && dateObj.times.length > 0) {
+                            return renderDateWithTimes(dateObj);
+                        } else {
+                            return renderSingleDate(dateObj);
+                        }
+                    }).join('');
+                }
             }
 
             container.innerHTML = html;
         }
-
-        // Vote Handlers
-        window.toggleSingleDateVote = function(date) {
-            // Update selector to find vote indicator in range cards
-            const indicator = document.querySelector(`.range-card[data-date="${date}"] .vote-indicator`) || 
-                             document.querySelector(`.date-card[data-date="${date}"] .vote-indicator`);
-            
-            if (!indicator) {
-                console.log('No indicator found for date:', date);
-                return;
-            }
-            
-            const currentVote = votes[date] || 'maybe';
-            let newVote;
-            
-            switch (currentVote) {
-                case 'maybe':
-                    newVote = 'yes';
-                    indicator.style.backgroundColor = '#81D8D0';
-                    indicator.style.color = '#ffffff';
-                    break;
-                case 'yes':
-                    newVote = 'no';
-                    indicator.style.backgroundColor = '#FEE2E2';
-                    indicator.style.color = '#DC2626';
-                    break;
-                default:
-                    newVote = 'maybe';
-                    indicator.style.backgroundColor = '#FEF3C7';
-                    indicator.style.color = '#D97706';
-            }
-            
-            votes[date] = newVote;
-            updateVoteIndicatorDisplay(indicator, newVote);
-            
-            // Prevent event from bubbling up
-            event.stopPropagation();
-        };
 
         async function getTotalAvailableCount(times, date, userId, eventId) {
             const votesRef = ref(database, `users/${userId}/events/${eventId}/votes`);
@@ -914,11 +763,16 @@
 
         function renderSingleDate(dateObj) {
             const date = new Date(dateObj.start);
-            date.setDate(date.getDate() + 1);
+            const formattedDate = formatDateForDisplay(dateObj.start, {
+                month: 'short',
+                day: 'numeric',
+                weekday: 'long',
+                year: 'numeric'
+            });
             const month = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
             const day = date.getDate();
 
-            if (dateObj.time) {
+            if (dateObj.times && dateObj.times.length > 0) {
                 return `
                     <div class="date-card" data-date="${dateObj.start}">
                         <div class="month-header" onclick="toggleDate('${dateObj.start}')">
@@ -929,7 +783,7 @@
                                         <span class="day">${day}</span>
                                     </div>
                                     <div class="date-details">
-                                        <h3>Click to see time slot(s)</h3>
+                                        <h3>${formattedDate}</h3>
                                     </div>
                                 </div>
                             </div>
@@ -938,16 +792,18 @@
                             </svg>
                         </div>
                         <div class="date-ranges" style="display: none;">
-                            <div class="time-slot" data-time-id="${dateObj.start}T${dateObj.time}">
-                                <div class="time-slot-content">
-                                    <button class="date-vote-button" onclick="toggleVote('${dateObj.start}', '${dateObj.time}')">
-                                        ${getVoteIndicator(`${dateObj.start}T${dateObj.time}`)}
-                                    </button>
-                                    <div class="time-info">
-                                        <p class="time">${formatTimeForDisplay(dateObj.time, dateObj.start)}</p>
+                            ${dateObj.times.map(time => `
+                                <div class="time-slot" data-time-id="${dateObj.start}T${time}">
+                                    <div class="time-slot-content">
+                                        <button class="date-vote-button" onclick="toggleVote('${dateObj.start}', '${time}')">
+                                            ${getVoteIndicator(`${dateObj.start}T${time}`)}
+                                        </button>
+                                        <div class="time-info">
+                                            <p class="time">${formatTimeForDisplay(time, dateObj.start)}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            `).join('')}
                         </div>
                     </div>
                 `;
@@ -960,6 +816,9 @@
                                     <span class="month">${month}</span>
                                     <span class="day">${day}</span>
                                 </div>
+                                <div class="date-details">
+                                    <h3>${formattedDate}</h3>
+                                </div>
                             </div>
                             <button class="date-vote-button" onclick="toggleVote('${dateObj.start}')">
                                 ${getVoteIndicator(dateObj.start)}
@@ -969,6 +828,156 @@
                 `;
             }
         }
+
+        function renderDateWithTimes(dateObj) {
+            const date = new Date(dateObj.date); // Changed from dateObj.start
+            const formattedDate = formatDateForDisplay(dateObj.date, {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            const month = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+            const day = date.getDate();
+
+            return `
+                <div class="date-card" data-date="${dateObj.date}">
+                    <div class="month-header" onclick="toggleDate('${dateObj.date}')">
+                        <div class="month-header-content">
+                            <div class="date-info">
+                                <div class="date-badge">
+                                    <span class="month">${month}</span>
+                                    <span class="day">${day}</span>
+                                </div>
+                                <div class="date-details">
+                                    <h3>${formattedDate}</h3>
+                                    <span class="expand-hint">Click to see available times</span>
+                                </div>
+                            </div>
+                        </div>
+                        <svg class="expand-icon" viewBox="0 0 24 24">
+                            <path d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="date-ranges" style="display: none;">
+                        ${dateObj.times.map(time => `
+                            <div class="time-slot" data-time-id="${dateObj.date}T${time}">
+                                <div class="time-slot-content">
+                                    <button class="date-vote-button" onclick="toggleVote('${dateObj.date}', '${time}')">
+                                        ${getVoteIndicator(`${dateObj.date}T${time}`)}
+                                    </button>
+                                    <div class="time-info">
+                                        <p class="time">${formatTimeForDisplay(time, dateObj.date)}</p>
+                                        <p class="votes">Click to set your preference</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRangeDates(dates) {
+            // Group dates by month/year
+            const monthGroups = {};
+            dates.forEach(dateObj => {
+                const date = new Date(dateObj.start);
+                const monthKey = date.toLocaleDateString('en-US', { 
+                    month: 'long', 
+                    year: 'numeric',
+                    timeZone: currentTimezone 
+                });
+                
+                if (!monthGroups[monthKey]) {
+                    monthGroups[monthKey] = [];
+                }
+                monthGroups[monthKey].push(dateObj);
+            });
+
+            return Object.entries(monthGroups).map(([month, ranges]) => `
+                <div class="month-group">
+                    <div class="month-header" onclick="toggleMonth('${month}')">
+                        <div class="month-header-content">
+                            <h3>${month}</h3>
+                            <span class="expand-hint">Expand to select your preference for the ${ranges.length} date range${ranges.length > 1 ? 's' : ''} provided</span>
+                        </div>
+                        <svg class="expand-icon" viewBox="0 0 24 24">
+                            <path d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="date-ranges" id="month-${month.replace(/\s+/g, '-')}" style="display: none;">
+                        ${ranges.map(dateObj => renderRangeDateCard(dateObj)).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRangeDateCard(dateObj) {
+            return `
+                <div class="range-card" data-date="${dateObj.start}">
+                    <div class="time-slot-content">
+                        <button class="date-vote-button" onclick="toggleSingleDateVote('${dateObj.start}')">
+                            ${getVoteIndicator(dateObj.start)}
+                        </button>
+                        <div class="time-info">
+                            <p class="time">${dateObj.displayRange || formatDateForDisplay(dateObj.start)}</p>
+                            <p class="votes">Click the icon to set your preference</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getVoteIndicator(timeSlotId) {
+            const vote = votes[timeSlotId] || 'maybe';
+            switch (vote) {
+                case 'yes':
+                    return `<div class="vote-indicator yes">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+                        </svg>
+                    </div>`;
+                case 'no':
+                    return `<div class="vote-indicator no">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
+                        </svg>
+                    </div>`;
+                default:
+                    return `<div class="vote-indicator maybe">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>`;
+            }
+        }
+
+        window.toggleSingleDateVote = function(date) {
+            const indicator = document.querySelector(`.range-card[data-date="${date}"] .vote-indicator`);
+            if (!indicator) return;
+            
+            const currentVote = votes[date] || 'maybe';
+            let newVote;
+            
+            switch (currentVote) {
+                case 'maybe':
+                    newVote = 'yes';
+                    break;
+                case 'yes':
+                    newVote = 'no';
+                    break;
+                default:
+                    newVote = 'maybe';
+            }
+            
+            votes[date] = newVote;
+            updateVoteIndicatorDisplay(indicator, newVote);
+            
+            event.stopPropagation();
+        };
 
     </script>
 
