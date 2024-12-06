@@ -2,7 +2,7 @@
     --tiffany-blue: #81D8D0;
     --header-bg: #000000;
     --green: #6CE6CB;
-    --red: #CB6ce6;
+    --gray: #868686;
     --yellow: #FFC87E;
     --primary: var(--header-bg);
     --border-color: #E5E5E5;
@@ -188,7 +188,10 @@ body {
 .form-group {
     margin-bottom: 20px;
 }
-
+.form-group input[type="text"],
+.form-group textarea {
+    padding-right: 15px; /* Adjust the value as needed */
+}
 .add-person-form {
     display: flex;
     gap: 8px;
@@ -215,7 +218,7 @@ input[type="date"],
 select,
 textarea {
     width: 100%;
-    padding: 12px;
+    padding: 6px;
     border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 16px;
@@ -246,17 +249,22 @@ textarea {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    margin-bottom: 2px; /* Puts space below buttons */
+    width: auto; /* Ensure buttons do not take full width */
 }
 
 .primary-button:hover {
     background: #6BC0B8;
 }
 
-/* Hello there world
-/* Specific styles for add-date-button and add-location-button */
-.add-date-button,
-.add-location-button {
-    width: 100%; /* Ensure full width */
+/* Handles "Add Option" button */
+.primary-button.add-date-button {
+    font-size: 16px; /* Adjust the font size as needed */
+}
+
+/* Handles "Add Location" button */
+.primary-button.add-location-button {
+    font-size: 16px; /* Adjust the font size as needed */
 }
 .secondary-button {
     height: 40px;
@@ -272,6 +280,17 @@ textarea {
 
 .secondary-button:hover {
     background: #f8f9fa;
+}
+
+/* Add padding below the "Add Location" button */
+#addLocationBtn {
+    margin-bottom: 5px; /* Adjust the value as needed */
+}
+
+/* Adjust padding for the "Add Date" button */
+#addSpecificDateBtn,
+#addDateBtn {
+    padding-left: 8px; /* Adjust the value as needed */
 }
 
 /* Event Type Selection */
@@ -385,10 +404,17 @@ textarea {
     padding: 16px 24px;
     border-bottom: 1px solid var(--border-color);
     font-weight: 500;
-    color: var(--subhead-color);
+    color: var (--subhead-color);
     align-items: center; /* Ensure vertical alignment */
 }
-
+#eventsTableHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #e5e5e5;
+}
 .events-rows {
     display: flex;
     flex-direction: column;
@@ -538,6 +564,34 @@ textarea {
     font-weight: 500;
     padding: 16px 0;
     margin-bottom: 16px;
+    font-size: 14px; /* Increase the font size */
+}
+.time-input {
+    display: inline-block;
+    text-align: center;
+    margin-right: 5px; /* Adjust spacing between inputs */
+}
+
+.time-input:last-child {
+    margin-right: 0; /* Remove margin from the last input */
+}
+
+.time-input label {
+    display: block;
+    margin-bottom: 2px; /* Adjust spacing between label and dropdown */
+}
+
+#timeFields {
+    display: flex; /* Use flexbox to keep fields on a single row */
+    flex-wrap: nowrap; /* Prevent wrapping */
+    gap: 8px; /* Adjust spacing between inputs */
+    align-items: center; /* Align items vertically */
+}
+
+#specificTimeHour,
+#specificTimeMinute,
+#specificTimePeriod {
+    width: 65px; /* Adjust the width as needed */
 }
 
 .back-to-list:hover {
@@ -591,6 +645,10 @@ textarea {
     gap: 8px;
 }
 
+.section-title svg {
+    margin-right: 8px;
+}
+
 /* Description Section */
 .description-section {
     background: #f8f9fa;
@@ -630,14 +688,9 @@ textarea {
 
 /* Date Selection */
 .date-input {
-    margin: 24px 0;
+    margin: 20px 0;
 }
 
-.date-field-group {
-    display: flex;
-    gap: 16px;
-    align-items: flex-end;
-}
 
 .range-inputs {
     display: flex;
@@ -778,8 +831,8 @@ textarea {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    align-items: flex-start; /* Ensure items are left aligned */
 }
-
 #tribeName {
     max-width: 300px;
 }
@@ -892,10 +945,19 @@ textarea {
     border-color: var(--green);
 }
 
+.vote-card.most-voted {
+    background: rgba(129, 216, 208, 0.1);
+    border-color: var(--tiffany-blue);
+}
+
 .vote-date {
     font-weight: 500;
     margin-bottom: 12px;
     color: var(--subhead-color);
+}
+.best-location {
+    border: 2px solid var(--green); /* Example highlight color */
+    background-color: rgba(108, 230, 203, 0.1); /* Example highlight background */
 }
 
 .vote-stats {
@@ -911,11 +973,15 @@ textarea {
 }
 
 .yes-votes {
-    color: var(--green);
+    color: #81D8D0; /* A more vibrant green */
+    font-weight: bold; /* Make the text bold */
+
 }
 
 .no-votes {
-    color: var(--red);
+    color: #964048; /* A more vibrant red */
+    font-weight: bold; /* Make the text bold */
+   
 }
 
 /* Vote Indicators */
@@ -928,14 +994,26 @@ textarea {
     border-radius: 4px;
 }
 
-.vote-yes {
-    background: rgba(108, 230, 203, 0.1);
-    color: var(--green);
+.yes-votes {
+    color: #2e2e2e; /* A dark gray */
+    font-weight: bold; /* Make the text bold */
 }
 
 .vote-no {
-    background: rgba(203, 108, 230, 0.1);
-    color: var(--red);
+    color: #2e2e2e; /* A dark gray */
+    font-weight: bold; /* Make the text bold */
+}
+
+.vote-yes {
+    color: #2e2e2e; /* Text color for yes votes */
+    font-weight: bold; /* Make the text bold */
+    font-size: 16px; /* Font size for the check mark */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px; /* Optional: add some border radius */
+    width: 24px; /* Width of the cell */
+    height: 24px; /* Height of the cell */
 }
 
 .vote-pending {
@@ -943,6 +1021,12 @@ textarea {
     color: #666;
 }
 
+.highlight {
+    background-color: #ffeb3b; /* Yellow background */
+    border: 2px solid #fbc02d; /* Darker yellow border */
+    padding: 10px;
+    border-radius: 5px;
+}
 /* Mobile Menu */
 .mobile-menu-toggle {
     display: none;
@@ -1120,15 +1204,15 @@ textarea {
 .votes-table td {
     padding: 12px;
     text-align: center;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var (--border-color);
     border-right: 1px solid var(--border-color);
     background: white;
 }
 
 .votes-table th {
-    background: #f8f9fa;
+    background: #000000;
     font-weight: 500;
-    color: var(--subhead-color);
+    color: #ffffff; /* Updated text color for table headers */
     white-space: nowrap;
 }
 
@@ -1320,10 +1404,33 @@ textarea {
 /* Date Field Row */
 .date-field-row {
     display: flex;
-    align-items: flex-end;
-    gap: 24px; /* Increased from 16px to 24px */
+    flex-direction: column; /* Stack items vertically */
+    gap: 8px; /* Adjust spacing between items */
 }
+.date-field-row .time-inputs {
+    display: flex;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    gap: 8px; /* Adjust spacing between inputs */
+    align-items: center; /* Align items vertically */
+}
+.date-field-row .add-date-button {
+    margin-top: 8px; /* Add margin to separate the button from the inputs */
+}
+@media (max-width: 480px) {
+    .date-field-row {
+        flex-direction: column; /* Stack items vertically on small screens */
+    }
 
+    .date-field-row .time-inputs {
+        flex-wrap: wrap; /* Allow wrapping on small screens */
+    }
+}
+/* Adjust the width of date input fields for mobile devices */
+@media (max-width: 768px) {
+    .date-field-row input[type="date"] {
+        width: 100%; /* Set the width to 100% of the parent container */
+    }
+}
 .date-field-row > div {
     flex: 1;
 }
@@ -1331,29 +1438,13 @@ textarea {
 .date-field-row button {
     height: 40px;
     white-space: nowrap;
-    margin-left: 15px; /* Added margin to the left of the button */
+    margin-left: 2px; /* Added margin to the left of the button */
 }
 
 .range-inputs .date-field-row > div {
     flex: 1;
 }
-.days-of-week-container {
-    display: flex;
-    align-items: center;
-    gap: 16px; /* Adjust the gap as needed */
-}
 
-.days-of-week-checkboxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px; /* Adjust the gap between checkboxes as needed */ 
-}
-
-.days-of-week-checkboxes label {
-    display: flex;
-    align-items: center;
-    gap: 4px; /* Adjust the gap between checkbox and label text as needed */
-}
 .submit-container {
     display: flex;
     gap: 12px;
@@ -1361,4 +1452,133 @@ textarea {
 
 .cancel-edit-btn {
     margin-right: 12px;
+}
+
+/* Collapsible Sections */
+.section-card {
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.collapsible {
+    background: var(--tiffany-blue);
+    color: white;
+    cursor: pointer;
+    padding: 12px 16px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.collapsible::after {
+    content: '+';
+    font-size: 20px;
+    color: white;
+}
+
+.collapsible.active::after {
+    content: '-';
+}
+
+.collapsible:hover {
+    background: #6BC0B8;
+}
+
+.collapsible:focus {
+    background: #6BC0B8;
+}
+
+.content {
+    padding: 0 16px;
+    display: none;
+    overflow: hidden;
+    background-color: white;
+    border-top: 1px solid var(--border-color);
+}
+
+.location-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.location-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.location-title {
+    margin: 0;
+    flex: 1;
+}
+
+.location-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.location-name {
+    flex: 1;
+    font-weight: 500;
+    color: var(--subhead-color);
+}
+
+.location-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.action-button:hover {
+    background: #f0f0f0;
+    color: var(--subhead-color);
+}
+
+.action-button.edit:hover {
+    color: var(--yellow);
+}
+
+.action-button.delete:hover {
+    color: var(--red);
+}
+
+.checkbox-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 4px;
 }

@@ -1,4 +1,4 @@
-// app.js
+// app.js 12/4/2024
 import { firebaseConfig } from './firebase-config.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
 import { 
@@ -24,37 +24,54 @@ import {
     reauthenticateWithCredential,
     EmailAuthProvider
 } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js";
 
 // Initialize Firebase
 console.log('Initializing Firebase...');
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 // Global State
 let selectedDates = [];
+let selectedLocations = [];
 let currentEditingTribeId = null;
 let currentUser = null;
 let editingEventId = null;
-let lastSelectedDate = null;
-
+let lastSelectedDate = null; // Add this line
+let editingLocationIndex = null;
 
 // Utility Functions
 function getUserRef() {
-    if (!currentUser) throw new Error('No user logged in');
+    if (!currentUser) {
+        console.error('No user logged in');
+        throw new Error('No user logged in');
+    }
     return `users/${currentUser.uid}`;
 }
 
-function formatDateForDisplay(dateStr) {
-    const date = new Date(dateStr + 'T00:00:00');
-    return date.toLocaleDateString('en-US', {
+function formatDateForDisplay(dateStr, timeStr, timezone) {
+    let date;
+    if (timeStr) {
+        date = new Date(`${dateStr}T${timeStr}:00`);
+    } else {
+        date = new Date(`${dateStr}T00:00:00`); // Use local time zone
+    }
+
+    if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
         month: '2-digit',
         day: '2-digit',
         year: '2-digit',
-        timeZone: 'UTC'
-    });
+        hour: timeStr ? '2-digit' : undefined,
+        minute: timeStr ? '2-digit' : undefined,
+        timeZone: timezone
+    }).format(date);
 }
-
 function sortPeopleArray(people) {
     return Object.entries(people)
         .sort((a, b) => {
@@ -66,7 +83,16 @@ function sortPeopleArray(people) {
 
 function getVoteUrl(eventId) {
     if (!currentUser) return '';
-    return `${window.location.origin}/vote.html?event=${eventId}&user=${currentUser.uid}`;
+    return `${window.location.origin}/event.html?event=${eventId}&user=${currentUser.uid}`;
+}
+
+function showShareLink(eventId) {
+    const shareLink = document.getElementById('shareLink');
+    const shareLinkInput = document.getElementById('shareLinkInput');
+    const eventUrl = `${window.location.origin}/gathurup2/event.html?event=${eventId}&user=${currentUser.uid}`;
+    
+    shareLinkInput.value = eventUrl;
+    shareLink.style.display = 'block';
 }
 
 // Authentication Functions
@@ -92,18 +118,48 @@ async function loginWithEmail() {
 }
 
 async function signupWithEmail() {
-    const name = document.getElementById('signupNameInput').value;
+    const firstName = document.getElementById('signupFirstNameInput').value;
+    const lastName = document.getElementById('signupLastNameInput').value;
     const email = document.getElementById('signupEmailInput').value;
     const password = document.getElementById('signupPasswordInput').value;
+    const confirmPassword = document.getElementById('signupConfirmPasswordInput').value;
+    const timezone = document.getElementById('signupTimezoneInput').value;
+
+    if (password !== confirmPassword) {
+        alert("Passwords don't match");
+        return;
+    }
+
+    if (password.length < 6) {
+        alert("Password must be at least 6 characters");
+        return;
+    }
+
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+
+        // Update Firebase Auth Profile
         await updateProfile(user, {
-            displayName: name
+            displayName: `${firstName} ${lastName}`
         });
+
+        // Create user profile in Realtime Database
+        const userRef = ref(database, `users/${user.uid}/profile`);
+        await set(userRef, {
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            timezone: timezone,
+            subscription: 'free', // Set subscription to beta
+            version: 'beta', // Set version to beta
+            createdAt: new Date().toISOString()
+        });
+
+        window.location.href = 'app.html';
     } catch (error) {
-        console.error("Error signing up with email:", error);
-        alert("Error signing up with email");
+        console.error("Error signing up:", error);
+        alert(error.message || "Error signing up");
     }
 }
 
@@ -120,8 +176,10 @@ async function logout() {
 // Profile Management
 async function updateProfileInfo(e) {
     e.preventDefault();
-    const newName = document.getElementById('profileName').value;
+    const newFirstName = document.getElementById('profileFirstName').value;
+    const newLastName = document.getElementById('profileLastName').value;
     const newEmail = document.getElementById('profileEmail').value;
+    const newTimezone = document.getElementById('profileTimezone').value;
     
     if (!currentUser) return;
     
@@ -129,8 +187,8 @@ async function updateProfileInfo(e) {
         const updates = [];
         
         // Update display name if changed
-        if (newName !== currentUser.displayName) {
-            updates.push(updateProfile(currentUser, { displayName: newName }));
+        if (newFirstName !== currentUser.displayName.split(' ')[0] || newLastName !== currentUser.displayName.split(' ')[1]) {
+            updates.push(updateProfile(currentUser, { displayName: `${newFirstName} ${newLastName}` }));
         }
         
         // Update email if changed
@@ -140,8 +198,20 @@ async function updateProfileInfo(e) {
         
         await Promise.all(updates);
         
+        // Update database profile
+        const userRef = ref(database, `users/${currentUser.uid}/profile`);
+        const userProfile = (await get(userRef)).val();
+        await set(userRef, {
+            firstName: newFirstName,
+            lastName: newLastName,
+            email: newEmail,
+            timezone: newTimezone || userProfile.timezone || 'UTC', // Preserve existing timezone if not changed
+            subscription: 'free', // Assuming subscription is not changing here
+            updatedAt: new Date().toISOString()
+        });
+        
         // Update UI
-        document.getElementById('userName').textContent = newName;
+        document.getElementById('userName').textContent = `${newFirstName} ${newLastName}`;
         alert('Profile updated successfully');
     } catch (error) {
         console.error("Error updating profile:", error);
@@ -196,8 +266,23 @@ async function deleteAccount() {
 
 // Navigation Functions
 function showEventsList() {
-    document.getElementById('eventsList').style.display = 'block';
-    document.getElementById('eventDetailView').style.display = 'none';
+     // Show the events table header
+     document.getElementById('eventsTableHeader').style.display = 'flex';
+     
+    const eventsList = document.getElementById('eventsList');
+    const eventDetailView = document.getElementById('eventDetailView');
+     // Show the events table header
+    document.getElementById('eventsTableHeader').style.display = 'flex';
+
+    if (eventsList) {
+        eventsList.style.display = 'block';
+    }
+    if (eventDetailView) {
+        eventDetailView.style.display = 'none';
+    }
+    
+    // After successful update, switch to events view
+    switchTab('events');
 }
 
 // Mobile Menu Toggle
@@ -228,8 +313,9 @@ async function createEvent(e) {
         title: document.getElementById('eventTitle').value,
         description: document.getElementById('eventDescription').value,
         type: document.querySelector('input[name="eventType"]:checked').value,
-        anonymous: document.getElementById('anonymousResponses').checked,
-        dates: selectedDates.map(dateRange => {
+        includeDatePreferences: document.getElementById('includeDatePreferences').checked,
+        includeLocationPreferences: document.getElementById('includeLocationPreferences').checked, // Always read the current state of the checkbox
+         dates: selectedDates.map(dateRange => {
             if (dateRange.type === 'dayOfWeek') {
                 return {
                     type: 'dayOfWeek',
@@ -240,9 +326,17 @@ async function createEvent(e) {
             return {
                 start: dateRange.start,
                 end: dateRange.end,
-                displayRange: `${formatDateForDisplay(dateRange.start)} to ${formatDateForDisplay(dateRange.end)}`
+                time: dateRange.time || null, // Ensure time is always defined
+                displayRange: dateRange.start === dateRange.end ? 
+                    formatDateForDisplay(dateRange.start, dateRange.time, document.getElementById('profileTimezone').value) :
+                    `${formatDateForDisplay(dateRange.start, '00:00', document.getElementById('profileTimezone').value)} to ${formatDateForDisplay(dateRange.end, '23:59', document.getElementById('profileTimezone').value)}`
             };
         }),
+        locations: selectedLocations.map(location => ({
+            name: location.name,
+            description: location.description,
+            imageUrl: location.imageUrl
+        })),
         userId: currentUser.uid,
         created: new Date().toISOString(),
         tribeId: tribeId
@@ -258,17 +352,15 @@ async function createEvent(e) {
             eventData.created = existingEvent.created;
             eventData.participants = existingEvent.participants || {};
             
-            // Resize participant vote arrays
-            const newDatesLength = eventData.dates.length;
-            Object.keys(eventData.participants).forEach(participantId => {
-                const currentVotes = eventData.participants[participantId].votes || [];
-                while (currentVotes.length < newDatesLength) {
-                    currentVotes.push(1);
-                }
-                eventData.participants[participantId].votes = currentVotes.slice(0, newDatesLength);
-            });
-            
+            // Preserve existing votes
+            const existingVotes = existingEvent.votes || {};
+            eventData.votes = { ...existingVotes };
+
             await set(eventRef, eventData);
+            // Switch to events list view after update
+            switchTab('events');
+            showEventsList();
+            editingEventId = null; // Reset editing state
         } else {
             // Create new event
             eventRef = push(ref(database, `${getUserRef()}/events`));
@@ -276,150 +368,301 @@ async function createEvent(e) {
                 ...eventData,
                 participants: {}
             });
+            // Redirect to events list page after creating a new event
+            switchTab('events');
+            showEventsList();
         }
         
         // Reset form and state
         resetEventForm();
         
-        if (editingEventId) {
-            handleEventUpdateComplete();
-        } else {
-            showShareLink(eventRef.key);
-        }
     } catch (error) {
         console.error("Error managing event: ", error);
         alert("Error managing event. Please try again.");
     }
 }
+function resetCreateEventForm() {
+    document.getElementById('eventTitle').value = '';
+    document.getElementById('eventDescription').value = '';
+    document.getElementById('tribeSelect').value = '';
+    document.querySelector('input[name="eventType"][value="specific"]').checked = true;
 
+    document.getElementById('specificDateInput').value = '';
+    document.getElementById('startDateInput').value = '';
+    document.getElementById('endDateInput').value = '';
+    selectedDates = [];
+    selectedLocations = [];
+    renderDates();
+    renderLocations();
+}
 function resetEventForm() {
     document.getElementById('eventForm').reset();
     selectedDates = [];
+    selectedLocations = [];
     renderDates();
+    renderLocations();
+    // Clear form fields
+    document.getElementById('eventTitle').value = '';
+    document.getElementById('eventDescription').value = '';
+    document.getElementById('tribeSelect').value = '';
+
 }
 
-function handleEventUpdateComplete() {
-    editingEventId = null;
-    document.querySelector('#eventForm button[type="submit"]').textContent = 'Create Event';
-    const cancelBtn = document.querySelector('.cancel-edit-btn');
-    if (cancelBtn) cancelBtn.remove();
+// Location Management Functions
+function resetLocationForm() {
+    document.getElementById('locationName').value = '';
+    document.getElementById('locationDescription').value = '';
+    document.getElementById('locationImage').value = '';
+    editingLocationIndex = null;
     
-    // Switch to Events tab
-    switchTab('events');
-    alert('Event updated successfully');
-}
-
-function showShareLink(eventId) {
-    const voteUrl = getVoteUrl(eventId);
-    document.getElementById('shareLinkInput').value = voteUrl;
-    document.getElementById('shareLink').style.display = 'block';
-}
-
-// Date Management Functions
-function addDate() {
-    const eventType = document.querySelector('input[name="eventType"]:checked').value;
-    let startDate, endDate;
-    
-    if (eventType === 'specific') {
-        startDate = document.getElementById('specificDateInput').value;
-        endDate = startDate;
-    } else if (eventType === 'range') {
-        startDate = document.getElementById('startDateInput').value;
-        endDate = document.getElementById('endDateInput').value;
+    // Find the button using querySelector and only update if found
+    const addLocationBtn = document.querySelector('button[onclick="addLocation()"]');
+    if (addLocationBtn) {
+        addLocationBtn.textContent = 'Add Location';
     }
-    
-    if (!startDate) {
-        alert('Please select a start date');
+}
+
+async function addLocation() {
+    if (editingLocationIndex !== null) {
+        return updateLocation();
+    }
+
+    const name = document.getElementById('locationName').value.trim();
+    const description = document.getElementById('locationDescription').value.trim();
+    const imageFile = document.getElementById('locationImage').files[0];
+
+    if (!name) {
+        alert('Please enter a location name');
         return;
     }
 
-    const startDateTime = new Date(startDate + 'T00:00:00');
-    let dateRange;
-
-    if (eventType === 'specific') {
-        dateRange = {
-            start: startDate,
-            end: startDate
-        };
-    } else if (eventType === 'range') {
-        if (!endDate) {
-            alert('Please select an end date');
-            return;
-        }
-        const endDateTime = new Date(endDate + 'T00:00:00');
-        if (endDateTime < startDateTime) {
-            alert('End date must be after start date');
-            return;
-        }
-        dateRange = {
-            start: startDate,
-            end: endDate
-        };
-    }
-    
-    const rangeString = `${dateRange.start}|${dateRange.end}`;
-    if (!selectedDates.some(d => `${d.start}|${d.end}` === rangeString)) {
-        selectedDates.push(dateRange);
-        renderDates();
-        clearDateInputs(eventType);
-    }
-}
-
-function clearDateInputs(eventType) {
-    if (eventType === 'specific') {
-        document.getElementById('specificDateInput').value = '';
-    } else {
-        document.getElementById('startDateInput').value = '';
-        document.getElementById('endDateInput').value = '';
-    }
-}
-
-window.addDaysOfWeek = function() {
-    const checkboxes = document.querySelectorAll('input[name="daysOfWeek"]:checked');
-    if (checkboxes.length === 0) {
-        alert('Please select at least one day of the week');
-        return;
+    let imageUrl = '';
+    if (imageFile) {
+        const storagePath = `locations/${currentUser.uid}/${Date.now()}_${imageFile.name}`;
+        const imageRef = storageRef(storage, storagePath);
+        await uploadBytes(imageRef, imageFile);
+        imageUrl = await getDownloadURL(imageRef);
     }
 
-    const selectedDays = Array.from(checkboxes).map(cb => cb.value);
-    const dateRange = {
-        type: 'dayOfWeek',
-        days: selectedDays
+    const location = {
+        name,
+        description,
+        imageUrl,
     };
 
-    // Remove any existing day of week entries
-    selectedDates = selectedDates.filter(d => !d.type || d.type !== 'dayOfWeek');
-    selectedDates.push(dateRange);
-    renderDates();
+    selectedLocations.push(location);
+    renderLocations();
 
-    // Uncheck all checkboxes
-    document.querySelectorAll('input[name="daysOfWeek"]').forEach(cb => cb.checked = false);
-};
+    // Write location to database
+    if (editingEventId) {
+        const eventRef = ref(database, `${getUserRef()}/events/${editingEventId}/locations`);
+        await set(eventRef, selectedLocations);
+    }
+
+    resetLocationForm();
+}
+function editLocation(index, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    const location = selectedLocations[index];
+    document.getElementById('locationName').value = location.name;
+    document.getElementById('locationDescription').value = location.description;
+    editingLocationIndex = index;
+
+    // Update the button text and onclick handler
+    const addLocationBtn = document.getElementById('addLocationBtn');
+    addLocationBtn.textContent = 'Update Location';
+    addLocationBtn.setAttribute('onclick', 'updateLocation()');
+}
+async function updateLocation() {
+    const name = document.getElementById('locationName').value.trim();
+    const description = document.getElementById('locationDescription').value.trim();
+    const imageFile = document.getElementById('locationImage').files[0];
+
+    if (!name) {
+        alert('Location name is required');
+        return;
+    }
+
+    let imageUrl = selectedLocations[editingLocationIndex].imageUrl; // Keep existing image if no new one
+    if (imageFile) {
+        // Upload new image and get URL
+        const storageRef = ref(storage, `locations/${currentUser.uid}/${imageFile.name}`);
+        const snapshot = await uploadBytes(storageRef, imageFile);
+        imageUrl = await getDownloadURL(snapshot.ref);
+    }
+
+    selectedLocations[editingLocationIndex] = {
+        ...selectedLocations[editingLocationIndex],
+        name,
+        description,
+        imageUrl
+    };
+
+    // Update database if editing an event
+    if (editingEventId) {
+        const eventRef = ref(database, `${getUserRef()}/events/${editingEventId}/locations`);
+        await set(eventRef, selectedLocations);
+    }
+
+    resetLocationForm();
+    renderLocations();
+
+    // Reset the button text and onclick handler
+    const addLocationBtn = document.getElementById('addLocationBtn');
+    addLocationBtn.textContent = 'Add Location';
+    addLocationBtn.setAttribute('onclick', 'addLocation()');
+}
+async function deleteLocation(index) {
+    if (confirm('Are you sure you want to delete this location? This action cannot be undone.')) {
+        selectedLocations.splice(index, 1);
+        renderLocations();
+
+        // Update database if editing an event
+        if (editingEventId) {
+            const eventRef = ref(database, `${getUserRef()}/events/${editingEventId}/locations`);
+            await set(eventRef, selectedLocations);
+        }
+    }
+}
+
+function renderLocations() {
+    const locationList = document.getElementById('locationList');
+    locationList.innerHTML = selectedLocations.map((location, index) => `
+        <div class="location-row">
+            <span class="location-name">${location.name}</span>
+            <div class="location-actions">
+                               <button class="action-button edit" onclick="editLocation(${index}, event)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                    </svg>
+                </button>
+                <button class="action-button delete" onclick="deleteLocation(${index})">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-2 14H7L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                    <path d="M5 6l1-3h12l1 3"></path>
+                 </svg>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+
+// Date Management Functions
+window.addDate = function() {
+    const specificDateInput = document.getElementById('specificDateInput');
+    const specificTimeHour = document.getElementById('specificTimeHour').value;
+    const specificTimeMinute = document.getElementById('specificTimeMinute').value;
+    const specificTimePeriod = document.getElementById('specificTimePeriod').value;
+    const addTimesCheckbox = document.getElementById('addTimesCheckbox');
+    const startDateInput = document.getElementById('startDateInput');
+    const endDateInput = document.getElementById('endDateInput');
+    const eventType = document.querySelector('input[name="eventType"]:checked').value;
+    const timezone = document.getElementById('profileTimezone').value;
+
+    let specificTime = null;
+    if (addTimesCheckbox.checked) {
+        let hour = parseInt(specificTimeHour, 10);
+        if (specificTimePeriod === 'PM' && hour !== 12) {
+            hour += 12;
+        } else if (specificTimePeriod === 'AM' && hour === 12) {
+            hour = 0;
+        }
+        specificTime = `${hour.toString().padStart(2, '0')}:${specificTimeMinute}`;
+    }
+
+    if (eventType === 'specific' && specificDateInput.value) {
+        if (addTimesCheckbox.checked && !specificTime) {
+            alert('Please add a time for the single-day event.');
+            return;
+        }
+        selectedDates.push({
+            start: specificDateInput.value,
+            end: specificDateInput.value,
+            time: specificTime,
+            displayRange: formatDateForDisplay(specificDateInput.value, specificTime, timezone)
+        });
+    } else if (eventType === 'range' && startDateInput.value && endDateInput.value) {
+        selectedDates.push({
+            start: startDateInput.value,
+            end: endDateInput.value,
+            time: null,
+            displayRange: `${formatDateForDisplay(startDateInput.value, null, timezone)} to ${formatDateForDisplay(endDateInput.value, null, timezone)}`
+        });
+    }
+
+    renderDates();
+}
+// Call setDatePickerDefaults when the event type changes
+function handleEventTypeChange() {
+    const eventType = document.querySelector('input[name="eventType"]:checked')?.value;
+    const specificDateSection = document.getElementById('specificDateSection');
+    const rangeDateSection = document.getElementById('rangeDateSection');
+
+    specificDateSection.style.display = 'none';
+    rangeDateSection.style.display = 'none';
+   
+
+    // Show the appropriate section based on event type
+    switch(eventType) {
+        case 'specific':
+            specificDateSection.style.display = 'block';
+            break;
+        case 'range':
+            rangeDateSection.style.display = 'block';
+            break;
+    }
+
+}
 
 function renderDates() {
     const datesList = document.getElementById('datesList');
-    datesList.innerHTML = selectedDates.map(dateRange => {
-        if (dateRange.type === 'dayOfWeek') {
-            return `
-                <div class="date-tag">
-                    Days of Week: ${dateRange.days.join(', ')}
-                    <button onclick="removeDate('dayOfWeek')">&times;</button>
-                </div>
-            `;
-        }
-        const isSpecificDate = dateRange.start === dateRange.end;
-        const displayText = isSpecificDate ? 
-            formatDateForDisplay(dateRange.start) :
-            `${formatDateForDisplay(dateRange.start)} to ${formatDateForDisplay(dateRange.end)}`;
-            
+    const timezone = document.getElementById('profileTimezone').value;
+
+    // Sort dates in date order
+    selectedDates.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+    datesList.innerHTML = selectedDates.map((date, index) => {
+        const displayText = date.start === date.end 
+            ? formatDateForDisplay(date.start, date.time, timezone)
+            : `${formatDateForDisplay(date.start, null, timezone)} to ${formatDateForDisplay(date.end, null, timezone)}`;
         return `
-            <div class="date-tag">
-                ${displayText}
-                <button onclick="removeDate('${dateRange.start}', '${dateRange.end}')">&times;</button>
+            <div class="date-row" data-index="${index}">
+                <span class="date-display">${displayText}</span>
+                <button class="action-button delete" onclick="removeDate(${index})">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6l-2 14H7L5 6"></path>
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                        <path d="M5 6l1-3h12l1 3"></path>
+                    </svg>
+                </button>
             </div>
         `;
     }).join('');
 }
+
+async function removeDate(index) {
+    if (confirm('Are you sure you want to delete this date? This action cannot be undone.')) {
+        selectedDates.splice(index, 1);
+        renderDates();
+
+        // Update database if editing an event
+        if (editingEventId) {
+            const eventRef = ref(database, `${getUserRef()}/events/${editingEventId}/dates`);
+            await set(eventRef, selectedDates);
+        }
+    }
+}
+
 // Event Listing and Detail Functions
 function loadEvents() {
     if (!currentUser) return;
@@ -453,10 +696,7 @@ function renderEventsList(events) {
                 <div class="event-info">
                     <div class="event-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="16" y1="2" x2="16" y2="6"/>
-                            <line x1="8" y1="2" x2="8" y2="6"/>
-                            <line x1="3" y1="10" x2="21" y2="10"/>
+                            <polyline points="7 10 12 15 17 10"></polyline>
                         </svg>
                     </div>
                     <div class="event-name">${event.title}</div>
@@ -472,14 +712,30 @@ function renderEventsList(events) {
                 </div>
                 <div class="event-actions" onclick="event.stopPropagation()">
                     <button class="action-button edit" onclick="editEventDates('${eventId}')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-                    </svg>
-                </button>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                        </svg>
+                    </button>
                     <button class="action-button delete" onclick="deleteEvent('${eventId}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-2 14H7L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                    <path d="M5 6l1-3h12l1 3"></path>
+                 </svg>
+                    </button>
+                    <button class="action-button share" onclick="copyEventLink('${eventId}')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"/>
-                            <line x1="6" y1="6" x2="18" y2="18"/>
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg>
+                    </button>
+                    <button class="action-button" onclick="openEventLink('${eventId}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
                         </svg>
                     </button>
                 </div>
@@ -492,7 +748,10 @@ async function showEventDetail(eventId) {
     if (!currentUser || !eventId) return;
 
     try {
-        // Show loading state
+    // Hide the events table header
+    document.getElementById('eventsTableHeader').style.display = 'none';
+
+    // Show loading state
         const eventsList = document.getElementById('eventsList');
         if (!eventsList) throw new Error('Events list element not found');
         eventsList.style.display = 'none';
@@ -523,6 +782,11 @@ async function showEventDetail(eventId) {
         
         // Combine event data with tribe info
         eventData.tribeInfo = tribes[eventData.tribeId] || { name: 'Unknown Group' };
+// Ensure size is included in tribeInfo
+eventData.tribeInfo.size = eventData.tribeInfo.members.length;
+        // Ensure dates and locations are arrays
+        eventData.dates = eventData.dates || [];
+        eventData.locations = eventData.locations || [];
 
         // Render event detail sections
         detailView.innerHTML = `
@@ -562,6 +826,132 @@ async function showEventDetail(eventId) {
     }
 }
 
+function formatDateRange(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    const startDay = days[start.getDay()];
+    const endDay = days[end.getDay()];
+    const startFormatted = start.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+    const endFormatted = end.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+    
+    if (startDate === endDate) {
+        return `${startDay}, ${startFormatted}`;
+    }
+    return `${startDay}, ${startFormatted} to ${endDay}, ${endFormatted}`;
+}
+
+function renderVotesSummary(eventData) {
+    const votes = eventData.votes || {};
+    const tribeMembers = eventData.tribeInfo.size || 0;
+
+    // Calculate votes for each date
+    const votesByDate = eventData.dates.map(date => {
+        const dateKey = date.time ? 
+            `${date.start}T${date.time}` : 
+            `${date.start}`;
+        
+        const yesVotes = Object.values(votes).filter(vote => 
+            vote.datePreferences && vote.datePreferences[dateKey] === 'yes'
+        ).length;
+        
+        const noVotes = Object.values(votes).filter(vote => 
+            vote.datePreferences && vote.datePreferences[dateKey] === 'no'
+        ).length;
+
+        const maybeVotes = Object.values(votes).filter(vote => 
+            vote.datePreferences && vote.datePreferences[dateKey] === 'maybe'
+        ).length;
+
+        return {
+            date,
+            yesVotes,
+            noVotes,
+            maybeVotes,
+            noResponseCount: tribeMembers - (yesVotes + noVotes + maybeVotes)
+        };
+    });
+
+    // Find the date with most yes votes
+    const maxYesVotes = Math.max(...votesByDate.map(v => v.yesVotes));
+
+    return votesByDate.map(vote => {
+        const displayDate = vote.date.start === vote.date.end ?
+            (eventData.type === 'specific' && vote.date.time ? 
+                formatDateForDisplay(vote.date.start, vote.date.time, document.getElementById('profileTimezone').value) :
+                formatDateRange(vote.date.start, vote.date.end)) :
+            formatDateRange(vote.date.start, vote.date.end);
+
+        return `
+            <div class="vote-card ${vote.yesVotes === maxYesVotes && vote.yesVotes > 0 ? 'most-voted' : ''}">
+                <div class="vote-date">${displayDate}</div>
+                <div class="vote-stats">
+                    <div class="stat-item yes-votes">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        ${vote.yesVotes}
+                    </div>
+                    <div class="stat-item no-votes">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                        ${vote.noVotes}
+                    </div>
+                    <div class="stat-item no-response">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M8 12h8"/>
+                        </svg>
+                        ${vote.noResponseCount}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Modify renderLocationVotesSummary to highlight the most voted location
+function renderLocationVotesSummary(eventData) {
+    const votes = eventData.votes || {};
+    const locationVotes = {};
+
+    // Count votes for each location
+    Object.values(votes).forEach(vote => {
+        if (vote.locationPreferences && vote.locationPreferences.selectedLocation) {
+            const location = vote.locationPreferences.selectedLocation;
+            locationVotes[location] = (locationVotes[location] || 0) + 1;
+        }
+    });
+
+    // Find the location with most votes
+    const maxVotes = Math.max(...Object.values(locationVotes), 0);
+
+    return eventData.locations.map(location => {
+        const voteCount = locationVotes[location.name] || 0;
+        return `
+            <div class="vote-card ${voteCount === maxVotes && voteCount > 0 ? 'most-voted' : ''}">
+                <div class="vote-location">
+                    <div class="location-name">${location.name}</div>
+                    ${location.description ? `<div class="location-description">${location.description}</div>` : ''}
+                </div>
+                <div class="vote-stats">
+                    <div class="stat-item total-votes">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        ${voteCount}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
 function renderEventDetail(eventId, eventData) {
     const detailContent = document.getElementById('eventDetail');
     detailContent.innerHTML = `
@@ -583,7 +973,7 @@ function renderEventDetail(eventId, eventData) {
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                         </svg>
-                        ${eventData.tribeInfo.name}
+                                             ${eventData.tribeInfo.name} (${eventData.tribeInfo.size})</div>
                     </div>
                     <div class="meta-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -601,25 +991,15 @@ function renderEventDetail(eventId, eventData) {
                             </svg>
                         </button>
                         <button class="action-button delete" onclick="deleteEvent('${eventId}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"/>
-                                <line x1="6" y1="6" x2="18" y2="18"/>
-                            </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-2 14H7L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                    <path d="M5 6l1-3h12l1 3"></path>
+                 </svg>
                         </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="detail-content">
-            <div class="detail-section">
-                <div class="description-section">
-                    <p class="description-text">${eventData.description || 'No description provided'}</p>
-                </div>
-
-                <div class="share-section">
-                    <input class="event-link" type="text" readonly value="${getVoteUrl(eventId)}" data-event-id="${eventId}">
-                    <button class="action-button share" onclick="copyEventLink('${eventId}')">
+                        <button class="action-button share" onclick="copyEventLink('${eventId}')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
@@ -632,145 +1012,38 @@ function renderEventDetail(eventId, eventData) {
                             <line x1="10" y1="14" x2="21" y2="3" />
                         </svg>
                     </button>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="detail-section">
+        <div class="detail-content">
+            <div class="section-card">
                 <h3 class="section-title">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                        <polyline points="22 4 12 14.01 9 11.01"/>
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
-                    Availability Summary
+                    Dates
                 </h3>
                 <div class="votes-summary">
                     ${renderVotesSummary(eventData)}
                 </div>
             </div>
 
-            <div class="detail-section">
+            <div class="section-card">
                 <h3 class="section-title">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
                     </svg>
-                    Individual Responses
+                    Locations
                 </h3>
-                ${renderIndividualResponses(eventData)}
-            </div>
-
-            <div class="detail-section">
-                <h3 class="section-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    </svg>
-                    Event Settings
-                </h3>
-                <div class="settings-section">
-                    <div class="setting-item">
-                        <label class="anonymous-toggle">
-                            <input type="checkbox" 
-                                ${eventData.anonymous ? 'checked' : ''} 
-                                onchange="toggleAnonymous('${eventId}', this.checked)">
-                            Make Responses Anonymous
-                        </label>
-                    </div>
+                <div class="votes-summary">
+                    ${renderLocationVotesSummary(eventData)}
                 </div>
             </div>
-        </div>
-    `;
-}
-
-function renderVotesSummary(eventData) {
-    const participants = eventData.participants || {};
-    // Calculate yes votes for each date
-    const yesVotesPerDate = eventData.dates.map((_, index) => 
-        Object.values(participants).filter(p => p.votes[index] === 2).length
-    );
-    
-    // Find the maximum number of yes votes
-    const maxYesVotes = Math.max(...yesVotesPerDate);
-
-    return eventData.dates.map((date, index) => {
-        const yesVotes = yesVotesPerDate[index];
-        const noVotes = Object.values(participants).filter(p => p.votes[index] === 0).length;
-        const isMaxVotes = yesVotes === maxYesVotes && maxYesVotes > 0;
-
-        // Determine display text based on whether it's a specific date or range
-        let displayText;
-        if (date.start === date.end) {
-            // For specific dates, just show the single date
-            displayText = formatDateForDisplay(date.start);
-        } else {
-            // For date ranges, show the range
-            displayText = `${formatDateForDisplay(date.start)} to ${formatDateForDisplay(date.end)}`;
-        }
-
-        return `
-            <div class="vote-card ${isMaxVotes ? 'best-date' : ''}">
-                <div class="vote-date">${displayText}</div>
-                <div class="vote-stats">
-                    <div class="stat-item yes-votes">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                        </svg>
-                        ${yesVotes}
-                    </div>
-                    <div class="stat-item no-votes">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"/>
-                            <line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                        ${noVotes}
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function renderIndividualResponses(eventData) {
-    const participants = eventData.participants || {};
-    
-    return `
-        <div class="votes-table-container">
-            <table class="votes-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        ${eventData.dates.map(date => {
-                            // Check if it's a specific date
-                            if (date.start === date.end) {
-                                return `<th>${formatDateForDisplay(date.start)}</th>`;
-                            } else {
-                                return `<th>${date.displayRange}</th>`;
-                            }
-                        }).join('')}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${Object.entries(participants).map(([name, data]) => `
-                        <tr>
-                            <td>${eventData.anonymous ? '(Anonymous)' : name}</td>
-                            ${data.votes.map(vote => `
-                                <td class="votes-indicator-cell">
-                                    <div class="vote-indicator ${
-                                        vote === 2 ? 'vote-yes' : 
-                                        vote === 0 ? 'vote-no' : 
-                                        'vote-pending'
-                                    }">
-                                        ${vote === 2 ? '✓' : vote === 0 ? '✗' : '?'}
-                                    </div>
-                                </td>
-                            `).join('')}
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
         </div>
     `;
 }
@@ -778,24 +1051,11 @@ function renderIndividualResponses(eventData) {
 // Event Action Functions
 window.copyEventLink = async function(eventId) {
     try {
-        let linkText;
-        if (eventId) {
-            const linkElements = document.querySelectorAll(`.event-link[data-event-id="${eventId}"]`);
-            if (linkElements.length > 0) {
-                linkText = linkElements[0].value;
-            }
-        } else {
-            const shareLinkInput = document.getElementById('shareLinkInput');
-            if (shareLinkInput) {
-                linkText = shareLinkInput.value;
-            }
-        }
-
-        if (!linkText) {
+        const eventUrl = getVoteUrl(eventId);
+        if (!eventUrl) {
             throw new Error('Could not find link to copy');
         }
-
-        await navigator.clipboard.writeText(linkText);
+        await navigator.clipboard.writeText(eventUrl);
         alert('Link copied to clipboard!');
     } catch (err) {
         console.error('Failed to copy:', err);
@@ -805,24 +1065,11 @@ window.copyEventLink = async function(eventId) {
 
 window.openEventLink = function(eventId) {
     try {
-        let url;
-        if (eventId) {
-            const linkElements = document.querySelectorAll(`.event-link[data-event-id="${eventId}"]`);
-            if (linkElements.length > 0) {
-                url = linkElements[0].value;
-            }
-        } else {
-            const shareLinkInput = document.getElementById('shareLinkInput');
-            if (shareLinkInput) {
-                url = shareLinkInput.value;
-            }
-        }
-
-        if (!url) {
+        const eventUrl = getVoteUrl(eventId);
+        if (!eventUrl) {
             throw new Error('Could not find URL to open');
         }
-
-        window.open(url, '_blank');
+        window.open(eventUrl, '_blank');
     } catch (err) {
         console.error('Failed to open link:', err);
         alert('Failed to open link');
@@ -861,9 +1108,9 @@ window.editEventDates = async function(eventId) {
         document.querySelector('.content-header h1').textContent = 'Edit Event';
         
         // Populate form with existing data
-        document.getElementById('eventTitle').value = eventData.title;
+        document.getElementById('eventTitle').value = eventData.title || '';
         document.getElementById('eventDescription').value = eventData.description || '';
-        document.getElementById('tribeSelect').value = eventData.tribeId;
+        document.getElementById('tribeSelect').value = eventData.tribeId || '';
         
         // Set event type
         const eventTypeRadio = document.querySelector(`input[name="eventType"][value="${eventData.type}"]`);
@@ -873,7 +1120,7 @@ window.editEventDates = async function(eventId) {
         }
         
         // Load existing dates
-        selectedDates = eventData.dates.map(date => {
+        selectedDates = (eventData.dates || []).map(date => {
             if (date.type === 'dayOfWeek') {
                 return {
                     type: 'dayOfWeek',
@@ -882,11 +1129,21 @@ window.editEventDates = async function(eventId) {
             }
             return {
                 start: date.start,
-                end: date.end
+                end: date.end,
+                time: date.time
             };
         });
         
         renderDates();
+        
+        // Load existing locations
+        selectedLocations = eventData.locations || [];
+        renderLocations();
+        
+        // Set includeDatePreferences and includeLocationPreferences checkboxes
+        document.getElementById('includeDatePreferences').checked = eventData.includeDatePreferences || false;
+        document.getElementById('includeLocationPreferences').checked = eventData.includeLocationPreferences || false;
+        
         editingEventId = eventId;
         
         // Update form submit button text
@@ -903,13 +1160,45 @@ window.editEventDates = async function(eventId) {
             submitBtn.parentNode.insertBefore(cancelBtn, submitBtn);
         }
 
-        document.getElementById('anonymousResponses').checked = eventData.anonymous || false;
+        // Hide event detail view
+        document.getElementById('eventDetailView').style.display = 'none';
     } catch (error) {
         console.error('Error loading event for editing:', error);
         alert('Error loading event for editing');
     }
-};
+}
+function handleAddTimesCheckbox() {
+    const eventTypeRadios = document.querySelectorAll('input[name="eventType"]');
+    const addTimesCheckbox = document.getElementById('addTimesCheckbox');
+    const timeFields = document.getElementById('timeFields');
 
+    eventTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'specific') {
+                addTimesCheckbox.parentElement.style.display = 'block';
+            } else {
+                addTimesCheckbox.parentElement.style.display = 'none';
+                addTimesCheckbox.checked = false;
+                timeFields.style.display = 'none';
+            }
+        });
+    });
+
+    addTimesCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            timeFields.style.display = 'flex';
+        } else {
+            timeFields.style.display = 'none';
+        }
+    });
+
+    // Initialize visibility based on the default selected radio
+    if (document.querySelector('input[name="eventType"]:checked').value === 'specific') {
+        addTimesCheckbox.parentElement.style.display = 'block';
+    } else {
+        addTimesCheckbox.parentElement.style.display = 'none';
+    }
+}
 window.cancelEventEdit = function() {
     editingEventId = null;
     document.querySelector('#eventForm button[type="submit"]').textContent = 'Create Event';
@@ -917,6 +1206,9 @@ window.cancelEventEdit = function() {
     const cancelBtn = document.querySelector('.cancel-edit-btn');
     if (cancelBtn) cancelBtn.remove();
     resetEventForm();
+    // Navigate back to events list
+    switchTab('events');
+    showEventsList();
 };
 
 window.deleteEvent = async function(eventId) {
@@ -957,30 +1249,14 @@ function switchTab(tabName) {
             }
         }
     }
-}
-
-function handleEventTypeChange() {
-    const eventType = document.querySelector('input[name="eventType"]:checked')?.value;
-    const specificDateSection = document.getElementById('specificDateSection');
-    const rangeDateSection = document.getElementById('rangeDateSection');
-    const dayOfWeekSection = document.getElementById('dayOfWeekSection');
-
-    // Hide all sections first
-    specificDateSection.style.display = 'none';
-    rangeDateSection.style.display = 'none';
-    dayOfWeekSection.style.display = 'none';
-
-    // Show the appropriate section based on event type
-    switch(eventType) {
-        case 'specific':
-            specificDateSection.style.display = 'block';
-            break;
-        case 'range':
-            rangeDateSection.style.display = 'block';
-            break;
-        case 'dayOfWeek':
-            dayOfWeekSection.style.display = 'block';
-            break;
+  
+    // Call resetCreateEventForm if the create event tab is selected
+    if (tabName === 'createEvent') {
+        resetCreateEventForm();
+    }
+       // Call loadEvents if the events tab is selected
+     if (tabName === 'events') {
+        loadEvents();
     }
 }
 
@@ -1029,8 +1305,11 @@ function renderPeople(people) {
             <span>${person.firstName} ${person.lastName}</span>
             <button onclick="deletePerson('${id}')" class="action-button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"/>
-                    <line x1="6" y1="6" x2="18" y2="18"/>
+                     <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-2 14H7L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                    <path d="M5 6l1-3h12l1 3"></path>
                 </svg>
             </button>
         </div>
@@ -1116,8 +1395,11 @@ function renderTribes(tribes, people) {
                     </button>
                     <button class="action-button delete" onclick="deleteTribe('${id}')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"/>
-                            <line x1="6" y1="6" x2="18" y2="18"/>
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-2 14H7L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                    <path d="M5 6l1-3h12l1 3"></path>
                         </svg>
                     </button>
                 </div>
@@ -1220,23 +1502,17 @@ function updateUserProfile(user) {
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
     // Add authentication event listeners
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
     const emailLoginBtn = document.getElementById('emailLoginBtn');
     const emailLoginSubmitBtn = document.getElementById('emailLoginSubmitBtn');
     const emailSignupBtn = document.getElementById('emailSignupBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const showSignupBtn = document.getElementById('showSignupBtn');
 
-    googleLoginBtn?.addEventListener('click', loginWithGoogle);
-    emailLoginBtn?.addEventListener('click', () => {
-        document.getElementById('emailLoginForm').style.display = 'block';
-    });
+    emailLoginBtn?.addEventListener('click', () => switchTab('login'));
     emailLoginSubmitBtn?.addEventListener('click', loginWithEmail);
     emailSignupBtn?.addEventListener('click', signupWithEmail);
     logoutBtn?.addEventListener('click', logout);
-    showSignupBtn?.addEventListener('click', () => {
-        document.getElementById('signupForm').style.display = 'block';
-    });
+    showSignupBtn?.addEventListener('click', () => switchTab('signup'));
 
     // Add form listeners
     document.getElementById('eventForm')?.addEventListener('submit', createEvent);
@@ -1244,30 +1520,27 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('tribeForm')?.addEventListener('submit', createTribe);
     document.getElementById('profileForm')?.addEventListener('submit', updateProfileInfo);
     
+    // Add collapsible event listeners
+    const collapsibles = document.querySelectorAll('.collapsible');
+    collapsibles.forEach(collapsible => {
+        collapsible.addEventListener('click', function() {
+            this.classList.toggle('active');
+            const content = this.nextElementSibling;
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+            } else {
+                content.style.display = 'block';
+            }
+        });
+    });
+
     // Add date input event listeners
     const startDateInput = document.getElementById('startDateInput');
     const endDateInput = document.getElementById('endDateInput');
     const specificDateInput = document.getElementById('specificDateInput');
 
     [startDateInput, endDateInput, specificDateInput].forEach(input => {
-        input?.addEventListener('change', (e) => {
-            if (e.target.value) {
-                lastSelectedDate = new Date(e.target.value);
-                if (e.target.id === 'startDateInput') {
-                    endDateInput.setAttribute('min', e.target.value);
-                }
-            }
-        });
-
-        input?.addEventListener('focus', () => {
-            if (lastSelectedDate) {
-                const defaultView = lastSelectedDate.toISOString().split('T')[0];
-                input.setAttribute('min', new Date().toISOString().split('T')[0]);
-                if (!input.value) {
-                    input.valueAsDate = new Date(defaultView);
-                }
-            }
-        });
+        input?.addEventListener('change', handleEventTypeChange);
     });
 
     // Add event type radio listeners
@@ -1288,16 +1561,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add window resize handler
     window.addEventListener('resize', () => {
-        const sidebar = document.querySelector('.sidebar');
         if (window.innerWidth > 1024) {
-            sidebar.classList.remove('active');
+            document.querySelector('.sidebar').style.transform = 'translateX(0)';
         }
     });
 
+ document.addEventListener('DOMContentLoaded', () => {
+    const collapsibles = document.querySelectorAll('.collapsible');
+    collapsibles.forEach(collapsible => {
+        collapsible.addEventListener('click', function() {
+            this.classList.toggle('active');
+            const content = this.nextElementSibling;
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+            } else {
+                content.style.display = 'block';
+            }
+        });
+    });
+
+    // Handle Add Start Times checkbox visibility
+    const addTimesCheckbox = document.getElementById('addTimesCheckbox');
+    const timeFields = document.getElementById('timeFields');
+    addTimesCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            timeFields.style.display = 'flex';
+        } else {
+            timeFields.style.display = 'none';
+        }
+    });
+
+    // Initialize visibility based on the checkbox state
+    if (addTimesCheckbox.checked) {
+        timeFields.style.display = 'flex';
+    } else {
+        timeFields.style.display = 'none';
+    }
+});
+ // Call handleAddTimesCheckbox to set up the event listeners for the "Add Times" checkbox
+ handleAddTimesCheckbox();
+
+
     // Add select all members button handler
     document.getElementById('selectAllMembers')?.addEventListener('click', () => {
-        document.querySelectorAll('#memberCheckboxes input[type="checkbox"]')
-            .forEach(checkbox => checkbox.checked = true);
+        document.querySelectorAll('#memberCheckboxes input').forEach(cb => cb.checked = true);
     });
 
     // Initialize auth state observer
@@ -1308,7 +1615,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('userName').textContent = user.displayName || user.email;
 
             // Populate profile form
-            document.getElementById('profileName').value = user.displayName || '';
+            const [firstName, lastName] = (user.displayName || '').split(' ');
+            document.getElementById('profileFirstName').value = firstName || '';
+            document.getElementById('profileLastName').value = lastName || '';
             document.getElementById('profileEmail').value = user.email || '';
             
             // Initialize app data
@@ -1330,6 +1639,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderTribes(tribes, people);
                     populateTribeDropdown(tribes, people);
                 });
+            });
+
+            // Fetch and set the user's timezone
+            const userRef = ref(database, `users/${user.uid}/profile`);
+            get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const userProfile = snapshot.val();
+                    document.getElementById('profileTimezone').value = userProfile.timezone || 'UTC';
+                }
             });
         } else {
             currentUser = null;
@@ -1358,19 +1676,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add delete account button listener
     document.getElementById('deleteAccountBtn')?.addEventListener('click', deleteAccount);
+
+    renderEventSettings();
 });
 
 // Attach necessary functions to window object for HTML access
-window.addDate = addDate;
-window.removeDate = function(startDate, endDate) {
-    if (startDate === 'dayOfWeek') {
-        selectedDates = selectedDates.filter(d => d.type !== 'dayOfWeek');
-    } else {
-        selectedDates = selectedDates.filter(d => !(d.start === startDate && d.end === endDate));
+5
+window.removeDate = async function(index) {
+    if (confirm('Are you sure you want to delete this date? This action cannot be undone.')) {
+        selectedDates.splice(index, 1);
+        renderDates();
+
+        // Update database if editing an event
+        if (editingEventId) {
+            const eventRef = ref(database, `${getUserRef()}/events/${editingEventId}/dates`);
+            await set(eventRef, selectedDates);
+        }
     }
-    renderDates();
 };
 window.showEventsList = showEventsList;
 window.showEventDetail = showEventDetail;
 // Make switchTab available globally
 window.switchTab = switchTab;
+window.addLocation = addLocation;
+window.addDate = addDate
+window.deleteLocation = deleteLocation;
+window.resetLocationForm = resetLocationForm;
+window.updateLocation = updateLocation;
+window.editLocation = editLocation;
+
+function renderEventSettings() {
+    const eventSettingsContainer = document.getElementById('eventSettingsContainer');
+    const includeLocationPreferencesCheckbox = document.getElementById('includeLocationPreferences');
+    const includeDatePreferencesCheckbox = document.getElementById('includeDatePreferences');
+
+    const includeLocationPreferences = selectedLocations.length > 0 || (includeLocationPreferencesCheckbox && includeLocationPreferencesCheckbox.checked);
+    const includeDatePreferences = includeDatePreferencesCheckbox && includeDatePreferencesCheckbox.checked;
+
+    eventSettingsContainer.innerHTML = `
+        <div class="section-card">
+            <h3>Group Event Page Settings</h3>
+            <div class="form-group">
+                <label>Include on Group Event Page:</label>
+                <div class="checkbox-grid">
+                    <label class="checkbox">
+                        <input type="checkbox" id="includeDatePreferences" ${includeDatePreferences ? 'checked' : ''}>
+                        <span class="checkmark"></span>
+                        Date Section
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="includeLocationPreferences" ${includeLocationPreferences ? 'checked' : ''}>
+                        <span class="checkmark"></span>
+                        Location Section
+                    </label>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Call renderEventSettings when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    // ...existing code...
+    renderEventSettings();
+    // ...existing code...
+});

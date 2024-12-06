@@ -11,6 +11,23 @@
     <meta name="author" content="Tiffanie and David Lewis">
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="app.js"></script>
+    <style>
+        .date-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .date-display {
+            flex-grow: 1;
+        }
+        .action-button.delete {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     
@@ -31,7 +48,7 @@
                     <div class="user-name-container">
                         <div class="user-greeting">Howdy,</div>
                         <span id="userName"></span>
-                        <div id="premiumBadge" class="premium-badge">Premium Member</div>
+                        <div id="premiumBadge" class="premium-badge">Free Member</div>
                     </div>
                     <button class="settings-button" data-tab="profile">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -81,56 +98,67 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
-                        <div id="welcomeView" class="tab-content active">
-                <div class="content-header">
-                    <h1>Welcome to gathurUP! 🎉</h1>
-                </div>
-                
-                <div class="content-card welcome-card">
-                    <div class="welcome-section">
-                        <h2>Howdy, Beta Tester! 👋</h2>
-                        <p>We're thrilled to have you as one of our founding users! You're now part of something special - helping us shape the future of how friends get together. To say "Thank You" we made you a Premium Member.</table></p>
-                        
-                        <div class="welcome-feature">
-                            <h3>What's gathurUP?</h3>
-                            <p>Simply put, we're here to solve that age-old problem: "When can everyone get together?" No more endless text threads, confusing email chains, or frustrating back-and-forth. Just easy, clear date planning for your group activities.</p>
-                        </div>
+                        <!-- Welcome View Content -->
+<div id="welcomeView" class="tab-content active">
+    <div class="content-header">
+        <h1>Welcome to gathurUP! 🎉</h1>
+    </div>
+    
+    <div class="content-card welcome-card">
+        <div class="welcome-section">
+            <h2>Howdy, Friend! 👋</h2>
+            <p>We're thrilled to have you as a founding user! To say "Thank You" we made you a Free Member.</p>
             
-                        <div class="welcome-feature">
-                            <h3>Beta Program Details 🚀</h3>
-                            <p>As an unofficial beta tester, keep in mind you're using gathurUP in its early stages. We have big plans for the future, but right now we're focused on perfecting our core feature: helping friends find the ideal date(s) to get together. In the future we plan to add destination, venue, and activity collaboration. </p>
-                            <p>We'd love to hear what you want next.</p>
-                            
-                            <div class="beta-notes">
-                                <p><strong>Please Note:</strong></p>
-                                <ul>
-                                    <li>Best viewed on iPad or desktop but mobile is also supported</li>
-                                    <li>Yes, you can let your friends know about using the app. Just remind them it's in Beta</li>
-                                    <li>Send feedback and bug reports to: <a href="mailto:demandgendave@gmail.com">demandgendave@gmail.com</a></li>
-                                    <li>Your feedback shapes our future features so don't be shy!</li>
-                                </ul>
-                            </div>
-                        </div>
-            
-                        <div class="welcome-feature">
-                            <h3>Ready to Get Started? 🎯</h3>
-                            <p>1. If you're on mobile, there's a little menu button in the lower right</p>
-                            <p>2. Head over to the <strong>Instructions</strong> page for a quick tour</p>
-                            <p>3. Add your friends in the <strong>People and Groups</strong> section</p>
-                            <p>4. Create your first event and watch the magic happen!</p>
-                        </div>
-            
-                        <div class="welcome-cta">
-                            <p>Thanks for being part of our journey! Let's make getting together easier for everyone. 🌟</p>
-                            <p>Your Friends,</p>
-                            <p>Tiffanie and David Lewis</p>
-                            <button onclick="switchTab('instructions')" class="primary-button">
-                                Start by Reading the Instructions
-                            </button>
-                        </div>
-                    </div>
+            <div class="welcome-feature">
+                <h3>What's gathurUP?</h3>
+                <p>Right now, we solve two common group planning challenges: "When can everyone get together?" and "Where should we meet?" No more endless text threads, confusing email chains, or frustrating back-and-forth. Just easy, clear planning for your group activities and trips.</p>
+            </div>
+
+            <div class="welcome-feature">
+                <h3>In This Version 🎯</h3>
+                <ul>
+                    <li><strong>Smart Date Finding:</strong> Easily find dates for single-day events or multi-day trips</li>
+                    <li><strong>Time Slot Options:</strong> Add specific times for more precise planning</li>
+                    <li><strong>Location Voting:</strong> Let groups vote on their preferred meeting spots or destinations</li>
+                    <li><strong>Response Tracking:</strong> See who's available when and their location preferences</li>
+                    <li><strong>Timezone Smart:</strong> Handles different timezones automatically</li>
+                </ul>
+            </div>
+
+            <div class="welcome-feature">
+                <h3>Coming Soon Features 🚀</h3>
+                <div class="beta-notes">
+                    <ul>
+                        <li>Event Hub - All details in one place</li>
+                        <li>Hotel Preferences - Vote on accommodation options</li>
+                        <li>Budget Planning - Gauge group's spending preferences</li>
+                        <li>Activity Planning - Collaborate on itineraries</li>
+                        <li>Task Assignments - Coordinate things to do and bring</li>
+                        <li>Packing Lists - Share packing suggestions</li>
+                    </ul>
+                    <p><strong>Note:</strong> Send feedback and suggestions to: <a href="mailto:demandgendave@gmail.com">demandgendave@gmail.com</a></p>
                 </div>
             </div>
+
+            <div class="welcome-feature">
+                <h3>Quick Start Guide 🚀</h3>
+                <p>1. Create your first group in <strong>People and Groups</strong></p>
+                <p>2. Start an event with dates and locations in <strong>Create Event</strong></p>
+                <p>3. Share the event link with your group</p>
+                <p>4. Track responses and find the best options</p>
+            </div>
+
+            <div class="welcome-cta">
+                <p>Thanks for helping us make getting friends together easier! 🌟</p>
+                <p>Your Friends,</p>
+                <p>Tiffanie and David Lewis</p>
+                <button onclick="switchTab('instructions')" class="primary-button">
+                    Instructions
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
             <!-- Create Event View -->
             <div id="createEventView" class="tab-content">
                 <div class="content-header">
@@ -156,91 +184,220 @@
                             <textarea id="eventDescription" placeholder="Enter event description"></textarea>
                         </div>
 
-                        <div class="event-type">
-                            <h3>Find Your Ideal Dates</h3>
-                            <p class="section-tip">Tip: Choose Specific Date to find the best single date to meet up. Use Date Range for offering ranges to choose from for a multi-day event. Use Day of the Week for finding a consistent day, like Mon - Sun, to meet weekly.</p>
-                            <label class="radio-label">
-                                <input type="radio" name="eventType" value="specific" checked>
-                                Specific Date
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="eventType" value="range">
-                                Date Range
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="eventType" value="dayOfWeek">
-                                Day of Week
-                            </label>
-                        </div>
-
-                                                <div class="date-input">
-                            <!-- Specific Date -->
-                            <div id="specificDateSection" class="date-field specific-date">
-                                <div class="date-field-row">
-                                    <div>
-                                        <label for="specificDateInput">Date</label>
-                                        <input type="date" id="specificDateInput">
-                                    </div>
-                                    <button type="button" id="addSpecificDateBtn" onclick="addDate()">Add Date</button>
+                        <!-- Collapsible Sections -->
+                        <div class="section-card">
+                            <button type="button" class="collapsible">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Dates
+                            </button>
+                            <div class="content">
+                                <div class="event-type">
+                                    <h3>Find Your Ideal Dates</h3>
+                                    <p class="section-tip">Tip: Choose Single-Day Events for events that happen within a day. Selet Multi-Day Events for events that occur over multiple days. Start times can only be added to Single-Day events.</p>
+                                    <label class="radio-label">
+                                        <input type="radio" name="eventType" value="specific" checked>
+                                        Single-Day Events
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="eventType" value="range">
+                                        Multi-Day Events
+                                    </label>
+                                    <label class="checkbox-label" id="addTimesCheckboxContainer" style="display: none;">
+                                        <input type="checkbox" id="addTimesCheckbox">
+                                        Add Start Times
+                                    </label>
+                                    
                                 </div>
-                            </div>
-                        
-                            <!-- Date Range -->
-                            <div id="rangeDateSection" class="date-field range-date" style="display: none;">
-                                <div class="range-inputs">
-                                    <div class="date-field-row">
-                                        <div>
-                                            <label for="startDateInput">Start Date</label>
-                                            <input type="date" id="startDateInput">
+
+                                 <div class="date-input">
+                                    <!-- Specific Date -->
+                                    <div id="specificDateSection" class="date-field specific-date">
+                                        <div class="date-field-row">
+                                            <div>
+                                                <label for="specificDateInput">Date</label>
+                                                <input type="date" id="specificDateInput">
+                                            </div>
+                                            <div id="timeFields" class="time-inputs" style="display: none;">
+                                                <div class="time-input">
+                                                    <label for="specificTimeHour">H</label>
+                                                    <select id="specificTimeHour">
+                                                        <option value="08" selected>08</option>
+                                                        <option value="09">09</option>
+                                                        <option value="10">10</option>
+                                                        <option value="11">11</option>
+                                                        <option value="12">12</option>
+                                                        <option value="01">01</option>
+                                                        <option value="02">02</option>
+                                                        <option value="03">03</option>
+                                                        <option value="04">04</option>
+                                                        <option value="05">05</option>
+                                                        <option value="06">06</option>
+                                                        <option value="07">07</option>
+                                                    </select>
+                                                </div>
+                                                <div class="time-input">
+                                                    <label for="specificTimeMinute">M</label>
+                                                    <select id="specificTimeMinute">
+                                                        <option value="00">00</option>
+                                                        <option value="15">15</option>
+                                                        <option value="30">30</option>
+                                                    </select>
+                                                </div>
+                                                <div class="time-input">
+                                                    <label for="specificTimePeriod">AM/PM</label>
+                                                    <select id="specificTimePeriod">
+                                                        <option value="AM">AM</option>
+                                                        <option value="PM">PM</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <button type="button" id="addSpecificDateBtn" class="primary-button add-date-button" onclick="addDate()">Add Option</button>
                                         </div>
-                                        <div>
-                                            <label for="endDateInput">End Date</label>
-                                            <input type="date" id="endDateInput">
+                                    </div>
+                                
+                                    <!-- Date Range -->
+                                    <div id="rangeDateSection" class="date-field range-date" style="display: none;">
+                                        <div class="range-inputs">
+                                            <div class="date-field-row">
+                                                <div>
+                                                    <label for="startDateInput">Start Date</label>
+                                                    <input type="date" id="startDateInput">
+                                                </div>
+                                                <div>
+                                                    <label for="endDateInput">End Date</label>
+                                                    <input type="date" id="endDateInput">
+                                                </div>
+                                                <button type="button" id="addDateBtn" class="primary-button" onclick="addDate()">Add Option</button> 
+                                            </div>
                                         </div>
-                                        <button type="button" id="addDateBtn" onclick="addDate()">Add Date Range</button>
                                     </div>
+                            
+                                </div>
+
+                                <div id="datesList" class="dates-list">
+                                    <!-- This will be populated dynamically by JavaScript -->
                                 </div>
                             </div>
+                            
+                        </div>
+
+                        <div class="section-card">
+                            <button type="button" class="collapsible">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+                                </svg>
+                                Location
+                            </button>
+                            <div class="content">
+                                <h3>Find Your Ideal Location</h3>
+                                <p class="section-tip">Tip: Use Canva or ChatGPT to make location images. They should be 400px wide by 150px tall.</p>
+                                
+                                <!-- Add Location Form -->
+                                <div class="form-group">
+                                    <label for="locationName">Location Name</label>
+                                    <input type="text" id="locationName" placeholder="Enter location name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="locationDescription">Location Description</label>
+                                    <textarea id="locationDescription" placeholder="Enter location description"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="locationImage">Location Header</label>
+                                    <input type="file" id="locationImage" accept=".jpg, .jpeg, .png, .svg">
+                                    <small><em>Accepted image file types: jpg, jpeg, png, svg</em></small>
+                                </div>
+                                <button type="button" id="addLocationBtn" class="primary-button add-location-button" onclick="addLocation()">Add Location</button>
+                                <!-- Current Locations List -->
+                                <div id="locationList" class="location-list">
+                                    <!-- This will be populated dynamically by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-card">
+                            <button type="button" class="collapsible">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <path d="M8 21v-4h8v4"></path>
+                                    <path d="M8 10h.01"></path>
+                                    <path d="M16 10h.01"></path>
+                                    <path d="M12 10h.01"></path>
+                                    <path d="M8 14h.01"></path>
+                                    <path d="M16 14h.01"></path>
+                                    <path d="M12 14h.01"></path>
+                                </svg>
+                                Hotel
+                            </button>
+                            <div class="content">
+                                <p>When available, this section will enable admins to suggest various hotel options for the group to vote on their hotel preference.</p>
+                            </div>
+                        </div>
+                        <div class="section-card">
+                            <button type="button" class="collapsible">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14.5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                                Budget
+                            </button>
+                            <div class="content">
+                                <p>This section will enable admins to suggest various budget ranges to gauge the groups preferences on a personal budget for attending the event in order to help plan hotels and activities.</p>
+                            </div>
+                        </div>
+                        <div class="section-card">
+                            <button type="button" class="collapsible">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 2H15V4H9z"></path>
+                                    <path d="M4 4H20V20H4z"></path>
+                                    <path d="M4 8H20"></path>
+                                    <path d="M4 12H20"></path>
+                                    <path d="M4 16H20"></path>
+                                </svg>
+                                Assignments
+                            </button>
+                            <div class="content">
+                                <p> This section will enable the admin to assign "Things to Bring" and "Things to Do" for group members like someone bringing dessert and somone renting a car.</p>
+                            </div>
+                        </div>
+                        <div class="section-card">
+                            <button type="button" class="collapsible">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M8 22h8"></path>
+                                    <path d="M12 22v-6"></path>
+                                    <path d="M5 3h14"></path>
+                                    <path d="M19 3l-7 10-7-10"></path>
+                                </svg>
+                                Activities
+                            </button>
+                            <div class="content">
+                                <p>Activities collaboration will enable groups to suggest and build itineraries together like dining, hikes, tours, biking, fishing, etc..</p>
+                            </div>
+                        </div>
                         
-                            <!-- Day of Week -->
-                            <div id="dayOfWeekSection" class="date-field" style="display: none;">
-                                <div class="days-of-week-container">
-                                    <div class="days-of-week-checkboxes">
-                                        <label><input type="checkbox" name="daysOfWeek" value="Monday"> Monday</label>
-                                        <label><input type="checkbox" name="daysOfWeek" value="Tuesday"> Tuesday</label>
-                                        <label><input type="checkbox" name="daysOfWeek" value="Wednesday"> Wednesday</label>
-                                        <label><input type="checkbox" name="daysOfWeek" value="Thursday"> Thursday</label>
-                                        <label><input type="checkbox" name="daysOfWeek" value="Friday"> Friday</label>
-                                        <label><input type="checkbox" name="daysOfWeek" value="Saturday"> Saturday</label>
-                                        <label><input type="checkbox" name="daysOfWeek" value="Sunday"> Sunday</label>
-                                    </div>
-                                    <button type="button" id="addDaysBtn" onclick="addDaysOfWeek()">Add Days</button>
-                                </div>
+                        <div class="section-card">
+                            <button type="button" class="collapsible">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="7" width="18" height="14" rx="2" ry="2"></rect>
+                                    <path d="M16 3h-8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"></path>
+                                </svg>
+                                Packing
+                            </button>
+                            <div class="content">
+                                <p>Packing list collaboration wiil enable admins and group members to suggest items to pack on trips.</p>
                             </div>
                         </div>
 
-                        <div id="datesList" class="dates-list"></div>
-
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="anonymousResponses">
-                                Make Responses Anonymous
-                            </label>
-                        </div>
+                        <div id="eventSettingsContainer"></div>
 
                         <div class="submit-container">
                             <button type="submit" class="primary-button">Create Event</button>
                         </div>
                     </form>
-
-                    <div id="shareLink" style="display: none;">
-                        <h3>Share this Event</h3>
-                        <div class="event-link-container">
-                            <input type="text" id="shareLinkInput" readonly>
-                            <button onclick="copyEventLink()" class="copy-button">Copy Link</button>
-                            <button onclick="openEventLink()" class="go-button">Open</button>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -252,7 +409,7 @@
                 
                 <div class="events-list-container">
                     <div class="events-list">
-                        <div class="events-table-header">
+                        <div class="events-table-header" id="eventsTableHeader">
                             <div class="event-col">Event</div>
                             <div class="group-col">Group</div>
                             <div class="actions-col">Actions</div>
@@ -304,7 +461,9 @@
                     <div class="member-selection-header">
                         <button type="button" id="selectAllMembers" class="secondary-button">Select All</button>
                     </div>
-                    <div id="memberCheckboxes" class="checkbox-container"></div>
+                    <div id="memberCheckboxes" class="ta">
+                        <!-- List of members will be dynamically populated here -->
+                    </div>
                 </div>
 
                 <div class="form-buttons">
@@ -322,36 +481,53 @@
         <h1>Instructions</h1>
     </div>
     <div class="content-card">
-        <h2>Welcome to gathurUP!</h2>
+        <h2>Getting Started with gathurUP</h2>
         <div class="instruction-sections">
             <div class="instruction-section">
                 <h3>Step 1: Add People</h3>
-                <p>Start in the <strong>People and Groups</strong> tab. Add everyone you might want to invite to your events by entering their full names. These could be friends, family, colleagues - anyone you plan activities with.</p>
-            </div>
-
-            <div class="instruction-section">
-                <h3>Step 2: Create Groups</h3>
-                <p>Still in <strong>People and Groups</strong>, switch to the Groups section to organize your people into different groups. Each group can have its own purpose - maybe one for family gatherings, another for game nights, or weekend trips.</p>
-            </div>
-
-            <div class="instruction-section">
-                <h3>Step 3: Create Events</h3>
-                <p>Use the <strong>Create Event</strong> tab to set up your gathering. Choose from:</p>
-                <ul></ul>
-                    <li><strong>Specific Date:</strong> Perfect for one-day events like dinners or meetings</li>
-                    <li><strong>Date Range:</strong> Ideal for planning trips or multi-day events</li>
-                    <li><strong>Day of Week:</strong> Great for recurring events like weekly game nights</li>
+                <p>Start in the <strong>People and Groups</strong> tab:</p>
+                <ul>
+                    <li>Add yourself first</li>
+                    <li>Add friends you plan to invite to events</li>
+                    <li>Use full names for easier identification</li>
                 </ul>
             </div>
 
             <div class="instruction-section">
-                <h3>Step 4: Share & Track</h3>
-                <p>After creating an event:</p>
+                <h3>Step 2: Create Groups</h3>
+                <p>In <strong>People and Groups</strong>, organize your contacts:</p>
                 <ul>
-                    <li>Copy and share the event link with your group</li>
-                    <li>Track responses in the Events tab</li>
-                    <li>See who's available and when</li>
-                    <li>Choose the date that works best for everyone</li>
+                    <li>Create different groups for different purposes</li>
+                    <li>Family events, friend gatherings, trip groups, etc.</li>
+                    <li>Add people to multiple groups as needed</li>
+                </ul>
+            </div>
+
+            <div class="instruction-section">
+                <h3>Step 3: Create Events</h3>
+                <p>Use <strong>Create Event</strong> to set up your gathering:</p>
+                <ul>
+                    <li><strong>Single-Day Events:</strong>
+                        <ul>
+                            <li>Perfect for meetups, dinners, game nights</li>
+                            <li>Option to add specific time slots</li>
+                            <li>Multiple time options for flexibility</li>
+                        </ul>
+                    </li>
+                    <li><strong>Multi-Day Events:</strong>
+                        <ul>
+                            <li>Ideal for trips and longer gatherings</li>
+                            <li>Select date ranges for availability</li>
+                            <li>Perfect for weekend trips or vacations</li>
+                        </ul>
+                    </li>
+                    <li><strong>Location Options:</strong>
+                        <ul>
+                            <li>Add multiple location choices</li>
+                            <li>Include descriptions and images</li>
+                            <li>Let group vote on preferences</li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
 
@@ -364,28 +540,33 @@
                 </div>
 
                 <div class="faq-item">
+                    <h4>Q: How do date votes work?</h4>
+                    <p>A: Members use thumbs up/down to indicate availability for each date option.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q: How do location votes work?</h4>
+                    <p>A: Members select their single preferred location from the options provided.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q: Can I add times to multi-day events?</h4>
+                    <p>A: No, time slots are only available for single-day events.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q: How are different timezones handled?</h4>
+                    <p>A: Times are automatically converted to each member's local timezone.</p>
+                </div>
+
+                <div class="faq-item">
                     <h4>Q: Can I edit an event after creating it?</h4>
-                    <p>A: Yes, you can edit event details, add/remove dates, and update group members at any time.</p>
+                    <p>A: Yes! You can edit details, add/remove dates, and update locations anytime.</p>
                 </div>
 
                 <div class="faq-item">
-                    <h4>Q: What's the difference between Specific Date and Date Range?</h4>
-                    <p>A: Specific Date is for single-day events (like dinner), while Date Range lets people indicate availability across multiple days (like weekend trips).</p>
-                </div>
-
-                <div class="faq-item">
-                    <h4>Q: Can I use the same group for different events?</h4>
-                    <p>A: Yes! Create a group once and use it for as many events as you like.</p>
-                </div>
-
-                <div class="faq-item">
-                    <h4>Q: What does "Anonymous Responses" mean?</h4>
-                    <p>A: When enabled, people can't see who voted for which dates - only the anonymous responses are shown.</p>
-                </div>
-
-                <div class="faq-item">
-                    <h4>Q: Can I delete people or groups?</h4>
-                    <p>A: Yes, you can remove individuals from your people list or delete entire groups. This won't affect past events.</p>
+                    <h4>Q: What's coming next?</h4>
+                    <p>A: Hotel preferences, budget planning, activity planning, packing lists, and task assignments.</p>
                 </div>
             </div>
         </div>
@@ -400,13 +581,29 @@
     <div class="content-card">
         <form id="profileForm" class="profile-form">
             <div class="form-group">
-                <label for="profileName">Display Name</label>
-                <input type="text" id="profileName" required>
+                <label for="profileFirstName">First Name</label>
+                <input type="text" id="profileFirstName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="profileLastName">Last Name</label>
+                <input type="text" id="profileLastName" required>
             </div>
             
             <div class="form-group">
                 <label for="profileEmail">Email Address</label>
                 <input type="email" id="profileEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="profileTimezone">Timezone</label>
+                <select id="profileTimezone" required>
+                    <option value="UTC">UTC</option>
+                    <option value="America/New_York">Eastern Time (US & Canada)</option>
+                    <option value="America/Chicago">Central Time (US & Canada)</option>
+                    <option value="America/Denver">Mountain Time (US & Canada)</option>
+                    <option value="America/Los_Angeles">Pacific Time (US & Canada)</option>
+                    <!-- Add more timezones as needed -->
+                </select>
             </div>
 
             <div class="profile-actions">
@@ -422,6 +619,48 @@
         </div>
     </div>
 </div>
+
+<!-- Event Detail View -->
+<div id="eventDetailView" class="tab-content">
+    <div class="content-header">
+        <h1>Event Details</h1>
+    </div>
+    <div class="content-card">
+        <div id="eventDetail">
+            <!-- Event details will be dynamically populated here -->
+        </div>
+        <div class="section-card">
+            <button type="button" class="collapsible">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                Dates
+            </button>
+            <div class="content">
+                <div id="eventDatesList" class="dates-list">
+                    <!-- Dates votes summary will be dynamically populated here -->
+                </div>
+            </div>
+        </div>
+        <div class="section-card">
+            <button type="button" class="collapsible">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10.5a8.38 8.38 0 0 1-1.9.5 4.15 4.15 0 0 0 1.8-2.3 8.27 8.27 0 0 1-2.6 1 4.13 4.13 0 0 0-7 3.8 11.7 11.7 0 0 1-8.5-4.3 4.13 4.13 0 0 0 1.3 5.5 4.1 4.1 0 0 1-1.9-.5v.1a4.13 4.13 0 0 0 3.3 4 4.1 4.1 0 0 1-1.9.1 4.13 4.13 0 0 0 3.8 2.8 8.3 8.3 0 0 1-5.1 1.8 11.7 11.7 0 0 0 6.3 1.8c7.5 0 11.6-6.2 11.6-11.6v-.5a8.3 8.3 0 0 0 2-2.1z"/>
+                </svg>
+                Locations
+            </button>
+            <div class="content">
+                <div id="eventLocationsList" class="location-list">
+                    <!-- Locations votes summary will be dynamically populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </main>
 </div>
 
