@@ -186,9 +186,13 @@ async function updateProfileInfo(e) {
     try {
         const updates = [];
         
-        // Update display name if changed
-        if (newFirstName !== currentUser.displayName.split(' ')[0] || newLastName !== currentUser.displayName.split(' ')[1]) {
-            updates.push(updateProfile(currentUser, { displayName: `${newFirstName} ${newLastName}` }));
+        // Only compare with existing displayName if it exists
+        if (!currentUser.displayName || 
+            newFirstName !== (currentUser.displayName.split(' ')[0] || '') || 
+            newLastName !== (currentUser.displayName.split(' ')[1] || '')) {
+            updates.push(updateProfile(currentUser, { 
+                displayName: `${newFirstName} ${newLastName}` 
+            }));
         }
         
         // Update email if changed
@@ -200,14 +204,18 @@ async function updateProfileInfo(e) {
         
         // Update database profile
         const userRef = ref(database, `users/${currentUser.uid}/profile`);
-        const userProfile = (await get(userRef)).val();
+        const profileSnapshot = await get(userRef);
+        const existingProfile = profileSnapshot.val() || {};
+        
         await set(userRef, {
+            ...existingProfile,
             firstName: newFirstName,
             lastName: newLastName,
             email: newEmail,
-            timezone: newTimezone || userProfile.timezone || 'UTC', // Preserve existing timezone if not changed
-            subscription: 'free', // Assuming subscription is not changing here
-            updatedAt: new Date().toISOString()
+            timezone: newTimezone || existingProfile.timezone || 'UTC',
+            subscription: existingProfile.subscription || 'free',
+            updatedAt: new Date().toISOString(),
+            createdAt: existingProfile.createdAt || new Date().toISOString()
         });
         
         // Update UI
@@ -1741,3 +1749,35 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEventSettings();
     // ...existing code...
 });
+
+async function renderDatesList(dates, userId, eventId) {
+    const datesList = document.getElementById('datesList');
+    datesList.innerHTML = '';
+
+    dates.forEach(date => {
+        const dateCard = document.createElement('div');
+        dateCard.className = 'date-card';
+        dateCard.dataset.date = date.date;
+        dateCard.innerHTML = `
+            <div class="date-header" onclick="toggleDate('${date.date}')">
+                <span>${formatDateForDisplay(date.date)}</span>
+                <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+            <div class="date-ranges">
+                ${date.times.map(time => `
+                    <div class="time-slot" data-time-id="${date.date}T${time}">
+                        <div class="time-slot-content">
+                            <div class="vote-indicator maybe" onclick="toggleVote('${date.date}', '${time}')"></div>
+                            <div class="time-info">
+                                <p class="time">${formatTimeForDisplay(time, date.date)}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        datesList.appendChild(dateCard);
+    });
+}
