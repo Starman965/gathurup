@@ -641,7 +641,7 @@ function renderSingleDate(dateObj) {
     console.log('renderSingleDate output:', { formattedDate, badgeMonth, badgeDay });
     
     return `
-        <div class="date-card single-date" data-date="${dateObj.date}">
+        <div class="date-card single-date" data-date="${dateObj.date}" onclick="toggleVote('${dateObj.date}')">
             <div class="content-wrapper">
                 <div class="date-info">
                     <div class="date-badge">
@@ -652,9 +652,9 @@ function renderSingleDate(dateObj) {
                         <h3>${formattedDate}</h3>
                     </div>
                 </div>
-                <button class="date-vote-button" onclick="toggleVote('${dateObj.date}')">
+                <div class="vote-indicator">
                     ${getVoteIndicator(dateObj.date)}
-                </button>
+                </div>
             </div>
         </div>
     `;
@@ -870,11 +870,11 @@ function renderSingleDate(dateObj) {
                             </div>
                             <div class="date-ranges" style="display: none;">
                                 ${dateObj.times.map(time => `
-                                    <div class="time-slot" data-time-id="${dateObj.date}T${time}">
+                                    <div class="time-slot" data-time-id="${dateObj.date}T${time}" onclick="toggleVote('${dateObj.date}', '${time}')">
                                         <div class="time-slot-content">
-                                            <button class="date-vote-button" onclick="toggleVote('${dateObj.date}', '${time}')">
+                                            <div class="vote-indicator">
                                                 ${getVoteIndicator(`${dateObj.date}T${time}`)}
-                                            </button>
+                                            </div>
                                             <div class="time-info">
                                                 <p class="time">${formatTimeForDisplay(time, dateObj.date)}</p>
                                                 <p class="votes">Click to set your preference</p>
@@ -924,14 +924,14 @@ function renderSingleDate(dateObj) {
 
         function renderRangeDateCard(dateObj) {
             return `
-                <div class="range-card" data-date="${dateObj.start}">
+                <div class="range-card" data-date="${dateObj.start}" onclick="toggleSingleDateVote('${dateObj.start}')">
                     <div class="time-slot-content">
-                        <button class="date-vote-button" onclick="toggleSingleDateVote('${dateObj.start}')">
+                        <div class="vote-indicator">
                             ${getVoteIndicator(dateObj.start)}
-                        </button>
+                        </div>
                         <div class="time-info">
                             <p class="time">${dateObj.displayRange || formatDateForDisplay(dateObj.start)}</p>
-                            <p class="votes">Click the icon to set your preference</p>
+                            <p class="votes">Click anywhere to set your preference</p>
                         </div>
                     </div>
                 </div>
