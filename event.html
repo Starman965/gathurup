@@ -156,14 +156,18 @@
         let locationVotes = {};
         let currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-        function adjustToLocalDate(dateStr) {
-            const date = new Date(dateStr);
-            return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-        }
 
-        function formatDateForDisplay(dateStr, options = {}) {
+              function formatDateForDisplay(dateStr, options = {}) {
             if (!dateStr) return '';
-            const date = new Date(dateStr);
+            
+            console.log('Input date:', dateStr);
+            
+            // Parse date using UTC
+            const [year, month, day] = dateStr.split('-');
+            const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)));
+            
+            console.log('Parsed UTC date:', date.toISOString());
+            
             return date.toLocaleDateString('en-US', {
                 timeZone: currentTimezone,
                 weekday: options.weekday || 'long',
@@ -173,7 +177,6 @@
                 ...options
             });
         }
-
         function formatTimeForDisplay(timeStr, dateStr) {
             if (!timeStr || !dateStr) return '';
             const [hours, minutes] = timeStr.split(':');
@@ -606,7 +609,56 @@
 
             container.innerHTML = html;
         }
-
+function renderSingleDate(dateObj) {
+    console.log('renderSingleDate input:', dateObj);
+    
+    // Parse date using local timezone
+    const [year, month, day] = dateObj.date.split('-');
+    const date = new Date(year, month - 1, day);
+    
+    console.log('renderSingleDate parsed date:', date.toISOString());
+    
+    // Format display date using currentTimezone
+    const formattedDate = new Intl.DateTimeFormat('en-US', {
+        timeZone: currentTimezone,
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    }).format(date);
+    
+    // Extract month and day for badge using currentTimezone
+    const badgeMonth = new Intl.DateTimeFormat('en-US', {
+        timeZone: currentTimezone,
+        month: 'short'
+    }).format(date).toUpperCase();
+    
+    const badgeDay = new Intl.DateTimeFormat('en-US', {
+        timeZone: currentTimezone,
+        day: 'numeric'
+    }).format(date);
+    
+    console.log('renderSingleDate output:', { formattedDate, badgeMonth, badgeDay });
+    
+    return `
+        <div class="date-card single-date" data-date="${dateObj.date}">
+            <div class="content-wrapper">
+                <div class="date-info">
+                    <div class="date-badge">
+                        <span class="month">${badgeMonth}</span>
+                        <span class="day">${badgeDay}</span>
+                    </div>
+                    <div class="date-details">
+                        <h3>${formattedDate}</h3>
+                    </div>
+                </div>
+                <button class="date-vote-button" onclick="toggleVote('${dateObj.date}')">
+                    ${getVoteIndicator(dateObj.date)}
+                </button>
+            </div>
+        </div>
+    `;
+}
         async function getTotalAvailableCount(times, date, userId, eventId) {
             const votesRef = ref(database, `users/${userId}/events/${eventId}/votes`);
             const votesSnap = await get(votesRef);
@@ -766,96 +818,74 @@
             event.stopPropagation();
         };
 
-        function renderSingleDate(dateObj) {
-            // Handle both start and displayRange format
-            const startDate = dateObj.date || dateObj.start;
-            const displayDate = dateObj.displayRange || formatDateForDisplay(startDate, {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric'
-            });
-
-            const date = new Date(startDate);
-            const month = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-            const day = date.getDate();
-
-            if (dateObj.times && dateObj.times.length > 0) {
-                // Time slots rendering remains unchanged
-                // ...existing time slots code...
-            } else {
-                // Updated single date without times rendering
-                return `
-                    <div class="date-card single-date" data-date="${startDate}">
-                        <div class="content-wrapper">
-                            <div class="date-info">
-                                <div class="date-badge">
-                                    <span class="month">${month}</span>
-                                    <span class="day">${day}</span>
-                                </div>
-                                <div class="date-details">
-                                    <h3>${displayDate}</h3>
-                                </div>
-                            </div>
-                            <div class="vote-button-container">
-                                <button class="date-vote-button" onclick="toggleVote('${startDate}')">
-                                    ${getVoteIndicator(startDate)}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function renderDateWithTimes(dateObj) {
-            const date = new Date(dateObj.date); // Changed from dateObj.start
-            const formattedDate = formatDateForDisplay(dateObj.date, {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric'
-            });
-            const month = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-            const day = date.getDate();
-
-            return `
-                <div class="date-card" data-date="${dateObj.date}">
-                    <div class="month-header" onclick="toggleDate('${dateObj.date}')">
-                        <div class="month-header-content">
-                            <div class="date-info">
-                                <div class="date-badge">
-                                    <span class="month">${month}</span>
-                                    <span class="day">${day}</span>
-                                </div>
-                                <div class="date-details">
-                                    <h3>${formattedDate}</h3>
-                                    <span class="expand-hint">Click to see available times</span>
-                                </div>
-                            </div>
-                        </div>
-                        <svg class="expand-icon" viewBox="0 0 24 24">
-                            <path d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                    <div class="date-ranges" style="display: none;">
-                        ${dateObj.times.map(time => `
-                            <div class="time-slot" data-time-id="${dateObj.date}T${time}">
-                                <div class="time-slot-content">
-                                    <button class="date-vote-button" onclick="toggleVote('${dateObj.date}', '${time}')">
-                                        ${getVoteIndicator(`${dateObj.date}T${time}`)}
-                                    </button>
-                                    <div class="time-info">
-                                        <p class="time">${formatTimeForDisplay(time, dateObj.date)}</p>
-                                        <p class="votes">Click to set your preference</p>
+                              function renderDateWithTimes(dateObj) {
+                    console.log('renderDateWithTimes input:', dateObj);
+                    
+                    // Parse date using local timezone
+                    const [year, month, day] = dateObj.date.split('-');
+                    const date = new Date(year, month - 1, day);
+                    
+                    console.log('renderDateWithTimes parsed date:', date.toISOString());
+                    
+                    // Format display date using currentTimezone
+                    const formattedDate = new Intl.DateTimeFormat('en-US', {
+                        timeZone: currentTimezone,
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                    }).format(date);
+                    
+                    // Extract month and day for badge using currentTimezone
+                    const badgeMonth = new Intl.DateTimeFormat('en-US', {
+                        timeZone: currentTimezone,
+                        month: 'short'
+                    }).format(date).toUpperCase();
+                    
+                    const badgeDay = new Intl.DateTimeFormat('en-US', {
+                        timeZone: currentTimezone,
+                        day: 'numeric'
+                    }).format(date);
+                    
+                    console.log('renderDateWithTimes output:', { formattedDate, badgeMonth, badgeDay });
+                
+                    return `
+                        <div class="date-card" data-date="${dateObj.date}">
+                            <div class="month-header" onclick="toggleDate('${dateObj.date}')">
+                                <div class="month-header-content">
+                                    <div class="date-info">
+                                        <div class="date-badge">
+                                            <span class="month">${badgeMonth}</span>
+                                            <span class="day">${badgeDay}</span>
+                                        </div>
+                                        <div class="date-details">
+                                            <h3>${formattedDate}</h3>
+                                            <span class="expand-hint">Click to see available times</span>
+                                        </div>
                                     </div>
                                 </div>
+                                <svg class="expand-icon" viewBox="0 0 24 24">
+                                    <path d="M19 9l-7 7-7-7" />
+                                </svg>
                             </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
+                            <div class="date-ranges" style="display: none;">
+                                ${dateObj.times.map(time => `
+                                    <div class="time-slot" data-time-id="${dateObj.date}T${time}">
+                                        <div class="time-slot-content">
+                                            <button class="date-vote-button" onclick="toggleVote('${dateObj.date}', '${time}')">
+                                                ${getVoteIndicator(`${dateObj.date}T${time}`)}
+                                            </button>
+                                            <div class="time-info">
+                                                <p class="time">${formatTimeForDisplay(time, dateObj.date)}</p>
+                                                <p class="votes">Click to set your preference</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
 
         function renderRangeDates(dates) {
             // Group dates by month/year
