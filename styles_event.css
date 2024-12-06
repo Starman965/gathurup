@@ -829,3 +829,81 @@ body {
     margin-bottom: 1rem;
     border-left: 4px solid var(--tiffany-blue);
 }
+
+// ...existing code...
+
+/* Confirmation Page Styles */
+.confirmation-content {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.confirmation-content h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.confirmation-content a {
+    color: var(--tiffany-blue);
+    text-decoration: none;
+}
+
+.confirmation-content a:hover {
+    text-decoration: underline;
+}
+
+.cta-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.cta-card h2 {
+    font-size: 1.75rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.cta-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.cta-button-container {
+    display: flex;
+    justify-content: center;
+}
+
+.cta-button-container .submit-button {
+    font-size: 1.125rem;
+    padding: 1rem 2rem;
+}
+/* Add to styles_event.css */
+.confirmation-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.confirmation-content h2 {
+    margin-bottom: 1rem;
+}
+
+.confirmation-content a {
+    color: var(--tiffany-blue);
+    text-decoration: none;
+}
+
+.confirmation-content a:hover {
+    text-decoration: underline;
+}
