@@ -1724,7 +1724,8 @@ function renderEventSettings() {
     eventSettingsContainer.innerHTML = `
         <div class="section-card">
             <h3>Group Event Page Settings</h3>
-            <div class="form-group">
+             <p class="section-tip">Tip: Be sure to include the sections you need on your event page for users to see and respond to. Remove sections you are not using.</p>
+             <div class="form-group">
                 <label>Include on Group Event Page:</label>
                 <div class="checkbox-grid">
                     <label class="checkbox">
