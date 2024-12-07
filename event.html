@@ -157,7 +157,7 @@
         let currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 
-              function formatDateForDisplay(dateStr, options = {}) {
+     function formatDateForDisplay(dateStr, options = {}) {
             if (!dateStr) return '';
             
             console.log('Input date:', dateStr);
@@ -346,18 +346,21 @@
                 container.innerHTML = '<p class="no-locations">No Locations Provided</p>';
                 return;
             }
-
+        
             const votesRef = ref(database, `users/${userId}/events/${eventId}/votes/${selectedFullName}/locationPreferences`);
             const votesSnap = await get(votesRef);
             const userLocationVote = votesSnap.val() || {};
-
+        
             locations.forEach((location) => {
                 const locationCard = document.createElement('div');
                 locationCard.className = 'location-card';
+                locationCard.setAttribute('data-location', location.name);
+                locationCard.onclick = () => handleLocationVote(location.name);
+        
                 const isSelected = location.name === userLocationVote.selectedLocation;
                 const voteIcon = getLocationVoteIcon(location.name, userLocationVote.selectedLocation);
                 const buttonClass = isSelected ? 'selected' : userLocationVote.selectedLocation ? 'not-selected' : '';
-
+        
                 locationCard.innerHTML = `
                     ${location.imageUrl ? 
                         `<img src="${location.imageUrl}" alt="${location.name}" class="location-image">` : 
@@ -367,7 +370,7 @@
                         <h3 class="location-title">${location.name}</h3>
                         <p class="location-description">${location.description}</p>
                         <div class="vote-buttons">
-                            <button class="location-vote-button ${buttonClass}" data-location="${location.name}" onclick="handleLocationVote('${location.name}')">
+                            <button class="location-vote-button ${buttonClass}" data-location="${location.name}">
                                 ${voteIcon}
                             </button>
                         </div>
@@ -382,8 +385,8 @@
             if (!selectedLocation) {
                 return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/>
-        <path d="M9.5 9a3 3 0 0 1 5 1c0 2-3 3-3 3"/>
-        <circle cx="12" cy="17" r="1"/>
+                <path d="M9.5 9a3 3 0 0 1 5 1c0 2-3 3-3 3"/>
+                <circle cx="12" cy="17" r="1"/>
                 </svg>`;
             }
             
@@ -650,6 +653,7 @@ function renderSingleDate(dateObj) {
                     </div>
                     <div class="date-details">
                         <h3>${formattedDate}</h3>
+                        <p class="votes">Click anywhere to set your preference</p>
                     </div>
                 </div>
                 <div class="vote-indicator">
@@ -679,17 +683,17 @@ function renderSingleDate(dateObj) {
         async function renderTimeSlots(times, date, userId, eventId) {
             if (times.length === 0) {
                 return `
-                    <button class="time-slot" 
-                            onclick="toggleVote('${date}', '')"
-                            data-time-id="${date}">
+                    <div class="time-slot" 
+                        onclick="toggleVote('${date}', '')"
+                        data-time-id="${date}">
                         <div class="time-slot-content">
                             <div class="vote-indicator" style="background-color: #FEF3C7; color: #D97706;">?</div>
                             <div class="time-info">
                                 <p class="time">All Day</p>
-                                <p class="votes">0 person(s) selected this time</p>
+                                <p class="votes">Click anywhere to set your preference</p>
                             </div>
                         </div>
-                    </button>
+                    </div>
                 `;
             }
 
@@ -707,17 +711,17 @@ function renderSingleDate(dateObj) {
                 }
 
                 return `
-                    <button class="time-slot" 
-                            onclick="toggleVote('${date}', '${time}')"
-                            data-time-id="${timeSlotId}">
+                    <div class="time-slot" 
+                        onclick="toggleVote('${date}', '${time}')"
+                        data-time-id="${timeSlotId}">
                         <div class="time-slot-content">
                             <div class="vote-indicator" style="background-color: #FEF3C7; color: #D97706;">?</div>
                             <div class="time-info">
                                 <p class="time">${formatTimeForDisplay(time, date)}</p>
-                                <p class="votes">${availableCount} person(s) selected this time</p>
+                                <p class="votes">Click anywhere to set your preference</p>
                             </div>
                         </div>
-                    </button>
+                    </div>
                 `;
             }));
             return timesHtml.join('');
@@ -860,7 +864,7 @@ function renderSingleDate(dateObj) {
                                         </div>
                                         <div class="date-details">
                                             <h3>${formattedDate}</h3>
-                                            <span class="expand-hint">Click to see available times</span>
+                                            <span class="expand-hint">Click to set your preferences for times provided</span>
                                         </div>
                                     </div>
                                 </div>
@@ -909,7 +913,7 @@ function renderSingleDate(dateObj) {
                     <div class="month-header" onclick="toggleMonth('${month}')">
                         <div class="month-header-content">
                             <h3>${month}</h3>
-                            <span class="expand-hint">Expand to select your preference for the ${ranges.length} date range${ranges.length > 1 ? 's' : ''} provided</span>
+                            <span class="expand-hint">Click to set your preferences for the ${ranges.length} date range${ranges.length > 1 ? 's' : ''} provided</span>
                         </div>
                         <svg class="expand-icon" viewBox="0 0 24 24">
                             <path d="M19 9l-7 7-7-7" />
@@ -923,6 +927,10 @@ function renderSingleDate(dateObj) {
         }
 
         function renderRangeDateCard(dateObj) {
+            // Format start and end dates without time
+            const formattedStartDate = formatDateForDisplay(dateObj.start, { month: '2-digit', day: '2-digit', year: '2-digit' });
+            const formattedEndDate = formatDateForDisplay(dateObj.end, { month: '2-digit', day: '2-digit', year: '2-digit' });
+        
             return `
                 <div class="range-card" data-date="${dateObj.start}" onclick="toggleSingleDateVote('${dateObj.start}')">
                     <div class="time-slot-content">
@@ -930,8 +938,8 @@ function renderSingleDate(dateObj) {
                             ${getVoteIndicator(dateObj.start)}
                         </div>
                         <div class="time-info">
-                            <p class="time">${dateObj.displayRange || formatDateForDisplay(dateObj.start)}</p>
-                            <p class="votes">Click anywhere to set your preference</p>
+                            <p class="time">${formattedStartDate} to ${formattedEndDate}</p>
+                            <p class="votes">Click to set your preference</p>
                         </div>
                     </div>
                 </div>

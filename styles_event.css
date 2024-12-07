@@ -209,6 +209,9 @@ body {
     margin-right: 1rem;
 }
 
+.date-card.single-date:hover {
+    background-color: #f0f0f0; /* Change background color on hover */
+}
 .date-badge .month {
     font-size: 0.875rem;
     color: var(--text-secondary);
@@ -443,6 +446,8 @@ body {
 
 /* Location Cards */
 .location-card {
+    cursor: pointer;
+    transition: background-color 0.3s;
     background: white;
     border-radius: 0.5rem;
     padding: 1rem;
@@ -457,7 +462,9 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
-
+.location-card:hover {
+    background-color: #f0f0f0;
+}
 .location-image {
     max-width: 250px;
     width: 100%;
@@ -552,37 +559,16 @@ body {
 
 .range-card {
     width: 100%;
-    padding: 0.75rem;  /* Reduced padding */
+    padding: 0.75rem;
     border: none;
     background: none;
     cursor: pointer;
     border-bottom: 1px solid var(--border-color);
 }
 
-.range-card .time-slot-content {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    min-height: 2.5rem;  /* Set consistent height */
+.range-card:hover {
+    background-color: #f0f0f0; /* Change background color on hover */
 }
-
-.range-card .time-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.range-card .time-info .time {
-    font-size: 0.875rem;  /* Slightly smaller text */
-    margin-bottom: 0.125rem;
-}
-
-.range-card .time-info .votes {
-    font-size: 0.75rem;  /* Smaller hint text */
-    margin-top: 0;
-}
-
 .range-card:last-child {
     border-bottom: none;
 }
@@ -600,24 +586,6 @@ body {
     padding: 0.5rem;
 }
 
-.range-card .time-info {
-    flex: 1;
-    text-align: left;
-}
-
-.range-card .time-info .time {
-    font-weight: 500;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-.range-card .time-info .votes {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin: 0;
-}
-
-
 
 .month-header-content {
     flex: 1;
@@ -626,14 +594,9 @@ body {
 .expand-hint {
     font-size: 0.875rem;
     color: var(--text-secondary);
-    display: block;
-    margin-top: 0.25rem;
+    margin-top: 0.5rem;
     font-weight: normal;
-}
-
-.date-details .expand-hint {
-    font-size: 0.75rem;
-    color: var(--tiffany-blue);
+    text-align: center;
 }
 
 /* Date Vote Button */
@@ -673,7 +636,6 @@ body {
     transform: scale(1.1);
 }
 
-/* ...existing code... */
 .location-vote-button.selected {
     background: #81D8D0;  /* Tiffany blue for selected */
     color: #ffffff;
@@ -683,7 +645,6 @@ body {
     background: #FEE2E2;  /* Light red for not selected */
     color: #DC2626;
 }
-/* ...existing code... */
 
 .date-card {
     margin-bottom: 0.5rem; /* Reduced from 1rem */
@@ -716,7 +677,7 @@ body {
     font-size: 0.75rem; /* Reduced from 0.875rem */
     margin: 0;
 }
-/* Add to styles_event.css */
+
 .date-card.single-date .content-wrapper {
     flex-direction: row;
     justify-content: space-between;
@@ -727,7 +688,6 @@ body {
  .date-card.single-date .vote-button {
     margin-left: auto;
  }
-/* end of changes*/
 
 .date-card.single-date {
     display: flex;
@@ -762,6 +722,7 @@ body {
     color: var(--tiffany-blue);
     padding: 0 0 0.5rem 4.5rem; /* Align with date text (date badge width + gap) */
     margin: 0;
+
 }.date-card.single-date .date-details h3 {
     font-size: 1rem;
     color: var(--text-primary);
@@ -819,7 +780,7 @@ body {
     background: #FEF3C7; 
     color: #D97706;
  }
-/* Tip Style */
+
 .tip {
     font-size: 0.875rem;
     color: var(--text-secondary);
@@ -830,9 +791,6 @@ body {
     border-left: 4px solid var(--tiffany-blue);
 }
 
-// ...existing code...
-
-/* Confirmation Page Styles */
 .confirmation-content {
     text-align: center;
     margin-top: 1.5rem;
@@ -885,7 +843,7 @@ body {
     font-size: 1.125rem;
     padding: 1rem 2rem;
 }
-/* Add to styles_event.css */
+
 .confirmation-content {
     display: flex;
     flex-direction: column;
