@@ -827,11 +827,20 @@ textarea {
     margin-bottom: 16px;
 }
 
+#memberCheckboxes {
+    display: flex;
+    flex-direction: column; /* Display checkboxes in a column */
+    gap: 8px; /* Add space between checkboxes */
+    align-items: flex-start; /* Left-align the checkboxes */
+}
+
 .checkbox-container {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start; /* Ensure items are left aligned */
+    align-items: center;
+    gap: 8px;
+}
+.checkbox-container input[type="checkbox"] {
+    margin: 0;
 }
 #tribeName {
     max-width: 300px;
