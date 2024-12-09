@@ -1036,6 +1036,78 @@ textarea {
     padding: 10px;
     border-radius: 5px;
 }
+.vote-details-button {
+    text-align: left;
+    margin-top: 8px; /* Add margin to separate from the stats */
+}
+.vote-details-toggle {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--subhead-color);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.vote-details-toggle:hover {
+    color: var(--tiffany-blue);
+}
+
+.vote-details-panel {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.vote-details-panel.active {
+    display: block;
+}
+
+.voter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.voter-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 4px;
+}
+
+.voter-name {
+    font-size: 14px;
+    color: var(--subhead-color);
+}
+
+.vote-type {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.vote-type.yes {
+    background: rgba(108, 230, 203, 0.1);
+    color: var(--tiffany-blue);
+}
+
+.vote-type.no {
+    background: rgba(255, 99, 71, 0.1);
+    color: tomato;
+}
+
+.vote-type.maybe {
+    background: rgba(255, 200, 126, 0.1);
+    color: var(--yellow);
+}
+
 /* Mobile Menu */
 .mobile-menu-toggle {
     display: none;
@@ -1591,3 +1663,9 @@ textarea {
     background-color: #eee;
     border-radius: 4px;
 }
+.vote-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+

@@ -52,6 +52,9 @@ function getUserRef() {
 }
 
 function formatDateForDisplay(dateStr, timeStr, timezone) {
+    // Log input parameters
+    console.log('formatDateForDisplay called with:', { dateStr, timeStr, timezone });
+
     let date;
     if (timeStr) {
         date = new Date(`${dateStr}T${timeStr}:00`);
@@ -59,18 +62,51 @@ function formatDateForDisplay(dateStr, timeStr, timezone) {
         date = new Date(`${dateStr}T00:00:00`); // Use local time zone
     }
 
+    // Log the created date object
+    console.log('Created Date object:', date);
+
     if (isNaN(date.getTime())) {
+        console.log('Invalid Date detected.');
         return 'Invalid Date';
     }
 
-    return new Intl.DateTimeFormat('en-US', {
+    const options = {
+        weekday: 'long',
         month: '2-digit',
         day: '2-digit',
         year: '2-digit',
         hour: timeStr ? '2-digit' : undefined,
         minute: timeStr ? '2-digit' : undefined,
         timeZone: timezone
-    }).format(date);
+    };
+
+    // Log the formatting options
+    console.log('Intl.DateTimeFormat options:', options);
+
+    const formatter = new Intl.DateTimeFormat('en-US', options);
+    const parts = formatter.formatToParts(date);
+    
+    // Build custom format with '-' separator
+    const dateParts = parts.reduce((acc, part) => {
+        if (part.type === 'weekday') {
+            acc.weekday = part.value;
+        } else if (part.type === 'month' || part.type === 'day' || part.type === 'year') {
+            acc.date.push(part.value);
+        } else if (part.type === 'hour' || part.type === 'minute') {
+            acc.time.push(part.value);
+        }
+        return acc;
+    }, { weekday: '', date: [], time: [] });
+
+    let formattedDate = `${dateParts.weekday}, ${dateParts.date.join('-')}`;
+    if (timeStr) {
+        formattedDate += `, ${dateParts.time.join(':')}`;  // Added comma before time
+    }
+
+    // Log the final formatted date
+    console.log('Formatted Date:', formattedDate);
+
+    return formattedDate;
 }
 function sortPeopleArray(people) {
     return Object.entries(people)
@@ -347,6 +383,7 @@ async function createEvent(e) {
         })),
         userId: currentUser.uid,
         created: new Date().toISOString(),
+        createdInTimezone: document.getElementById('profileTimezone').value, // sets timezone for event creation
         tribeId: tribeId
     };
 
@@ -833,91 +870,112 @@ eventData.tribeInfo.size = eventData.tribeInfo.members.length;
         }
     }
 }
-
 function formatDateRange(startDate, endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Parse the dates as UTC
+    const start = new Date(`${startDate}T00:00:00Z`);
+    const end = new Date(`${endDate}T00:00:00Z`);
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     
-    const startDay = days[start.getDay()];
-    const endDay = days[end.getDay()];
-    const startFormatted = start.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
-    const endFormatted = end.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
-    
+    console.log('Original Start Date:', startDate);
+    console.log('Original End Date:', endDate);
+    console.log('Parsed Start Date:', start.toISOString());
+    console.log('Parsed End Date:', end.toISOString());
+
+    const startDay = days[start.getUTCDay()];
+    const endDay = days[end.getUTCDay()];
+    const startFormatted = `${(start.getUTCMonth() + 1).toString().padStart(2, '0')}-${start.getUTCDate().toString().padStart(2, '0')}-${start.getUTCFullYear()}`;
+    const endFormatted = `${end.getUTCMonth() + 1}-${end.getUTCDate()}-${end.getUTCFullYear()}`.replace(/\b(\d)\b/g, '0$1');    console.log('Formatted Start Date:', startFormatted);
+    console.log('Formatted End Date:', endFormatted);
+
     if (startDate === endDate) {
         return `${startDay}, ${startFormatted}`;
     }
     return `${startDay}, ${startFormatted} to ${endDay}, ${endFormatted}`;
 }
 
+
 function renderVotesSummary(eventData) {
     const votes = eventData.votes || {};
     const tribeMembers = eventData.tribeInfo.size || 0;
 
-    // Calculate votes for each date
-    const votesByDate = eventData.dates.map(date => {
+    // Calculate votes for each date as before
+    const votesByDate = eventData.dates.map((date, index) => {
         const dateKey = date.time ? 
             `${date.start}T${date.time}` : 
             `${date.start}`;
         
-        const yesVotes = Object.values(votes).filter(vote => 
-            vote.datePreferences && vote.datePreferences[dateKey] === 'yes'
-        ).length;
-        
-        const noVotes = Object.values(votes).filter(vote => 
-            vote.datePreferences && vote.datePreferences[dateKey] === 'no'
-        ).length;
+        const votesForDate = Object.entries(votes).map(([voter, preferences]) => ({
+            voter,
+            vote: preferences.datePreferences?.[dateKey] || 'no-response'
+        }));
 
-        const maybeVotes = Object.values(votes).filter(vote => 
-            vote.datePreferences && vote.datePreferences[dateKey] === 'maybe'
-        ).length;
+        const yesVotes = votesForDate.filter(v => v.vote === 'yes').length;
+        const noVotes = votesForDate.filter(v => v.vote === 'no').length;
+        const maybeVotes = votesForDate.filter(v => v.vote === 'maybe').length;
 
         return {
             date,
             yesVotes,
             noVotes,
             maybeVotes,
-            noResponseCount: tribeMembers - (yesVotes + noVotes + maybeVotes)
+            noResponseCount: tribeMembers - (yesVotes + noVotes + maybeVotes),
+            voters: votesForDate
         };
     });
 
     // Find the date with most yes votes
     const maxYesVotes = Math.max(...votesByDate.map(v => v.yesVotes));
 
-    return votesByDate.map(vote => {
+    return votesByDate.map((vote, index) => {
+        console.log(`Processing vote for date index ${index}:`, vote);
+
         const displayDate = vote.date.start === vote.date.end ?
             (eventData.type === 'specific' && vote.date.time ? 
-                formatDateForDisplay(vote.date.start, vote.date.time, document.getElementById('profileTimezone').value) :
-                formatDateRange(vote.date.start, vote.date.end)) :
-            formatDateRange(vote.date.start, vote.date.end);
+                (console.log('Calling formatDateForDisplay for specific date with time'), 
+                 formatDateForDisplay(vote.date.start, vote.date.time, document.getElementById('profileTimezone').value)) :
+                (console.log('Calling formatDateRange for single date without time'), 
+                 formatDateRange(vote.date.start, vote.date.end))) :
+            (console.log('Calling formatDateRange for multi-day range'), 
+             formatDateRange(vote.date.start, vote.date.end));
+
+        console.log(`Display Date for vote index ${index}: ${displayDate}`);
 
         return `
-            <div class="vote-card ${vote.yesVotes === maxYesVotes && vote.yesVotes > 0 ? 'most-voted' : ''}">
-                <div class="vote-date">${displayDate}</div>
-                <div class="vote-stats">
-                    <div class="stat-item yes-votes">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                        </svg>
-                        ${vote.yesVotes}
-                    </div>
-                    <div class="stat-item no-votes">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"/>
-                            <line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                        ${vote.noVotes}
-                    </div>
-                    <div class="stat-item no-response">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M8 12h8"/>
-                        </svg>
-                        ${vote.noResponseCount}
-                    </div>
+<div class="vote-card ${vote.yesVotes === maxYesVotes && vote.yesVotes > 0 ? 'most-voted' : ''}">
+    <div class="vote-card-header">
+        <div class="vote-date">${displayDate}</div>
+    </div>
+    <div class="vote-stats">
+        <div class="stat-item yes-votes">
+            <!-- SVG Icon -->
+            ${vote.yesVotes}
+        </div>
+        <div class="stat-item no-votes">
+            <!-- SVG Icon -->
+            ${vote.noVotes}
+        </div>
+        <div class="stat-item no-response">
+            <!-- SVG Icon -->
+            ${vote.noResponseCount}
+        </div>
+    </div>
+    <div class="vote-details-button">
+        <button class="vote-details-toggle" onclick="toggleVoteDetails('date-${index}')">
+            <!-- SVG Icon -->
+            Show Responses
+        </button>
+    </div>
+    <div id="date-${index}" class="vote-details-panel">
+        <div class="voter-list">
+            ${vote.voters.map(voter => `
+                <div class="voter-item">
+                    <span class="voter-name">${voter.voter}</span>
+                    <span class="vote-type ${voter.vote}">${voter.vote}</span>
                 </div>
-            </div>
+            `).join('')}
+        </div>
+    </div>
+</div>
         `;
     }).join('');
 }
@@ -938,13 +996,18 @@ function renderLocationVotesSummary(eventData) {
     // Find the location with most votes
     const maxVotes = Math.max(...Object.values(locationVotes), 0);
 
-    return eventData.locations.map(location => {
+    return eventData.locations.map((location, index) => {
         const voteCount = locationVotes[location.name] || 0;
+        const votesForLocation = Object.entries(votes).map(([voter, preferences]) => ({
+            voter,
+            vote: preferences.locationPreferences?.selectedLocation === location.name ? 'yes' : 'no'
+        }));
+
         return `
             <div class="vote-card ${voteCount === maxVotes && voteCount > 0 ? 'most-voted' : ''}">
-                <div class="vote-location">
+                <div class="vote-card-header">
                     <div class="location-name">${location.name}</div>
-                    ${location.description ? `<div class="location-description">${location.description}</div>` : ''}
+                   
                 </div>
                 <div class="vote-stats">
                     <div class="stat-item total-votes">
@@ -955,9 +1018,33 @@ function renderLocationVotesSummary(eventData) {
                         ${voteCount}
                     </div>
                 </div>
+                 <button class="vote-details-toggle" onclick="toggleVoteDetails('location-${index}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4"/>
+                            <path d="M12 8h.01"/>
+                        </svg>
+                        Show Responses
+                    </button>
+                <div id="location-${index}" class="vote-details-panel">
+                    <div class="voter-list">
+                        ${votesForLocation.map(voter => `
+                            <div class="voter-item">
+                                <span class="voter-name">${voter.voter}</span>
+                                <span class="vote-type ${voter.vote}">${voter.vote}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
             </div>
         `;
     }).join('');
+}
+window.toggleVoteDetails = function(id) {
+    const panel = document.getElementById(id);
+    if (panel) {
+        panel.classList.toggle('active');
+    }
 }
 
 function renderEventDetail(eventId, eventData) {
@@ -1036,6 +1123,7 @@ function renderEventDetail(eventId, eventData) {
                     </svg>
                     Dates
                 </h3>
+                
                 <div class="votes-summary">
                     ${renderVotesSummary(eventData)}
                 </div>
@@ -1712,6 +1800,7 @@ window.deleteLocation = deleteLocation;
 window.resetLocationForm = resetLocationForm;
 window.updateLocation = updateLocation;
 window.editLocation = editLocation;
+
 
 function renderEventSettings() {
     const eventSettingsContainer = document.getElementById('eventSettingsContainer');
