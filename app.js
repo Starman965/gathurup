@@ -739,7 +739,7 @@ function renderEventsList(events) {
         return `
             <div class="event-row" onclick="showEventDetail('${eventId}')">
                 <div class="event-info">
-                    <div class="event-icon">
+                    <div class="event-actions">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="7 10 12 15 17 10"></polyline>
                         </svg>
