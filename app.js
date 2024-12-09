@@ -1,4 +1,4 @@
-// app.js 12/4/2024
+// app.js 12/9/2024
 import { firebaseConfig } from './firebase-config.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
 import { 
@@ -7,6 +7,7 @@ import {
     set, 
     push,
     get,
+    update,
     onValue,
     remove
 } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
@@ -528,15 +529,15 @@ async function updateLocation() {
     const imageFile = document.getElementById('locationImage').files[0];
 
     if (!name) {
-        alert('Location name is required');
+        alert('Location name is required.');
         return;
     }
 
     let imageUrl = selectedLocations[editingLocationIndex].imageUrl; // Keep existing image if no new one
     if (imageFile) {
-        // Upload new image and get URL
-        const storageRef = ref(storage, `locations/${currentUser.uid}/${imageFile.name}`);
-        const snapshot = await uploadBytes(storageRef, imageFile);
+        // Upload new image to Firebase Storage
+              const imageRef = storageRef(storage, `locations/${imageFile.name}`);
+        const snapshot = await uploadBytes(imageRef, imageFile);
         imageUrl = await getDownloadURL(snapshot.ref);
     }
 
@@ -549,8 +550,10 @@ async function updateLocation() {
 
     // Update database if editing an event
     if (editingEventId) {
-        const eventRef = ref(database, `${getUserRef()}/events/${editingEventId}/locations`);
-        await set(eventRef, selectedLocations);
+        const eventRef = ref(database, `${getUserRef()}/events/${editingEventId}`);
+        await update(eventRef, {
+            locations: selectedLocations
+        });
     }
 
     resetLocationForm();
@@ -1821,8 +1824,8 @@ function renderEventSettings() {
 
     eventSettingsContainer.innerHTML = `
         <div class="section-card">
-            <h3>Group Event Page Settings</h3>
-             <p class="section-tip">Tip: Be sure to include the sections you need on your event page for users to see and respond to. Remove sections you are not using.</p>
+            <h3>Event Page Settings</h3>
+             <p class="section-tip">Important: Be sure to include the sections you need on your event page for users to see and respond to. Uncheck sections you're not using.</p>
              <div class="form-group">
                 <label>Include on Group Event Page:</label>
                 <div class="checkbox-grid">
