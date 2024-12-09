@@ -247,6 +247,7 @@ textarea {
 
 /* Buttons */
 .primary-button {
+    font-size: 16px;
     height: 40px;
     padding: 8px 24px;
     background: var(--tiffany-blue);
@@ -265,15 +266,22 @@ textarea {
 }
 
 /* Handles "Add Option" button */
-.primary-button.add-date-button {
+.add-date-button {
     font-size: 16px; /* Adjust the font size as needed */
+    max-width: 200px; /* Set a maximum width */
+    width: 100%; /* Ensure it takes full width up to the max-width */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 /* Handles "Add Location" button */
 .primary-button.add-location-button {
     font-size: 16px; /* Adjust the font size as needed */
+    max-width: 200px; /* Set a maximum width */
+    width: 100%; /* Ensure it takes full width up to the max-width */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 .secondary-button {
+    font-size: 16px;
     height: 40px;
     padding: 8px 24px;
     background: white;
@@ -1703,6 +1711,22 @@ textarea {
 }
 
 .event-input:focus {
+    outline: none;
+    border-color: var(--tiffany-blue);
+}
+/* Date Input Field */
+.date-input-field {
+    max-width: 200px; /* Set a maximum width */
+    width: 100%; /* Ensure it takes full width up to the max-width */
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.date-input-field:focus {
     outline: none;
     border-color: var(--tiffany-blue);
 }
