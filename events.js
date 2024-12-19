@@ -598,7 +598,7 @@ window.toggleVote = function(date, time) {
             if (rsvpStatus) {
                 const rsvpRef = ref(database, `users/${userId}/events/${eventId}/rsvps/${selectedFullName}`);
                 await set(rsvpRef, {
-                    name: selectedFullName,
+                   
                     status: rsvpStatus
                 });
             }

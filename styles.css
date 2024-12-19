@@ -1578,8 +1578,9 @@ border-left: 4px solid var(--tiffany-blue);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
 }
-
 .collapsible {
     background: var(--tiffany-blue);
     color: white;
@@ -1751,4 +1752,65 @@ border-left: 4px solid var(--tiffany-blue);
 .date-input-field:focus {
     outline: none;
     border-color: var(--tiffany-blue);
+}
+/* Add to styles.css */
+.rsvp-responses {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.rsvp-responses .votes-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.rsvp-responses .votes-table th,
+.rsvp-responses .votes-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.rsvp-responses .votes-table th {
+    background: var(--header-bg);
+    color: white;
+    font-weight: 500;
+}
+
+.rsvp-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.rsvp-badge.attending {
+    background: rgba(108, 230, 203, 0.1);
+    color: var(--tiffany-blue);
+}
+
+.rsvp-badge.not-attending {
+    background: rgba(255, 99, 71, 0.1);
+    color: tomato;
+}
+
+.rsvp-badge.maybe {
+    background: rgba(255, 200, 126, 0.1);
+    color: var(--yellow);
+}
+
+.rsvp-badge.no-response {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-secondary);
+}
+
+.empty-state,
+.error-state {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-secondary);
+}
+
+.error-state {
+    color: tomato;
 }

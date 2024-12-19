@@ -1285,28 +1285,40 @@ async function renderRsvpResponses(eventId, userId) {
 
     try {
         const rsvpRef = ref(database, `users/${userId}/events/${eventId}/rsvps`);
-        console.log('Fetching RSVP status from path:', rsvpRef.toString()); // Debug log
         const rsvpSnap = await get(rsvpRef);
         const rsvpData = rsvpSnap.val();
 
-        console.log('RSVP Data:', rsvpData); // Debug log
-
         if (rsvpData) {
             const rsvpEntries = Object.entries(rsvpData);
-            rsvpResponsesContainer.innerHTML = rsvpEntries.map(([name, rsvp]) => `
-                <div class="rsvp-row">
-                    <span class="rsvp-name">${name}</span>
-                    <span class="rsvp-status">${rsvp.status || 'No response'}</span>
-                </div>
-            `).join('');
+            rsvpResponsesContainer.innerHTML = `
+                <table class="votes-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rsvpEntries.map(([name, rsvp]) => `
+                            <tr>
+                                <td>${name}</td>
+                                <td class="rsvp-status">
+                                    <span class="rsvp-badge ${rsvp.status || 'no-response'}">${rsvp.status || 'No response'}</span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
         } else {
-            rsvpResponsesContainer.innerHTML = '<p>No RSVP responses yet.</p>';
+            rsvpResponsesContainer.innerHTML = '<p class="empty-state">No RSVP responses yet. Be sure to check "Include RSVP Section" in Event Details to add RSVP Section on Event Page</p>';
         }
     } catch (error) {
         console.error('Error fetching RSVP responses:', error);
-        rsvpResponsesContainer.innerHTML = '<p>Error loading RSVP responses.</p>';
+        rsvpResponsesContainer.innerHTML = '<p class="error-state">Error loading RSVP responses.</p>';
     }
 }
+
 // Event Action Functions
 window.copyEventLink = async function(eventId) {
     try {

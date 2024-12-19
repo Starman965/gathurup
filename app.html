@@ -131,7 +131,6 @@
                 <h3>Coming Next 🚀</h3>
                 <div class="beta-notes">
                     <ul>
-                        <li>Hotel Preferences - Vote on accommodation options</li>
                         <li>Budget Planning - Gauge group's spending preferences</li>
                         <li>Activity Planning - Collaborate on itineraries</li>
                         <li>Task Assignments - Coordinate things to do and bring</li>
@@ -321,8 +320,10 @@
                                     <textarea id="eventAdditionalComments" class="event-input" placeholder="Add any additional event details for attendees"></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <input type="checkbox" id="includeRsvpSection">
-                                    <label for="includeRsvpSection">Include RSVP Section</label>
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="includeRsvpSection" name="includeRsvpSection">
+                                        Add RSVP Section to capture attendance 
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -615,7 +616,7 @@
                 <ul>
                     <li>Add yourself first</li>
                     <li>Add friends you plan to invite to events</li>
-                    <li>Use full names for easier identification</li>
+                    <li>Use full names for easier identification.</li>
                 </ul>
             </div>
 
@@ -626,6 +627,7 @@
                     <li>Create different groups for different purposes</li>
                     <li>Family events, friend gatherings, trip groups, etc.</li>
                     <li>Add people to multiple groups as needed</li>
+                    <li>You can always add more people and groups later</li>
                 </ul>
             </div>
 
@@ -633,25 +635,59 @@
                 <h3>Step 3: Create Events</h3>
                 <p>Use <strong>Create Event</strong> to set up your gathering:</p>
                 <ul>
-                    <li><strong>Single-Day Events:</strong>
+                    <li><strong>Event Details:</strong>
                         <ul>
-                            <li>Perfect for meetups, dinners, game nights</li>
-                            <li>Option to add specific time slots</li>
-                            <li>Multiple time options for flexibility</li>
+                            <li>Set event title and description</li>
+                            <li>Add date and time preferences if you know them or poll for them first</li>
+                            <li>Include location options if you know them or poll for them first</li>
+                            <li>Specify attire and food details as needed</li>
+                            <li>Enable RSVP section if you want to see who is coming</li>
                         </ul>
                     </li>
-                    <li><strong>Multi-Day Events:</strong>
+                    <li><strong>Date Polling:</strong>
                         <ul>
-                            <li>Ideal for trips and longer gatherings</li>
-                            <li>Select date ranges for availability</li>
-                            <li>Perfect for weekend trips or vacations</li>
+                            <li>Use to find ideal date and times</li>
+                            <li>Choose Single-day or multi-day events</li>
+                            <li>Add specific time slots if needed</li>
+                            <li>Set date ranges for longer events like trips</li>
                         </ul>
                     </li>
-                    <li><strong>Location Options:</strong>
+                    <li><strong>Location Polling:</strong>
                         <ul>
-                            <li>Add multiple location choices</li>
-                            <li>Include descriptions and images</li>
-                            <li>Let group vote on preferences</li>
+                            <li>Add multiple location choices to pick from</li>
+                            <li>Include images and details ideally</li>
+                            <li>Let group vote on their favorite</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="instruction-section">
+                <h3>Step 4: Event Page Review</h3>
+                <ul>
+                    <li><strong>Visit Your Event Page:</strong>
+                        <ul>
+                            <li>Click the link to your page to see it/li>
+                            <li>Modify the page as needed</li>
+                        </ul>
+                    </li>
+                    <li><strong>Send the Event Page Link to Others</strong>
+                        <ul>
+                            <li>When you're ready, send the link via text, chat, email, etc.</li>
+                            <li>View group's submissions in the event summary area</li>
+                        </ul>
+                    </li>
+                    <li><strong>Check RSVP Status:</strong>
+                        <ul>
+                            <li>View the Event Summary Page</li>
+                            <li>See who is Attending</li>
+                            <li>Send the link again as a reminder if needed</li>
+                        </ul>
+                    </li>
+                    <li><strong>Update Your Event Page</strong>
+                        <ul>
+                            <li>Remove the poll sections when no longer needed</li>
+                            <li>Update your Event Details as plans come together</li>
                         </ul>
                     </li>
                 </ul>
@@ -666,28 +702,28 @@
                 </div>
 
                 <div class="faq-item">
+                    <h4>Q: How do I enable RSVPs for my event?</h4>
+                    <p>A: Check "Include RSVP Section" in Event Details when creating or editing your event.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q: Can attendees update their RSVP?</h4>
+                    <p>A: Yes, they can update their RSVP status anytime before the event.</p>
+                </div>
+
+                <div class="faq-item">
                     <h4>Q: How do date votes work?</h4>
-                    <p>A: Members use thumbs up/down to indicate availability for each date option.</p>
+                    <p>A: Click to cycle through Yes (available), Maybe (unsure), or No (unavailable).</p>
                 </div>
 
                 <div class="faq-item">
                     <h4>Q: How do location votes work?</h4>
-                    <p>A: Members select their single preferred location from the options provided.</p>
+                    <p>A: Select your single preferred location from the options provided.</p>
                 </div>
 
                 <div class="faq-item">
-                    <h4>Q: Can I add times to multi-day events?</h4>
-                    <p>A: No, time slots are only available for single-day events.</p>
-                </div>
-
-                <div class="faq-item">
-                    <h4>Q: How are different timezones handled?</h4>
-                    <p>A: Times are automatically converted to each member's local timezone.</p>
-                </div>
-
-                <div class="faq-item">
-                    <h4>Q: Can I edit an event after creating it?</h4>
-                    <p>A: Yes! You can edit details, add/remove dates, and update locations anytime.</p>
+                    <h4>Q: Can I edit event details after creating it?</h4>
+                    <p>A: Yes! You can edit all details, including RSVP settings, anytime.</p>
                 </div>
 
                 <div class="faq-item">
@@ -698,7 +734,6 @@
         </div>
     </div>
 </div>
-
 <!-- Profile View -->
 <div id="profileView" class="tab-content">
     <div class="content-header">

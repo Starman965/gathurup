@@ -55,6 +55,41 @@
             const updateLink = document.getElementById('updatePreferencesLink');
             updateLink.href = `event.html?event=${eventId}&user=${userId}&name=${name}`;
         });
+
+        import { firebaseConfig } from './firebase-config.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import { 
+    getDatabase,
+    ref, 
+    set, 
+    push,
+    get,
+    update,
+    onValue,
+    remove
+} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+import { 
+    getAuth, 
+    signInWithPopup, 
+    GoogleAuthProvider, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    onAuthStateChanged, 
+    signOut,
+    updateProfile,
+    updateEmail,
+    deleteUser,
+    reauthenticateWithCredential,
+    EmailAuthProvider
+} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js";
+
+// Initialize Firebase
+console.log('Initializing Firebase...');
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
     </script>
 </body>
 </html>
