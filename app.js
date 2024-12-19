@@ -2002,14 +2002,14 @@ function renderEventSettings() {
     eventSettingsContainer.innerHTML = `
         <div class="section-card">
             <h3>Event Page Settings</h3>
-            <p class="section-tip">Important: Be sure to include the sections you need on your event page for users to see and respond to. Uncheck sections you're not using.</p>
+            <p class="app-tip">Tip: Be sure to include the sections you need on your event page for users to see and respond to. Uncheck sections you're not using.</p>
             <div class="form-group">
                 <label>Check to Include on Your Event Page:</label>
                 <div class="checkbox-grid">
                      <label class="checkbox">
                         <input type="checkbox" id="includeEventDetails" ${includeEventDetails ? 'checked' : ''}>
                         <span class="checkmark"></span>
-                        Event Details Section & Add to Calendar
+                        Event Details & Add to Calendar
                     </label>
                     <label class="checkbox">
                         <input type="checkbox" id="includeDatePreferences" ${includeDatePreferences ? 'checked' : ''}>
