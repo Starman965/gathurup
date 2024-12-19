@@ -456,14 +456,13 @@ async function createEvent(e) {
     const eventData = {
         title: document.getElementById('eventTitle').value,
         description: document.getElementById('eventDescription').value,
-        eventDetails: getEventDetailsData(),  // Add this line
+        eventDetails: getEventDetailsData(),
         type: document.querySelector('input[name="eventType"]:checked').value,
         includeEventDetails: document.getElementById('includeEventDetails').checked,
         includeDatePreferences: document.getElementById('includeDatePreferences').checked,
-        includeLocationPreferences: document.getElementById('includeLocationPreferences').checked, 
-        includeRsvpSection: document.getElementById('includeRsvpSection').checked, // Add this line
-        
-         dates: selectedDates.map(dateRange => {
+        includeLocationPreferences: document.getElementById('includeLocationPreferences').checked,
+        includeRsvpSection: document.getElementById('includeRsvpSection').checked,
+        dates: selectedDates.map(dateRange => {
             if (dateRange.type === 'dayOfWeek') {
                 return {
                     type: 'dayOfWeek',
@@ -486,7 +485,7 @@ async function createEvent(e) {
             imageUrl: location.imageUrl
         })),
         created: new Date().toISOString(),
-        createdInTimezone: document.getElementById('profileTimezone').value, // sets timezone for event creation
+        createdInTimezone: document.getElementById('profileTimezone').value,
         tribeId: tribeId
     };
 
@@ -504,6 +503,11 @@ async function createEvent(e) {
             const existingVotes = existingEvent.votes || {};
             eventData.votes = { ...existingVotes };
 
+            // Preserve RSVP data if it exists
+            if (existingEvent.rsvps) {
+                eventData.rsvps = existingEvent.rsvps;
+            }
+
             await set(eventRef, eventData);
             // Switch to events list view after update
             switchTab('events');
@@ -516,6 +520,13 @@ async function createEvent(e) {
                 ...eventData,
                 participants: {}
             });
+
+            // Initialize RSVP data if the RSVP section is included
+            if (eventData.includeRsvpSection) {
+                const rsvpRef = ref(database, `${getUserRef()}/events/${eventRef.key}/rsvps`);
+                await set(rsvpRef, {}); // Initialize with an empty object
+            }
+
             // Redirect to events list page after creating a new event
             switchTab('events');
             showEventsList();
@@ -1998,7 +2009,7 @@ function renderEventSettings() {
                      <label class="checkbox">
                         <input type="checkbox" id="includeEventDetails" ${includeEventDetails ? 'checked' : ''}>
                         <span class="checkmark"></span>
-                        Event Details Section
+                        Event Details Section & Add to Calendar
                     </label>
                     <label class="checkbox">
                         <input type="checkbox" id="includeDatePreferences" ${includeDatePreferences ? 'checked' : ''}>

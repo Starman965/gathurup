@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>gathurUP - Date Confirmation</title>
+    <title>gathurUP - Event Confirmation</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="gathurUP helps you get friends together easily by finding the best dates for everyone. No more endless text threads or confusing email chains.">
+    <meta name="keywords" content="gathurUP, event planning, group scheduling, find dates, get together, friends, social planning">
+    <meta name="author" content="Tiffanie and David Lewis">
+    <!-- Open Graph Title -->
+    <meta property="og:title" content="gathurUP - For Getting Friends Together Easily" />
+    <!-- Open Graph Description -->
+    <meta property="og:description" content="gathurUP helps you get friends together easily by finding the best dates for everyone. No more endless text threads or confusing email chains." />
+    <!-- Open Graph URL -->
+    <meta property="og:url" content="https://www.gathurup.com" />
+    <!-- Open Graph Image -->
+    <meta property="og:image" content="https://www.gathurup.com/gathurUP_teal_1200.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="1200" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.3.0/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/add-to-calendar-button@2" async defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js" type="module"></script>
+    <script src="confirmation.js" type="module"></script>
     <link rel="stylesheet" href="styles_event.css">
-     <!-- SEO Meta Tags -->
-     <meta name="description" content="gathurUP helps you get friends together easily by finding the best dates for everyone. No more endless text threads or confusing email chains.">
-     <meta name="keywords" content="gathurUP, event planning, group scheduling, find dates, get together, friends, social planning">
-     <meta name="author" content="Tiffanie and David Lewis">
-     <head>
-   <!-- Open Graph Title -->
-   <meta property="og:title" content="gathurUP - For Getting Friends Together Easily" />
- 
-   <!-- Open Graph Description -->
-   <meta property="og:description" content="gathurUP helps you get friends together easily by finding the best dates for everyone. No more endless text threads or confusing email chains." />
- 
-   <!-- Open Graph URL -->
-   <meta property="og:url" content="https://www.gathurup.com" />
- 
-   <!-- Open Graph Image -->
-   <meta property="og:image" content="https://www.gathurup.com/gathurUP_teal_1200.png" />
-   <meta property="og:image:width" content="1200" />
-   <meta property="og:image:height" content="1200" />
-   
 </head>
 <body>
     <div class="max-w-3xl">
@@ -32,64 +32,31 @@
             <div class="logo-container">
                 <img src="gathurUP.png" alt="gatherUP Logo">
             </div>
-            <div class="confirmation-content">
-                <h2>Your Preferences Have Been Updated</h2>
-                <p><a id="updatePreferencesLink">Return to Event Page</a></p>
+             <!-- Timezone Selector -->
+             <div class="timezone-selector" style="display: flex; justify-content: center; align-items: center; margin: 20px 0;">
+                <span class="timezone-label">Time Zone:</span>
+                <select id="timezoneSelect" class="timezone-select" style="padding: 5px; font-size: 1em;">
+                    <!-- Populated by JavaScript -->
+                </select>
             </div>
+        
+            <div class="confirmation-content">
+                <h2>Your Update is Complete</h2>
+                <!-- Add to Calendar Button -->
+             <div class="detail-item">
+                <div id="addToCalendarContainer"></div>
+            </div>
+                <p><a id="updatePreferencesLink">Return to Event Page if needed</a></p>
+            </div>
+           
         </div>
 
         <div class="cta-card">
             <h2>Do You Meet-up With Friends?</h2>
-
             <div class="cta-button-container">
                 <a href="index.html" class="submit-button">Sign up for a FREE gathurUP account!</a>
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const eventId = urlParams.get('event');
-            const userId = urlParams.get('user');
-            const name = urlParams.get('name');
-            const updateLink = document.getElementById('updatePreferencesLink');
-            updateLink.href = `event.html?event=${eventId}&user=${userId}&name=${name}`;
-        });
-
-        import { firebaseConfig } from './firebase-config.js';
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { 
-    getDatabase,
-    ref, 
-    set, 
-    push,
-    get,
-    update,
-    onValue,
-    remove
-} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
-import { 
-    getAuth, 
-    signInWithPopup, 
-    GoogleAuthProvider, 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword, 
-    onAuthStateChanged, 
-    signOut,
-    updateProfile,
-    updateEmail,
-    deleteUser,
-    reauthenticateWithCredential,
-    EmailAuthProvider
-} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js";
-
-// Initialize Firebase
-console.log('Initializing Firebase...');
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
-    </script>
 </body>
 </html>

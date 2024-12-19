@@ -986,7 +986,7 @@ async function populateEventDetails(eventData) {
         const locationUrl = document.getElementById('eventLocationUrl');
         if (eventData.eventDetails.locationUrl) {
             locationUrl.href = eventData.eventDetails.locationUrl;
-            locationUrl.textContent = 'View Location';
+            locationUrl.textContent = 'View Website';
             locationUrl.style.display = 'inline';
         } else {
             locationUrl.style.display = 'none';
@@ -1098,33 +1098,6 @@ async function populateEventDetails(eventData) {
             eventData.eventDetails.additionalComments;
     } else {
         additionalDetails.style.display = 'none';
-    }
-
-    // Add to Calendar Button
-    if (eventData.eventDetails.startDate) {
-        const calendarContainer = document.getElementById('addToCalendarContainer');
-        const startDateTime = luxon.DateTime.fromISO(
-            `${eventData.eventDetails.startDate}T${eventData.eventDetails.startTime || '00:00'}`
-        ).setZone(timezone);
-        
-        const endDateTime = luxon.DateTime.fromISO(
-            `${eventData.eventDetails.endDate || eventData.eventDetails.startDate}T${eventData.eventDetails.endTime || eventData.eventDetails.startTime || '00:00'}`
-        ).setZone(timezone);
-
-        calendarContainer.innerHTML = `
-            <add-to-calendar-button
-                name="${eventData.title}"
-                description="${eventData.description}"
-                startDate="${startDateTime.toFormat('yyyy-MM-dd')}"
-                startTime="${startDateTime.toFormat('HH:mm')}"
-                endDate="${endDateTime.toFormat('yyyy-MM-dd')}"
-                endTime="${endDateTime.toFormat('HH:mm')}"
-                timeZone="${timezone}"
-                location="${eventData.eventDetails.location || ''}"
-                options="'Apple','Google','iCal','Microsoft365','Outlook.com','Yahoo'"
-                lightMode="dark"
-            ></add-to-calendar-button>
-        `;
     }
 }
 
