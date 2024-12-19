@@ -559,7 +559,7 @@ window.toggleVote = function(date, time) {
     }
 };
 
-    async function submitPreferences() {
+       async function submitPreferences() {
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event');
         const userId = urlParams.get('user');
@@ -578,35 +578,38 @@ window.toggleVote = function(date, time) {
     
         // Check if RSVP is required
         const rsvpCard = document.getElementById('rsvpCard');
+        let rsvpStatus = '';
         if (rsvpCard.style.display !== 'none') {
-            const rsvpStatus = document.getElementById('rsvpStatus').value;
+            rsvpStatus = document.getElementById('rsvpStatus').value;
             if (!rsvpStatus) {
                 alert('Please select your RSVP status before continuing.');
                 return;
             }
         }
     
-    try {
-        const votesRef = ref(database, `users/${userId}/events/${eventId}/votes/${selectedFullName}`);
-        await set(votesRef, {
-            datePreferences: updatedVotes,
-            locationPreferences: locationVotes
-        });
-
-        // Store RSVP status
-        const rsvpRef = ref(database, `users/${userId}/events/${eventId}/rsvps/${selectedFullName}`);
-        await set(rsvpRef, {
-            name: selectedFullName,
-            status: rsvpStatus
-        });
-
-        // Redirect to confirmation.html with query parameters
-        window.location.href = `confirmation.html?event=${eventId}&user=${userId}&name=${name}`;
-    } catch (error) {
-        console.error('Error submitting preferences:', error);
-        alert('Error submitting preferences.');
+        try {
+            const votesRef = ref(database, `users/${userId}/events/${eventId}/votes/${selectedFullName}`);
+            await set(votesRef, {
+                datePreferences: updatedVotes,
+                locationPreferences: locationVotes
+            });
+    
+            // Store RSVP status if it exists
+            if (rsvpStatus) {
+                const rsvpRef = ref(database, `users/${userId}/events/${eventId}/rsvps/${selectedFullName}`);
+                await set(rsvpRef, {
+                    name: selectedFullName,
+                    status: rsvpStatus
+                });
+            }
+    
+            // Redirect to confirmation page
+            window.location.href = `confirmation.html?event=${eventId}&user=${userId}&name=${name}`;
+        } catch (error) {
+            console.error('Error submitting preferences:', error);
+            alert('Error submitting preferences.');
+        }
     }
-}
 
 document.getElementById('submitButton').addEventListener('click', submitPreferences);
 
@@ -925,20 +928,24 @@ async function populateRsvpStatus(eventData) {
     const userId = urlParams.get('user');
 
     try {
-        console.log('Fetching RSVP status from path:', `users/${userId}/events/${eventId}/rsvps/${selectedFullName}`); // Debug log
-        const rsvpRef = ref(database, `users/${userId}/events/${eventId}/rsvps/${selectedFullName}`);
+        const path = `users/${userId}/events/${eventId}/rsvps/${selectedFullName}`;
+        console.log('Fetching RSVP status from path:', path); // Debug log
+        
+        const rsvpRef = ref(database, path);
         const rsvpSnap = await get(rsvpRef);
         const rsvpData = rsvpSnap.val();
 
         console.log('RSVP Data:', rsvpData); // Debug log
 
-        if (rsvpData && rsvpData.status) {
-            const rsvpStatus = rsvpData.status;
+        if (rsvpData) {
+            const rsvpStatus = rsvpData.status || '';
             const rsvpSelect = document.getElementById('rsvpStatus');
             if (rsvpSelect) {
                 rsvpSelect.value = rsvpStatus;
                 console.log('Set RSVP status to:', rsvpStatus); // Debug log
             }
+        } else {
+            console.log('No RSVP data found for the user.');
         }
     } catch (error) {
         console.error('Error fetching RSVP status:', error);
