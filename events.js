@@ -20,6 +20,7 @@ let locationVotes = {};
 let currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 let eventData = null;
 let eventTimezoneCache = {};
+let currentEventData = null;
 
 // Timezone Management
 async function initializeEventTimezone() {
@@ -269,6 +270,9 @@ async function loadEventData() {
         document.getElementById('eventTitleDisplay').textContent = eventData.title;
         document.getElementById('eventDescription').textContent = eventData.description;
 
+        // Populate event details if they exist
+        populateEventDetails(eventData);
+
         // Load tribe data
         const tribeRef = ref(database, `users/${userId}/tribes/${eventData.tribeId}`);
         const tribeSnap = await get(tribeRef);
@@ -322,7 +326,11 @@ async function loadEventData() {
             document.getElementById('locationPreferencesSection').style.display = 'block';
             await renderLocationPreferences(eventData.locations, userId, eventId);
         }
-
+// Hide poll instructions and poll responses if both preferences are false
+if (!eventData.includeDatePreferences && !eventData.includeLocationPreferences) {
+    document.querySelector('.instructions-card').style.display = 'none';
+    document.getElementById('responseSummaryCard').style.display = 'none';
+}
         // Load existing votes if any
         if (selectedFullName) {
             await loadUserVotes();
@@ -371,7 +379,7 @@ async function renderResponseSummary(totalMembers, userId, eventId) {
         const uniqueResponders = new Set(Object.keys(votesData));
         const responseCount = uniqueResponders.size;
 
-        document.getElementById('responseSummaryText').textContent = `${responseCount} of ${totalMembers} people responded`;
+        document.getElementById('responseSummaryText').textContent = `${responseCount} of ${totalMembers} people responded to the poll so far`;
     } catch (error) {
         console.error('Error loading response summary:', error);
     }
@@ -568,22 +576,41 @@ window.toggleVote = function(date, time) {
             updatedVotes[key] = value === 'maybe' ? 'no' : value;
         }
     
-        try {
-            const votesRef = ref(database, `users/${userId}/events/${eventId}/votes/${selectedFullName}`);
-            await set(votesRef, {
-                datePreferences: updatedVotes,
-                locationPreferences: locationVotes
-            });
-            // alert('Preferences submitted successfully.');  commented out to prevent alert
-            // Redirect to confirmation.html with query parameters
-            window.location.href = `confirmation.html?event=${eventId}&user=${userId}&name=${name}`;
-        } catch (error) {
-            console.error('Error submitting preferences:', error);
-            alert('Error submitting preferences.');
+        // Check if RSVP is required
+        const rsvpCard = document.getElementById('rsvpCard');
+        if (rsvpCard.style.display !== 'none') {
+            const rsvpStatus = document.getElementById('rsvpStatus').value;
+            if (!rsvpStatus) {
+                alert('Please select your RSVP status before continuing.');
+                return;
+            }
         }
-    }
     
-    document.getElementById('submitButton').addEventListener('click', submitPreferences);
+    try {
+        const votesRef = ref(database, `users/${userId}/events/${eventId}/votes/${selectedFullName}`);
+        await set(votesRef, {
+            datePreferences: updatedVotes,
+            locationPreferences: locationVotes
+        });
+
+        // Store RSVP status
+        const rsvpRef = ref(database, `users/${userId}/events/${eventId}/rsvps/${selectedFullName}`);
+        await set(rsvpRef, {
+            name: selectedFullName,
+            status: rsvpStatus
+        });
+
+        // Redirect to confirmation.html with query parameters
+        window.location.href = `confirmation.html?event=${eventId}&user=${userId}&name=${name}`;
+    } catch (error) {
+        console.error('Error submitting preferences:', error);
+        alert('Error submitting preferences.');
+    }
+}
+
+document.getElementById('submitButton').addEventListener('click', submitPreferences);
+
+
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
     await initializeEventTimezone();
@@ -706,6 +733,7 @@ function formatTime(time) {
     }
 }
 
+// Update timezone change handler
 function populateTimezoneSelect() {
     const timezoneSelect = document.getElementById('timezoneSelect');
     const timezones = [
@@ -724,10 +752,13 @@ function populateTimezoneSelect() {
         timezoneSelect.appendChild(option);
     });
 
-    // Add timezone change handler
+    // Single combined timezone change handler
     timezoneSelect.addEventListener('change', async function(e) {
         currentTimezone = e.target.value || Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const urlParams = new URLSearchParams(window.location.search);
+        if (currentEventData) {
+            currentEventData.eventDetails.timeZone = currentTimezone;
+            populateEventDetails(currentEventData);
+        }
         await loadEventData(); // Re-render dates with new timezone
     });
 }
@@ -779,7 +810,9 @@ window.toggleMonth = function(month) {
 window.confirmName = async function() {
     const nameSelect = document.getElementById('nameSelect');
     selectedFullName = nameSelect.options[nameSelect.selectedIndex].text;
-    if (selectedFullName) {
+    console.log('Selected name:', selectedFullName); // Debug log
+
+    if (selectedFullName && selectedFullName !== 'Choose your name...') {
         document.getElementById('nameCaptureModal').style.display = 'none';
         await loadUserVotes();
         await loadEventData(); // Reload event data with selected name
@@ -870,3 +903,259 @@ window.toggleSingleDateVote = function(date) {
     
     event.stopPropagation();
 };
+
+function formatTimeString(timeStr) {
+    if (!timeStr) return '';
+    const [hours, minutes] = timeStr.split(':');
+    const hour = parseInt(hours);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${period}`;
+}
+async function populateRsvpStatus(eventData) {
+    console.log('Populating RSVP status for:', selectedFullName); // Debug log
+
+    if (!selectedFullName || selectedFullName === 'Choose your name...') {
+        console.log('No valid name selected yet');
+        return;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    try {
+        console.log('Fetching RSVP status from path:', `users/${userId}/events/${eventId}/rsvps/${selectedFullName}`); // Debug log
+        const rsvpRef = ref(database, `users/${userId}/events/${eventId}/rsvps/${selectedFullName}`);
+        const rsvpSnap = await get(rsvpRef);
+        const rsvpData = rsvpSnap.val();
+
+        console.log('RSVP Data:', rsvpData); // Debug log
+
+        if (rsvpData && rsvpData.status) {
+            const rsvpStatus = rsvpData.status;
+            const rsvpSelect = document.getElementById('rsvpStatus');
+            if (rsvpSelect) {
+                rsvpSelect.value = rsvpStatus;
+                console.log('Set RSVP status to:', rsvpStatus); // Debug log
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching RSVP status:', error);
+    }
+}
+async function populateEventDetails(eventData) {
+    currentEventData = eventData;
+    const rsvpCard = document.getElementById('rsvpCard');
+    const eventDetailsCard = document.getElementById('eventDetailsCard');
+    
+    if (!eventData.includeEventDetails || !eventData.eventDetails) {
+        eventDetailsCard.style.display = 'none';
+        rsvpCard.style.display = 'none';
+        return;
+    }
+
+    eventDetailsCard.style.display = 'block';
+
+    // Show RSVP card if includeRsvpSection is true
+    if (eventData.includeRsvpSection) {
+        rsvpCard.style.display = 'block';
+        await populateRsvpStatus(eventData); // Ensure this line is correct
+    } else {
+        rsvpCard.style.display = 'none';
+    }
+
+    // Get timezone once for all uses
+    const timezone = eventData.eventDetails.timeZone || currentTimezone || 'America/Los_Angeles';
+    const timeZoneAbbr = luxon.DateTime.now().setZone(timezone).toFormat('ZZZZ');
+
+    // Location Details
+    const locationDetails = document.getElementById('locationDetails');
+    if (eventData.eventDetails.location) {
+        locationDetails.style.display = 'flex';
+        document.getElementById('eventLocationName').textContent = eventData.eventDetails.location;
+        document.getElementById('eventLocationAddress').textContent = eventData.eventDetails.locationAddress || '';
+        
+        const locationUrl = document.getElementById('eventLocationUrl');
+        if (eventData.eventDetails.locationUrl) {
+            locationUrl.href = eventData.eventDetails.locationUrl;
+            locationUrl.textContent = 'View Location';
+            locationUrl.style.display = 'inline';
+        } else {
+            locationUrl.style.display = 'none';
+        }
+
+        const showOnMapUrl = document.getElementById('showOnMapUrl');
+        if (eventData.eventDetails.locationAddress) {
+            const encodedAddress = encodeURIComponent(eventData.eventDetails.locationAddress);
+            showOnMapUrl.href = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+            showOnMapUrl.style.display = 'inline';
+        } else {
+            showOnMapUrl.style.display = 'none';
+        }
+    } else {
+        locationDetails.style.display = 'none';
+    }
+
+    // Date and Time Details
+    const dateDetails = document.getElementById('dateDetails');
+    if (eventData.eventDetails.startDate) {
+        dateDetails.style.display = 'flex';
+        const dateContent = document.querySelector('#dateDetails .detail-content');
+        
+        const isDateRange = eventData.eventDetails.endDate && 
+            eventData.eventDetails.endDate !== eventData.eventDetails.startDate;
+
+        // Convert dates/times to selected timezone
+        const startDateTime = luxon.DateTime.fromISO(
+            `${eventData.eventDetails.startDate}T${eventData.eventDetails.startTime || '00:00'}`
+        ).setZone(timezone);
+        
+        const endDateTime = luxon.DateTime.fromISO(
+            `${eventData.eventDetails.endDate || eventData.eventDetails.startDate}T${eventData.eventDetails.endTime || eventData.eventDetails.startTime || '00:00'}`
+        ).setZone(timezone);
+
+        const startDate = startDateTime.toFormat('EEEE, MMMM d, yyyy');
+        const startTime = eventData.eventDetails.startTime ? startDateTime.toFormat('h:mm a') : null;
+        const endDate = isDateRange ? endDateTime.toFormat('EEEE, MMMM d, yyyy') : null;
+        const endTime = eventData.eventDetails.endTime ? endDateTime.toFormat('h:mm a') : null;
+
+        dateContent.innerHTML = `
+        <h3>Date</h3>
+        ${isDateRange ? 
+            `<p>${startDate}</p>
+             ${startTime ? `<p>Start Time: ${startTime} ${timeZoneAbbr}</p>` : ''}
+             <br>
+             <p>${endDate}</p>
+             ${endTime ? `<p>End Time: ${endTime} ${timeZoneAbbr}</p>` : ''}` : 
+            `<p>${startDate}</p>`}
+        <input type="date" id="eventStartDate" value="${startDateTime.toFormat('yyyy-MM-dd')}" style="display: none;">
+        <input type="date" id="eventEndDate" value="${endDateTime.toFormat('yyyy-MM-dd')}" style="display: none;">
+    `;
+    
+    // Time Details for single date
+    const timeDetails = document.getElementById('timeDetails');
+    if (isDateRange) {
+        timeDetails.style.display = 'none';
+    } else if (eventData.eventDetails.startTime) {
+        timeDetails.style.display = 'flex';
+        const timeContent = document.querySelector('#timeDetails .detail-content');
+        
+        timeContent.innerHTML = `
+            <h3>Time</h3>
+            ${endTime ? 
+                `<p>${startTime} - ${endTime} ${timeZoneAbbr}</p>` : 
+                `<p>${startTime} ${timeZoneAbbr}</p>`}
+            <input type="time" id="eventStartTime" value="${eventData.eventDetails.startTime}" style="display: none;">
+            <input type="time" id="eventEndTime" value="${eventData.eventDetails.endTime || ''}" style="display: none;">
+        `;
+        } else {
+            timeDetails.style.display = 'none';
+        }
+    } else {
+        dateDetails.style.display = 'none';
+    }
+
+    // Attire Details
+    const attireDetails = document.getElementById('attireDetails');
+    if (eventData.eventDetails.attire) {
+        attireDetails.style.display = 'flex';
+        document.getElementById('eventAttire').textContent = 
+            eventData.eventDetails.attire.charAt(0).toUpperCase() + 
+            eventData.eventDetails.attire.slice(1);
+        const attireComments = document.getElementById('eventAttireComments');
+        if (eventData.eventDetails.attireComments) {
+            attireComments.textContent = eventData.eventDetails.attireComments;
+            attireComments.style.display = 'block';
+        } else {
+            attireComments.style.display = 'none';
+        }
+    } else {
+        attireDetails.style.display = 'none';
+    }
+
+    // Food Details
+    const foodDetails = document.getElementById('foodDetails');
+    if (eventData.eventDetails.food) {
+        foodDetails.style.display = 'flex';
+        document.getElementById('eventFood').textContent = eventData.eventDetails.food;
+    } else {
+        foodDetails.style.display = 'none';
+    }
+
+    // Additional Comments
+    const additionalDetails = document.getElementById('additionalDetails');
+    if (eventData.eventDetails.additionalComments) {
+        additionalDetails.style.display = 'flex';
+        document.getElementById('eventAdditionalComments').textContent = 
+            eventData.eventDetails.additionalComments;
+    } else {
+        additionalDetails.style.display = 'none';
+    }
+
+    // Add to Calendar Button
+    if (eventData.eventDetails.startDate) {
+        const calendarContainer = document.getElementById('addToCalendarContainer');
+        const startDateTime = luxon.DateTime.fromISO(
+            `${eventData.eventDetails.startDate}T${eventData.eventDetails.startTime || '00:00'}`
+        ).setZone(timezone);
+        
+        const endDateTime = luxon.DateTime.fromISO(
+            `${eventData.eventDetails.endDate || eventData.eventDetails.startDate}T${eventData.eventDetails.endTime || eventData.eventDetails.startTime || '00:00'}`
+        ).setZone(timezone);
+
+        calendarContainer.innerHTML = `
+            <add-to-calendar-button
+                name="${eventData.title}"
+                description="${eventData.description}"
+                startDate="${startDateTime.toFormat('yyyy-MM-dd')}"
+                startTime="${startDateTime.toFormat('HH:mm')}"
+                endDate="${endDateTime.toFormat('yyyy-MM-dd')}"
+                endTime="${endDateTime.toFormat('HH:mm')}"
+                timeZone="${timezone}"
+                location="${eventData.eventDetails.location || ''}"
+                options="'Apple','Google','iCal','Microsoft365','Outlook.com','Yahoo'"
+                lightMode="dark"
+            ></add-to-calendar-button>
+        `;
+    }
+}
+
+// Add this new function
+function updateEventDetailsWithTimezone(timezone) {
+    if (!eventData || !eventData.eventDetails) return;
+
+    const dateDetails = document.getElementById('dateDetails');
+    if (!dateDetails || !eventData.eventDetails.startDate) return;
+
+    const dateContent = document.querySelector('#dateDetails .detail-content');
+    const timeZoneAbbr = luxon.DateTime.now().setZone(timezone).toFormat('ZZZZ');
+    
+    const isDateRange = eventData.eventDetails.endDate && 
+        eventData.eventDetails.endDate !== eventData.eventDetails.startDate;
+
+    // Format start date and time in new timezone
+    const startDate = luxon.DateTime.fromISO(eventData.eventDetails.startDate)
+        .setZone(timezone)
+        .toFormat('EEEE, MMMM d, yyyy');
+    
+    const startTime = eventData.eventDetails.startTime ? 
+        luxon.DateTime.fromISO(`${eventData.eventDetails.startDate}T${eventData.eventDetails.startTime}`)
+            .setZone(timezone)
+            .toFormat('h:mm a') : 
+        null;
+
+    // Format end date and time if it's a range
+    const endDate = isDateRange ? 
+        luxon.DateTime.fromISO(eventData.eventDetails.endDate)
+            .setZone(timezone)
+            .toFormat('EEEE, MMMM d, yyyy') : 
+        null;
+    
+    const endTime = eventData.eventDetails.endTime ? 
+        luxon.DateTime.fromISO(`${eventData.eventDetails.endDate || eventData.eventDetails.startDate}T${eventData.eventDetails.endTime}`)
+            .setZone(timezone)
+            .toFormat('h:mm a') : 
+        null;
+
+}

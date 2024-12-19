@@ -341,6 +341,101 @@ function toggleMobileMenu() {
 }
 
 // Event Management Functions
+function getEventDetailsData() {
+    // Convert time selects to 24-hour format time string
+    function getTimeString(hourId, minuteId, periodId) {
+        if (!document.getElementById(hourId).value) return null;
+        
+        let hour = parseInt(document.getElementById(hourId).value);
+        const minute = document.getElementById(minuteId).value;
+        const period = document.getElementById(periodId).value;
+
+        if (period === 'PM' && hour !== 12) {
+            hour += 12;
+        } else if (period === 'AM' && hour === 12) {
+            hour = 0;
+        }
+
+        return `${hour.toString().padStart(2, '0')}:${minute}`;
+    }
+
+    return {
+        location: document.getElementById('eventLocation').value.trim() || null,
+        locationAddress: document.getElementById('eventLocationAddress').value.trim() || null,
+        locationUrl: document.getElementById('eventLocationUrl').value.trim() || null,
+        startDate: document.getElementById('eventStartDate').value,
+        endDate: document.getElementById('eventEndDate').value || null,
+        startTime: getTimeString('eventStartTimeHour', 'eventStartTimeMinute', 'eventStartTimePeriod'),
+        endTime: getTimeString('eventEndTimeHour', 'eventEndTimeMinute', 'eventEndTimePeriod'),
+        attire: document.getElementById('eventAttire').value,
+        attireComments: document.getElementById('eventAttireComments').value.trim() || null,
+        food: document.getElementById('eventFood').value.trim(),
+        additionalComments: document.getElementById('eventAdditionalComments').value.trim() || null,
+        includeRsvpSection: document.getElementById('includeRsvpSection').checked
+    };
+}
+
+function setEventDetailsData(details) {
+    if (!details) return;
+    
+    // Helper function to set time selects
+    function setTimeFields(timeStr, hourId, minuteId, periodId) {
+        if (!timeStr) return;
+        
+        const [hours24, minutes] = timeStr.split(':');
+        let hours = parseInt(hours24);
+        let period = 'AM';
+        
+        if (hours >= 12) {
+            period = 'PM';
+            if (hours > 12) hours -= 12;
+        } else if (hours === 0) {
+            hours = 12;
+        }
+        
+        document.getElementById(hourId).value = hours.toString().padStart(2, '0');
+        document.getElementById(minuteId).value = minutes;
+        document.getElementById(periodId).value = period;
+    }
+    
+    document.getElementById('eventLocation').value = details.location || '';
+    document.getElementById('eventLocationAddress').value = details.locationAddress || '';
+    document.getElementById('eventLocationUrl').value = details.locationUrl || '';
+    document.getElementById('eventStartDate').value = details.startDate || '';
+    document.getElementById('eventEndDate').value = details.endDate || '';
+    setTimeFields(details.startTime, 'eventStartTimeHour', 'eventStartTimeMinute', 'eventStartTimePeriod');
+    setTimeFields(details.endTime, 'eventEndTimeHour', 'eventEndTimeMinute', 'eventEndTimePeriod');
+    document.getElementById('eventAttire').value = details.attire || '';
+    document.getElementById('eventAttireComments').value = details.attireComments || '';
+    document.getElementById('eventFood').value = details.food || '';
+    document.getElementById('eventAdditionalComments').value = details.additionalComments || '';
+    document.getElementById('includeRsvpSection').checked = details.includeRsvpSection || false; 
+}
+function validateEventPageSettings() {
+    const includeEventDetails = document.getElementById('includeEventDetails').checked;
+    const includeDatePreferences = document.getElementById('includeDatePreferences').checked;
+    const includeLocationPreferences = document.getElementById('includeLocationPreferences').checked;
+
+    if (!includeEventDetails && !includeDatePreferences && !includeLocationPreferences) {
+        alert('You must include at least one section on your event page.');
+        return false;
+    }
+
+    if (includeEventDetails) {
+        const startDate = document.getElementById('eventStartDate').value;
+        const startTimeHour = document.getElementById('eventStartTimeHour').value;
+        const startTimeMinute = document.getElementById('eventStartTimeMinute').value;
+        const startTimePeriod = document.getElementById('eventStartTimePeriod').value;
+
+        if (!startDate || !startTimeHour || !startTimeMinute || !startTimePeriod) {
+            alert('To include Event Details on the event page, you must enter both an event Start Date and Start Time in the Event Details section.');
+            return false;
+        }
+    }
+
+    return true;
+}
+
 async function createEvent(e) {
     e.preventDefault();
     if (!currentUser) {
@@ -353,13 +448,21 @@ async function createEvent(e) {
         alert('Please select a tribe for this event');
         return;
     }
+    // Validate event page settings
+    if (!validateEventPageSettings()) {
+        return;
+    }
 
     const eventData = {
         title: document.getElementById('eventTitle').value,
         description: document.getElementById('eventDescription').value,
+        eventDetails: getEventDetailsData(),  // Add this line
         type: document.querySelector('input[name="eventType"]:checked').value,
+        includeEventDetails: document.getElementById('includeEventDetails').checked,
         includeDatePreferences: document.getElementById('includeDatePreferences').checked,
-        includeLocationPreferences: document.getElementById('includeLocationPreferences').checked, // Always read the current state of the checkbox
+        includeLocationPreferences: document.getElementById('includeLocationPreferences').checked, 
+        includeRsvpSection: document.getElementById('includeRsvpSection').checked, // Add this line
+        
          dates: selectedDates.map(dateRange => {
             if (dateRange.type === 'dayOfWeek') {
                 return {
@@ -382,7 +485,6 @@ async function createEvent(e) {
             description: location.description,
             imageUrl: location.imageUrl
         })),
-        userId: currentUser.uid,
         created: new Date().toISOString(),
         createdInTimezone: document.getElementById('profileTimezone').value, // sets timezone for event creation
         tribeId: tribeId
@@ -441,6 +543,7 @@ function resetCreateEventForm() {
     renderDates();
     renderLocations();
 }
+
 function resetEventForm() {
     document.getElementById('eventForm').reset();
     selectedDates = [];
@@ -451,6 +554,8 @@ function resetEventForm() {
     document.getElementById('eventTitle').value = '';
     document.getElementById('eventDescription').value = '';
     document.getElementById('tribeSelect').value = '';
+    // Clear event details fields
+    setEventDetailsData({});
 
 }
 
@@ -830,8 +935,8 @@ async function showEventDetail(eventId) {
         
         // Combine event data with tribe info
         eventData.tribeInfo = tribes[eventData.tribeId] || { name: 'Unknown Group' };
-// Ensure size is included in tribeInfo
-eventData.tribeInfo.size = eventData.tribeInfo.members.length;
+        // Ensure size is included in tribeInfo
+        eventData.tribeInfo.size = eventData.tribeInfo.members.length;
         // Ensure dates and locations are arrays
         eventData.dates = eventData.dates || [];
         eventData.locations = eventData.locations || [];
@@ -1133,7 +1238,7 @@ function renderEventDetail(eventId, eventData) {
                         <line x1="8" y1="2" x2="8" y2="6"/>
                         <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
-                    Dates
+                    Date Poll Summmary and Responses
                 </h3>
                 
                 <div class="votes-summary">
@@ -1146,7 +1251,7 @@ function renderEventDetail(eventId, eventData) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
                     </svg>
-                    Locations
+                    Locations Poll Summmary and Responses
                 </h3>
                 <div class="votes-summary">
                     ${renderLocationVotesSummary(eventData)}
@@ -1249,6 +1354,7 @@ window.editEventDates = async function(eventId) {
         renderLocations();
         
         // Set includeDatePreferences and includeLocationPreferences checkboxes
+        document.getElementById('includeEventDetails').checked = eventData.includeEventDetails || false;
         document.getElementById('includeDatePreferences').checked = eventData.includeDatePreferences || false;
         document.getElementById('includeLocationPreferences').checked = eventData.includeLocationPreferences || false;
         
@@ -1268,8 +1374,8 @@ window.editEventDates = async function(eventId) {
             submitBtn.parentNode.insertBefore(cancelBtn, submitBtn);
         }
 
-        // Hide event detail view
-        document.getElementById('eventDetailView').style.display = 'none';
+        // Add this line to populate event details
+        setEventDetailsData(eventData.eventDetails);
     } catch (error) {
         console.error('Error loading event for editing:', error);
         alert('Error loading event for editing');
@@ -1788,8 +1894,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEventSettings();
 });
 
+
 // Attach necessary functions to window object for HTML access
-5
 window.removeDate = async function(index) {
     if (confirm('Are you sure you want to delete this date? This action cannot be undone.')) {
         selectedDates.splice(index, 1);
@@ -1818,33 +1924,39 @@ function renderEventSettings() {
     const eventSettingsContainer = document.getElementById('eventSettingsContainer');
     const includeLocationPreferencesCheckbox = document.getElementById('includeLocationPreferences');
     const includeDatePreferencesCheckbox = document.getElementById('includeDatePreferences');
+    const includeEventDetailsCheckbox = document.getElementById('includeEventDetails');
 
     const includeLocationPreferences = selectedLocations.length > 0 || (includeLocationPreferencesCheckbox && includeLocationPreferencesCheckbox.checked);
     const includeDatePreferences = includeDatePreferencesCheckbox && includeDatePreferencesCheckbox.checked;
+    const includeEventDetails = includeEventDetailsCheckbox && includeEventDetailsCheckbox.checked;
 
     eventSettingsContainer.innerHTML = `
         <div class="section-card">
             <h3>Event Page Settings</h3>
-             <p class="section-tip">Important: Be sure to include the sections you need on your event page for users to see and respond to. Uncheck sections you're not using.</p>
-             <div class="form-group">
-                <label>Include on Group Event Page:</label>
+            <p class="section-tip">Important: Be sure to include the sections you need on your event page for users to see and respond to. Uncheck sections you're not using.</p>
+            <div class="form-group">
+                <label>Check to Include on Your Event Page:</label>
                 <div class="checkbox-grid">
+                     <label class="checkbox">
+                        <input type="checkbox" id="includeEventDetails" ${includeEventDetails ? 'checked' : ''}>
+                        <span class="checkmark"></span>
+                        Event Details Section
+                    </label>
                     <label class="checkbox">
                         <input type="checkbox" id="includeDatePreferences" ${includeDatePreferences ? 'checked' : ''}>
                         <span class="checkmark"></span>
-                        Date Section
+                        Date Poll Section
                     </label>
                     <label class="checkbox">
                         <input type="checkbox" id="includeLocationPreferences" ${includeLocationPreferences ? 'checked' : ''}>
                         <span class="checkmark"></span>
-                        Location Section
+                        Location Poll Section
                     </label>
                 </div>
             </div>
         </div>
     `;
 }
-
 // Call renderEventSettings when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     // ...existing code...
