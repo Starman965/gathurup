@@ -958,6 +958,10 @@ async function showEventDetail(eventId) {
         // Render the event details
         renderEventDetail(eventId, eventData);
 
+         // Render RSVP responses
+         await renderRsvpResponses(eventId, currentUser.uid); // Call the function here with userId
+
+     
     } catch (error) {
         console.error('Error loading event details:', error);
         const detailView = document.getElementById('eventDetailView');
@@ -1258,9 +1262,51 @@ function renderEventDetail(eventId, eventData) {
                 </div>
             </div>
         </div>
+
+        <!-- Add this inside the detail-content div where other response cards are located -->
+        <div class="section-card">
+            <h3 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                RSVP Responses
+            </h3>
+            <div class="rsvp-responses">
+                <!-- This will be populated dynamically by JavaScript -->
+            </div>
+        </div>
     `;
 }
+async function renderRsvpResponses(eventId, userId) {
+    const rsvpResponsesContainer = document.querySelector('.rsvp-responses');
+    if (!rsvpResponsesContainer) return;
 
+    try {
+        const rsvpRef = ref(database, `users/${userId}/events/${eventId}/rsvps`);
+        console.log('Fetching RSVP status from path:', rsvpRef.toString()); // Debug log
+        const rsvpSnap = await get(rsvpRef);
+        const rsvpData = rsvpSnap.val();
+
+        console.log('RSVP Data:', rsvpData); // Debug log
+
+        if (rsvpData) {
+            const rsvpEntries = Object.entries(rsvpData);
+            rsvpResponsesContainer.innerHTML = rsvpEntries.map(([name, rsvp]) => `
+                <div class="rsvp-row">
+                    <span class="rsvp-name">${name}</span>
+                    <span class="rsvp-status">${rsvp.status || 'No response'}</span>
+                </div>
+            `).join('');
+        } else {
+            rsvpResponsesContainer.innerHTML = '<p>No RSVP responses yet.</p>';
+        }
+    } catch (error) {
+        console.error('Error fetching RSVP responses:', error);
+        rsvpResponsesContainer.innerHTML = '<p>Error loading RSVP responses.</p>';
+    }
+}
 // Event Action Functions
 window.copyEventLink = async function(eventId) {
     try {
