@@ -113,7 +113,7 @@ function renderDateWithTimes(dateObj) {
                         </div>
                         <div class="date-details">
                             <h3>${formattedDate}</h3>
-                            <span class="expand-hint">Click to set your preferences for times provided</span>
+                            <span class="expand-hint">Click to expand and set your preferences for times provided</span>
                         </div>
                     </div>
                 </div>
@@ -201,7 +201,7 @@ function renderRangeDates(dates) {
             <div class="month-header" onclick="toggleMonth('${month}')">
                 <div class="month-header-content">
                     <h3>${month}</h3>
-                    <span class="expand-hint">Click to set your preferences for the ${ranges.length} date range${ranges.length > 1 ? 's' : ''} provided</span>
+                    <span class="expand-hint">Click to expand and set your preferences for the ${ranges.length} date range${ranges.length > 1 ? 's' : ''} provided</span>
                 </div>
                 <svg class="expand-icon" viewBox="0 0 24 24">
                     <path d="M19 9l-7 7-7-7" />

@@ -23,31 +23,36 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.3.0/luxon.min.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/add-to-calendar-button@2" async defer></script>
     <script src="events.js" type="module"></script>
+     <!-- Add Google Fonts -->
+     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400&family=Poppins:wght@700&display=swap" rel="stylesheet">
+
 </head>
 <body>
-    <div class="max-w-3xl mx-auto p-6">
+        <div class="max-w-3xl mx-auto p-6">
         <!-- Event Header -->
         <div class="header-card">
             <div class="logo-container">
                 <a href="https://gathurup.com/app.html">
-                    <img src="gathurUP.png" alt="gatherUP Logo">
+                    <img src="gathurUP_teal_1200_header.png" alt="gatherUP Logo">
                 </a>
             </div>
             <div class="event-header-content">
                 <h1 id="eventTitleDisplay"></h1>
                 <p id="eventDescription" class="event-description"></p>
-                
-                <!-- Timezone Selector -->
-                <div class="timezone-selector">
-                    <span class="timezone-label">Time Zone:</span>
-                    <select id="timezoneSelect" class="timezone-select">
-                        <!-- Populated by JavaScript -->
-                    </select>
-                </div>
             </div>
         </div>
-
-                <!-- Event Details Card -->
+        
+        <!-- Timezone Selector Card -->
+        <div class="timezone-card">
+            <div class="timezone-selector">
+                <span class="timezone-label">Time Zone:</span>
+                <select id="timezoneSelect" class="timezone-select">
+                <!-- Populated by JavaScript -->
+                </select>
+            </div>
+        </div>
+    
+        <!-- Event Details Card -->
         <div id="eventDetailsCard" class="event-details-card" style="display: none;">
             <h2>Event Details</h2>
             <div class="event-details-content">
@@ -159,23 +164,22 @@
                         <p id="eventAdditionalComments" class="tip"></p>
                     </div>
                 </div>
+        
                 <!-- RSVP Card -->
                 <div id="rsvpCard" class="event-details-card" style="display: none;">
-                <h2>RSVP</h2>
-                <div class="event-details-content">
-                    <div class="form-group">
-                    <label for="rsvpStatus">RSVP Status:</label>
-                    <select id="rsvpStatus" class="event-input">
-                    <option value="" disabled selected>Please RSVP</option>
-                    <option value="attending">Attending</option>
-                    <option value="not-attending">Not Attending</option>
-                    <option value="maybe">Maybe</option>
-                    </select>
+                    <div class="event-details-header">
+                        <h2>Your RSVP</h2>
+                        <select id="rsvpStatus" class="event-input">
+                            <option value="" disabled selected>Please RSVP</option>
+                            <option value="attending">Attending</option>
+                            <option value="not-attending">Not Attending</option>
+                            <option value="maybe">Maybe</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
         <!-- Instructions Card -->
         <div class="instructions-card">
@@ -217,7 +221,7 @@
                 <!-- Response Summary Card -->
             <div id="responseSummaryCard" class="response-summary-card">
             <h2>Poll Responses</h2>
-            <p id="responseSummaryText">Loading...</p>
+            <p id="responseSummaryText">No poll responses yet...</p>
         </div>
 
         <!-- Dates and Times List -->

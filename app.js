@@ -448,11 +448,56 @@ async function createEvent(e) {
         alert('Please select a tribe for this event');
         return;
     }
+
+    const eventId = editingEventId || null; // Use existing event ID if editing, otherwise null for new event
+
     // Validate event page settings
     if (!validateEventPageSettings()) {
         return;
     }
 
+     // Validate Date Poll Section
+     const includeDatePreferences = document.getElementById('includeDatePreferences').checked;
+     if (includeDatePreferences) {
+         if (eventId) {
+             // Check if date preferences exist for the existing event
+             const datesRef = ref(database, `users/${currentUser.uid}/events/${eventId}/dates`);
+             const datesSnap = await get(datesRef);
+             const datesData = datesSnap.val();
+             if (!datesData || Object.keys(datesData).length === 0) {
+                 alert("To include the Date Poll Section, you must first provide date options.");
+                 return;
+             }
+         } else {
+             // Check if any date preferences have been added in the form
+             if (selectedDates.length === 0) {
+                 alert("To include the Date Poll Section, you must first provide date options.");
+                 return;
+             }
+         }
+     }
+ 
+     // Validate Location Poll Section
+     const includeLocationPreferences = document.getElementById('includeLocationPreferences').checked;
+     if (includeLocationPreferences) {
+         if (eventId) {
+             // Check if location preferences exist for the existing event
+             const locationsRef = ref(database, `users/${currentUser.uid}/events/${eventId}/locations`);
+             const locationsSnap = await get(locationsRef);
+             const locationsData = locationsSnap.val();
+             if (!locationsData || Object.keys(locationsData).length === 0) {
+                 alert("To include the Location Poll Section, you must first provide location poll options.");
+                 return;
+             }
+         } else {
+             // Check if any location preferences have been added in the form
+             if (selectedLocations.length === 0) {
+                 alert("To include the Location Poll Section, you must first provide location poll options.");
+                 return;
+             }
+         }
+     }
+ 
     const eventData = {
         title: document.getElementById('eventTitle').value,
         description: document.getElementById('eventDescription').value,

@@ -1,3 +1,5 @@
+
+
 :root {
     --tiffany-blue: #81D8D0;
     --tiffany-blue-hover: #6BC0B8;
@@ -24,12 +26,52 @@ body {
 
 /* Header Card */
 .header-card {
-    background: white;
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
+    background-color: #81D8D0; /* Tiffany blue */
+    padding: 2rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: white;
+    text-align: center;
+}
+.header-card .logo-container {
+    margin-bottom: .5rem;
+}
+.header-card h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    font-family: 'Poppins', sans-serif; /* Special font treatment */
+}
+.header-card .event-description {
+    font-size: 1.25rem;
+    margin: 0.5rem 0 1.5rem;
+    font-family: 'Lora', serif; /* Special font treatment */
+}
+
+.timezone-card {
+    background-color: #e0f7fa; /* Light Tiffany blue */
+    padding: 1rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.timezone-selector {
+    display: inline-block;
+}
+
+.timezone-label {
+    font-size: 1rem;
+    margin-right: 0.5rem;
+}
+
+.timezone-select {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    border: none;
+    font-size: 1rem;
 }
 .logo-container {
     text-align: center;
@@ -52,38 +94,6 @@ body {
     margin-bottom: 1rem;
 }
 
-/* Timezone Selector */
-.timezone-selector {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem;
-    background: #EBF8FF;
-    border-radius: 0.375rem;
-    margin-top: 1rem;
-    width: 100%; /* Ensure it takes full width */
-    max-width: 300px; /* Set a maximum width */
-    min-width: 300px; /* Set a minimum width to prevent wrapping */
-    flex-wrap: nowrap; /* Prevent wrapping */
-}
-
-.timezone-label {
-    font-size: 1rem;
-    color: var(--text-primary);
-    white-space: nowrap; /* Prevent the label from wrapping */
-}
-
-.timezone-select {
-    flex: 1; /* Allow the select element to take up remaining space */
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.375rem;
-    font-size: 12px; /* Set font size to 12px */
-    color: var(--text-primary);
-    flex-shrink: 0; /* Prevent the select element from shrinking */
-    max-width: 150px; /* Set a maximum width */
-    width: auto; /* Ensure it adjusts to content */
-}
 
 .modern-select {
     width: 100%;
@@ -144,30 +154,6 @@ body {
     gap: 0.5rem;
 }
 
-.indicator {
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-}
-
-.indicator.available {
-    background: #DEF7EC;
-    color: #057A55;
-}
-
-.indicator.noresponse {
-    background: #FEF3C7;
-    color: #D97706;
-}
-
-.indicator.unavailable {
-    background: #FEE2E2;
-    color: #DC2626;
-}
 
 /* Dates List */
 .date-card {
@@ -1011,46 +997,57 @@ body {
         height: 20px;
     }
 }
-/* RSVP Card */
-#rsvpCard {
-    background: white;
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
-}
 
-#rsvpCard h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 1.5rem 0;
-}
-
-#rsvpCard .form-group {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-#rsvpCard .form-group label {
-    font-size: 1rem;
-    color: var(--text-primary);
-}
-
-#rsvpCard .form-group select {
-    width: 50%; /* Adjust the width as needed */
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.375rem;
-    font-size: 1rem;
-    color: var(--text-primary);
-}
 #addToCalendarContainer {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
 }
+#rsvpCard {
+    background-color: #e0f7fa; /* Light Tiffany blue */
+    padding: 1rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
+#rsvpCard h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+#rsvpCard .event-details-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#rsvpCard .event-input {
+    width: auto; /* Adjust the width as needed */
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-left: 1rem;
+}
+.centered-link {
+    text-align: center;
+}
+
+.return-link {
+    color: #6BC0B8; /* Tiffany blue */
+    font-weight: bold;
+    text-decoration: underline;
+    text-decoration-color: #6BC0B8; /* Tiffany blue underline */
+    font-size: 1.1em;
+    margin: 10px 0;
+    display: inline-block;
+}
+
+.return-link:hover {
+    color: #81D8D0; /* lighter shade for hover effect */
+    text-decoration-color: #81D8D0; /* lighter shade for hover effect */
+}
