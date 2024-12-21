@@ -1038,16 +1038,16 @@ body {
 }
 
 .return-link {
-    color: #6BC0B8; /* Tiffany blue */
+    color: #dfdfdf; /* Tiffany blue */
     font-weight: bold;
     text-decoration: underline;
-    text-decoration-color: #6BC0B8; /* Tiffany blue underline */
+    text-decoration-color: #dfdfdf; /* Tiffany blue underline */
     font-size: 1.1em;
     margin: 10px 0;
     display: inline-block;
 }
 
 .return-link:hover {
-    color: #81D8D0; /* lighter shade for hover effect */
-    text-decoration-color: #81D8D0; /* lighter shade for hover effect */
+    color: #666666; /* lighter shade for hover effect */
+    text-decoration-color: #666666; /* lighter shade for hover effect */
 }
