@@ -799,12 +799,13 @@ body {
 .confirmation-content {
     text-align: center;
     margin-top: 0rem;
+    margin-bottom: 0rem; /* Adjust this value to control the space */
 }
 
 .confirmation-content h2 {
     font-size: 1.5rem;
     color: var(--text-primary);
-    margin-bottom: .5rem;
+    margin-bottom: 0rem;
 }
 
 .confirmation-content a {
@@ -1043,7 +1044,7 @@ body {
     text-decoration: underline;
     text-decoration-color: #dfdfdf; /* Tiffany blue underline */
     font-size: 1.1em;
-    margin: 10px 0;
+    margin: 2px 0;
     display: inline-block;
 }
 

@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (eventData) {
         const timezoneSelect = document.getElementById('timezoneSelect');
+        const calendarContainer = document.getElementById('calendarContainer');
         const timezones = [
             "America/Los_Angeles", "America/New_York", "America/Chicago", "America/Denver",
             "America/Phoenix", "America/Anchorage", "Pacific/Honolulu"
@@ -44,13 +45,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             timezoneSelect.appendChild(option);
         });
 
-        // Detect user's timezone
-        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const timezone = eventData.eventDetails.timezone || userTimezone || 'UTC';
-        timezoneSelect.value = timezone;
-
         // Conditionally render the "Add to Calendar" button
-        if (eventData.includeEventDetails !== false) {
+        if (eventData.includeEventDetails !== false && eventData.eventDetails) {
+            // Detect user's timezone
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const timezone = eventData.eventDetails.timezone || userTimezone || 'UTC';
+            timezoneSelect.value = timezone;
+
+            // Show the calendar container
+            calendarContainer.style.display = 'block';
+
             // Update calendar button
             updateCalendarButton(eventData, timezone);
 
@@ -61,7 +65,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         } else {
             // Hide the calendar container if includeEventDetails is false
-            const calendarContainer = document.getElementById('addToCalendarContainer');
             calendarContainer.style.display = 'none';
         }
     }

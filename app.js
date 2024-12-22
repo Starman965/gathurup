@@ -625,7 +625,7 @@ function resetLocationForm() {
     // Find the button using querySelector and only update if found
     const addLocationBtn = document.querySelector('button[onclick="addLocation()"]');
     if (addLocationBtn) {
-        addLocationBtn.textContent = 'Add Location';
+        addLocationBtn.textContent = 'Add Location Option';
     }
 }
 
@@ -722,7 +722,7 @@ async function updateLocation() {
 
     // Reset the button text and onclick handler
     const addLocationBtn = document.getElementById('addLocationBtn');
-    addLocationBtn.textContent = 'Add Location';
+    addLocationBtn.textContent = 'Add Location Option';
     addLocationBtn.setAttribute('onclick', 'addLocation()');
 }
 async function deleteLocation(index) {

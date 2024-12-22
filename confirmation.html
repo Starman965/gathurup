@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gathurUP - Event Confirmation</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-     <!-- SEO Meta Tags -->
-     <meta name="description" content="gathurUP helps you get friends together easily from finding the best dates and places that work for everyone as well as tracking RSVP status and sharing event details - no more endless text threads or confusing group chats.">
-     <meta name="keywords" content="gathurUP, event planning, group scheduling, find dates, get together, friends, social planning">
-     <meta name="author" content="Tiffanie and David Lewis">
-     <!-- Open Graph Title -->
-     <meta property="og:title" content="gathurUP - For Getting Friends Together Easily" />
-     <!-- Open Graph Description -->
-     <meta property="og:description" content="gathurUP helps you get friends together easily by finding the best dates for everyone. No more endless text threads or confusing email chains." />
-     <!-- Open Graph URL -->
-     <meta property="og:url" content="https://www.gathurup.com" />
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="gathurUP helps you get friends together easily from finding the best dates and places that work for everyone as well as tracking RSVP status and sharing event details - no more endless text threads or confusing group chats.">
+    <meta name="keywords" content="gathurUP, event planning, group scheduling, find dates, get together, friends, social planning">
+    <meta name="author" content="Tiffanie and David Lewis">
+    <!-- Open Graph Title -->
+    <meta property="og:title" content="gathurUP - For Getting Friends Together Easily" />
+    <!-- Open Graph Description -->
+    <meta property="og:description" content="gathurUP helps you get friends together easily by finding the best dates for everyone. No more endless text threads or confusing email chains." />
+    <!-- Open Graph URL -->
+    <meta property="og:url" content="https://www.gathurup.com" />
     <!-- Open Graph Image -->
     <meta property="og:image" content="https://www.gathurup.com/gathurUP_teal_1200.png" />
     <meta property="og:image:width" content="1200" />
@@ -24,40 +24,45 @@
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js" type="module"></script>
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js" type="module"></script>
     <script src="confirmation.js" type="module"></script>
-    <link rel="stylesheet" href="styles_event.css">
+    <link rel="stylesheet" href="confirmation_styles.css">
+      <!-- Add Google Fonts -->
+      <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400&family=Poppins:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="max-w-3xl">
-        <div class="header-card">
+    <div class="max-w-3xl mx-auto p-6">
+        <!-- Logo Card -->
+        <div class="cta-card">
             <div class="logo-container">
                 <a href="https://www.gathurup.com">
                     <img src="gathurUP_teal_1200_header.png" alt="gatherUP Logo">
                 </a>
             </div>
-    
-        <!-- Timezone Selector -->
-                <div class="timezone-selector" style="display: flex; justify-content: center; align-items: center; margin: 20px 0;">
-                <span class="timezone-label">Time Zone:</span>
-                <select id="timezoneSelect" class="timezone-select" style="padding: 5px; font-size: 1em;">
-                    <!-- Populated by JavaScript -->
-                </select>
-                </div>
-        
+        <!-- Confirmation Card -->
             <div class="confirmation-content">
-                <h2>Your Update is Complete</h2>
-                <!-- Add to Calendar Button -->
-            </div>
-            <div class="detail-item">
-                <div id="addToCalendarContainer"></div>
-            </div>
-            <div>
-            <p class="centered-link"><a id="updatePreferencesLink" class="return-link">Click here to return to Event Page if needed</a></p>
+                <h2>Update Complete</h2>
+                <p class="centered-link"><a id="updatePreferencesLink" class="return-link">Return to Event Page</a></p>
             </div>
         </div>
+        <!-- Timezone and Calendar Card -->
+        <div class="timezone-calendar-card" id="calendarContainer" style="display: none;">
+            <h2>Don't forget to add this to your Calendar!</h2>
+            <div id="addToCalendarContainer"></div>
+            <!-- Populated by JavaScript -->
+             <div class="timezone-selector" style="display: flex; justify-content: center; align-items: center; margin: 20px 0;">
+                <span class="timezone-label">Time Zone:</span>
+                <select id="timezoneSelect" class="timezone-select" style="padding: 5px; font-size: 1em;">
+                <!-- Populated by JavaScript -->
+                </select>
+            </div>
+        
+        </div>
+
+        <!-- Call to Action Card -->
         <div class="cta-card">
-            <h2>Do You Meet-up With Friends?</h2>
+            <h2>Do You Get Friends Together?</h2>
             <div class="cta-button-container">
-                <a href="index.html" class="submit-button">Sign up for a FREE gathurUP account!</a>
+                <a href="index.html" class="submit-button">Sign Up FREE!</a>
+            </div>
         </div>
     </div>
 </body>

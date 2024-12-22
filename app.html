@@ -63,17 +63,17 @@
                     </svg>
                     Welcome
                 </button>
+                <button class="tab-button" data-tab="tribes">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    People and Groups
+                </button>
                 <button class="tab-button " data-tab="createEvent">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
                     Create Event
                 </button>
                 <button class="tab-button" data-tab="events">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    Events
-                </button>
-                <button class="tab-button" data-tab="tribes">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    People and Groups
+                    My Events
                 </button>
                 <button class="tab-button" data-tab="instructions">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -104,15 +104,15 @@
 <div class="content-card welcome-card">
         <div class="welcome-section">
             <h2>Howdy, Friend! 👋</h2>
-            <p>We're thrilled to have you as a founding user! To say "Thank You" we made you a Free Member.</p>
+            <p>We're thrilled to have you as a founding member! To say "Thank You", we made you a Free Member.</p>
             
             <div class="welcome-feature">
                 <h3>What's gathurUP?</h3>
                 <p>GathurUP helps you easily plan events with friends. You can share your event details with groups, capture RSVP status, or even propose dates and times so your attendees can vote on what works best for them. No more endless text threads, confusing email chains, or frustrating back-and-forth. Just easy, clear planning for your group activities and trips.</p>
             </div>
-
+<!-- 
             <div class="welcome-feature">
-                <h3>In This Version (Beta v1.18)🎯</h3>
+                <h3>In This Version (Beta 1.19)🎯</h3>
                 <ul>
                     <li><strong>Event Details:</strong> Ability to set Dates, Times, Locations, and other event details</li>
                     <li><strong>RSVP Capture:</strong> Ability to have your group members RSVP for events and see their responses</li>
@@ -123,9 +123,9 @@
                     <li><strong>Response Reporting:</strong> Easily see who's available when and their location preferences</li>
                 </ul>
             </div>
-
+Create Event View -->
             <div class="welcome-feature">
-                <h3>Coming Next 🚀</h3>
+                <h3>Coming Q1 🚀</h3>
                 <div class="beta-notes">
                     <ul>
                         <li>Activity Planning - Collaborate on itineraries</li>
@@ -140,7 +140,7 @@
             <div class="welcome-cta">
                 <p>Thanks for helping us make getting friends together easier! 🌟</p>
                 <p>Your Friends,</p>
-                <p>Tiffanie and David Lewis</p>
+                <p>David and Tiffanie Lewis</p>
                 <button onclick="switchTab('instructions')" class="primary-button">
                     Instructions
                 </button>
@@ -165,12 +165,12 @@
 
                         <div class="form-group">
                             <label for="eventTitle">Event Title</label>
-                            <input type="text" id="eventTitle" class="event-input" required placeholder="Enter event title">
+                            <input type="text" id="eventTitle" class="event-input" required placeholder="Enter your event title">
                         </div>
 
                         <div class="form-group">
                             <label for="eventDescription">Description</label>
-                            <textarea id="eventDescription" class="event-input" placeholder="Enter event description"></textarea>
+                            <textarea id="eventDescription" class="event-input" placeholder="Enter a short event description"></textarea>
                         </div>
                         <!-- Collapsible Sections -->
                         <!-- Event Details Section -->
@@ -185,7 +185,7 @@
                             </button>
                             <div class="content">
                                 <h3>Event Details</h3>
-                                <p class="app-tip">Tip: You can poll for dates and locations to find the best date(s), time(s), and locations.</p>
+                                <p class="app-tip">Tip: Enter your event details. If you don't have firm dates or locations, you can use the polling sections.</p>
                                 <div class="form-group">
                                     <label for="eventLocation">Location</label>
                                     <input type="text" id="eventLocation" class="event-input" placeholder="Restaurant, Hotel, Venue, etc.">
@@ -306,15 +306,15 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="eventAttireComments">Attire Comments</label>
-                                    <textarea id="eventAttireComments" class="event-input" placeholder="Optional"></textarea>
+                                    <textarea id="eventAttireComments" class="event-input" placeholder="Optional additional information about attire for the event"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="eventFood">Food</label>
-                                    <textarea id="eventFood" class="event-input" placeholder="Describe cuisine or dietary information"></textarea>
+                                    <textarea id="eventFood" class="event-input" placeholder="Optional place to describe cuisine or dietary information"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="eventAdditionalComments">Additional Comments</label>
-                                    <textarea id="eventAdditionalComments" class="event-input" placeholder="Add any additional event details for attendees"></textarea>
+                                    <textarea id="eventAdditionalComments" class="event-input" placeholder="Optional place for additional event details for attendees"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="checkbox-container">
@@ -337,8 +337,8 @@
                             </button>
                             <div class="content">
                                 <div class="event-type">
-                                    <h3>Find Your Ideal Dates</h3>
-                                    <p class="app-tip">Tip: Choose Single-Day Events for events that happen within a day. Selet Multi-Day Events for events that occur over multiple days. Start times can only be added to Single-Day events.</p>
+                                    <h3>Poll to Find the Ideal Dates</h3>
+                                    <p class="app-tip">Tip: Choose Single-Day Events to poll for an event that will occur within one day - like a dinner. Start times can be added to Single-Day events. Choose Multi-Day Events to poll for events that will occur over multiple days - like a trip. Add multiple options for friends to pick from.</p>
                                     <label class="radio-label">
                                         <input type="radio" name="eventType" value="specific" checked>
                                         Single-Day Events
@@ -435,7 +435,7 @@
                             </button>
                             <div class="content">
                                 <h3>Find Your Ideal Location</h3>
-                                <p class="app-tip">Tip: Use Canva or ChatGPT to make location images. They should be landscape format and ideally 400px wide by 150px tall.</p>
+                                <p class="app-tip">Tip: Images for location headers are recommended and appear above the location name and description on the event page.</p>
                                 
                                 <!-- Add Location Form -->
                                 <div class="form-group">
@@ -449,9 +449,9 @@
                                 <div class="form-group">
                                     <label for="locationImage">Location Header</label>
                                     <input type="file" id="locationImage" accept=".jpg, .jpeg, .png, .svg">
-                                    <small><em>Accepted image file types: jpg, jpeg, png, svg</em></small>
+                                    <small><em>Wide, landscape format 400px wide is ideal. Image file types must be: jpg, jpeg, png, svg</em></small>
                                 </div>
-                                <button type="button" id="addLocationBtn" class="primary-button add-location-button" onclick="addLocation()">Add Location</button>
+                                <button type="button" id="addLocationBtn" class="primary-button add-location-button" onclick="addLocation()">Add Location Option</button>
                                 <!-- Current Locations List -->
                                 <div id="locationList" class="location-list">
                                     <!-- This will be populated dynamically by JavaScript -->
