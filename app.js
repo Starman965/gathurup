@@ -437,28 +437,14 @@ async function validateEventPageSettings() {
 
     // Check for date preferences in both database and selectedDates array
     if (includeDatePreferences) {
-        console.log('Checking date preferences...');
-        console.log('Selected dates in memory:', selectedDates);
-        
-        // Check dates in form display
-        const dateTable = document.querySelector('.date-table');
-        const displayedDates = dateTable ? dateTable.getElementsByClassName('date-row').length : 0;
-        console.log('Dates displayed in form:', displayedDates);
-
-        let hasDateOptions = selectedDates.length > 0 || displayedDates > 0;
-        console.log('Has dates in memory or display:', hasDateOptions);
+        let hasDateOptions = selectedDates.length > 0;
         
         if (editingEventId) {
             const datesRef = ref(database, `users/${currentUser.uid}/events/${editingEventId}/dates`);
             const datesSnap = await get(datesRef);
             const datesData = datesSnap.val();
-            const databaseDates = datesData ? Object.keys(datesData).length : 0;
-            console.log('Dates in database:', databaseDates);
-            
-            hasDateOptions = hasDateOptions || databaseDates > 0;
+            hasDateOptions = hasDateOptions || (datesData && Object.keys(datesData).length > 0);
         }
-
-        console.log('Final hasDateOptions value:', hasDateOptions);
 
         if (!hasDateOptions) {
             alert("To include the Date Poll Section, you must first provide date options.");
@@ -495,27 +481,7 @@ async function createEvent(e) {
         return;
     }
 
-     /* Validate Date Poll Section
-     const includeDatePreferences = document.getElementById('includeDatePreferences').checked;
-     if (includeDatePreferences) {
-         if (eventId) {
-             // Check if date preferences exist for the existing event
-             const datesRef = ref(database, `users/${currentUser.uid}/events/${eventId}/dates`);
-             const datesSnap = await get(datesRef);
-             const datesData = datesSnap.val();
-             if (!datesData || Object.keys(datesData).length === 0) {
-                 alert("To include the Date Poll Section, you must first provide date options.");
-                 return;
-             }
-         } else {
-             // Check if any date preferences have been added in the form
-             if (selectedDates.length === 0) {
-                 alert("To include the Date Poll Section, you must first provide date options.");
-                 return;
-             }
-         }
-     }
- */
+
      // Validate Location Poll Section
      const includeLocationPreferences = document.getElementById('includeLocationPreferences').checked;
      if (includeLocationPreferences) {
@@ -592,6 +558,10 @@ async function createEvent(e) {
             if (existingEvent.rsvps) {
                 eventData.rsvps = existingEvent.rsvps;
             }
+
+     // Preserve existing activities regardless of Activity Section state
+            const existingActivities = existingEvent.activities || {};
+            eventData.activities = { ...existingActivities };
 
             await set(eventRef, eventData);
             // Switch to events list view after update
