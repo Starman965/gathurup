@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+import { getDatabase, ref, get, set, push, remove, update} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAiFcWBrqP02_g3Hp3ESbnICMIn3LZQf7Y",
@@ -21,6 +21,7 @@ let currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 let eventData = null;
 let eventTimezoneCache = {};
 let currentEventData = null;
+let currentEditingActivity = null; // added for activity support
 
 // Timezone Management
 async function initializeEventTimezone() {
@@ -46,6 +47,214 @@ async function initializeEventTimezone() {
     return currentTimezone;
 }
 
+// function to initialize activities
+async function initializeActivities() {
+    if (!eventData.includeActivityDetails) {
+        document.getElementById('activitiesCard').style.display = 'none';
+        return;
+    }
+
+    document.getElementById('activitiesCard').style.display = 'block';
+    await loadActivities();
+}
+//  functions for activity management
+async function loadActivities() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    const activitiesRef = ref(database, `users/${userId}/events/${eventId}/activities`);
+    const snapshot = await get(activitiesRef);
+    const activities = snapshot.val() || {};
+
+    renderActivities(activities);
+}
+
+function renderActivities(activities) {
+    const activitiesList = document.getElementById('activitiesList');
+
+    const sortedActivities = sortActivities(activities);
+
+    activitiesList.innerHTML = sortedActivities.map(([id, activity]) => `
+        <div class="activity-card">
+            <div class="activity-header">
+                <div class="activity-title">${activity.title}</div>
+                <div class="activity-actions">
+                    <button onclick="editActivity('${id}')" class="action-button edit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                        </svg>
+                    </button>
+                    <button onclick="deleteActivity('${id}')" class="action-button delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-2 14H7L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                    <path d="M5 6l1-3h12l1 3"></path>
+                    </button>
+                </div>
+            </div>
+            <div class="activity-details">
+                ${activity.date ? `<div>Date: ${formatDateForDisplay(activity.date)}</div>` : ''}
+                ${activity.time ? `<div>Time: ${formatActivityTime(activity.time, activity.period, activity.timezone)}</div>` : ''}
+                ${activity.location ? `<div>Location: ${activity.location}</div>` : ''}
+                ${activity.info ? `<div>Additional Info: ${activity.info}</div>` : ''}
+            </div>
+            <div class="activity-creator">Added by ${activity.creator}</div>
+        </div>
+    `).join('');
+}
+// Add activity modal functions
+function showActivityModal(editing = false) {
+    const modal = document.getElementById('activityModal');
+    const modalTitle = document.getElementById('activityModalTitle');
+    modalTitle.textContent = editing ? 'Edit Activity' : 'Add Activity';
+    modal.style.display = 'flex';  // Changed from block to flex
+}
+// Helper function to format time in 12-hour format with timezone
+function formatActivityTime(time, period, timezone) {
+    if (!time || !period) return '';
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const hour12 = hour % 12 || 12;
+    const timeStr = `${hour12}:${minutes} ${period}`;
+    const tzAbbr = getTimezoneAbbreviation(timezone);
+    return `${timeStr} ${tzAbbr}`;
+}
+
+// Define getTimezoneAbbreviation function
+const timezoneAbbreviations = {
+    'America/Los_Angeles': 'PT',
+    'America/New_York': 'ET',
+    'America/Chicago': 'CT',
+    'America/Denver': 'MT',
+    'America/Phoenix': 'MST',
+    'America/Anchorage': 'AKT',
+    'America/Honolulu': 'HAT',
+    'Europe/London': 'GMT',
+    'Europe/Berlin': 'CET',
+    'Europe/Paris': 'CET',
+    'Europe/Moscow': 'MSK',
+    'Australia/Sydney': 'AET',
+    'Australia/Perth': 'AWT',
+    'Pacific/Auckland': 'NZT',
+    'America/Toronto': 'ET',
+    'America/Vancouver': 'PT',
+    'America/Mexico_City': 'CT',
+    'America/Sao_Paulo': 'BRT',
+    'Africa/Johannesburg': 'SAST',
+};
+function getTimezoneAbbreviation(timezone) {
+    return timezoneAbbreviations[timezone] || timezone.split('/').pop().match(/[A-Z]/g).join('');
+}
+// Sort activities by date and time
+function sortActivities(activities) {
+    return Object.entries(activities).sort((a, b) => {
+        const dateA = a[1].date || '9999-99-99';
+        const dateB = b[1].date || '9999-99-99';
+        const timeA = a[1].time || '99:99';
+        const timeB = b[1].time || '99:99';
+        
+        const compareDate = dateA.localeCompare(dateB);
+        return compareDate !== 0 ? compareDate : timeA.localeCompare(timeB);
+    });
+}
+function closeActivityModal() {
+    const modal = document.getElementById('activityModal');
+    modal.style.display = 'none';
+    document.getElementById('activityForm').reset();
+    currentEditingActivity = null;
+}
+
+async function handleActivitySubmit(e) {
+    e.preventDefault();
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+    
+    const activityTitle = document.getElementById('activityTitle').value;
+    const activityDate = document.getElementById('activityDate').value || null;
+    const activityTimeHour = document.getElementById('activityTimeHour').value;
+    const activityTimeMinute = document.getElementById('activityTimeMinute').value;
+    const activityTimePeriod = document.getElementById('activityTimePeriod').value;
+    const activityLocation = document.getElementById('activityLocation').value || null;
+    const activityInfo = document.getElementById('activityInfo').value || null;
+    const activityTimezone = document.getElementById('activityTimezone').value;
+
+    const activityTime = activityTimeHour && activityTimeMinute && activityTimePeriod 
+        ? `${activityTimeHour}:${activityTimeMinute}` 
+        : null;
+
+    const activity = {
+        title: activityTitle,
+        date: activityDate,
+        time: activityTime,
+        period: activityTimePeriod,
+        timezone: activityTimezone,
+        location: activityLocation,
+        info: activityInfo,
+        creator: selectedFullName,
+        createdAt: new Date().toISOString()
+    };
+
+    try {
+        const activitiesRef = ref(database, `users/${userId}/events/${eventId}/activities`);
+        if (currentEditingActivity) {
+            await update(ref(database, `users/${userId}/events/${eventId}/activities/${currentEditingActivity}`), activity);
+        } else {
+            const newActivityRef = push(activitiesRef);
+            await set(newActivityRef, activity);
+        }
+        
+        closeActivityModal();
+        await loadActivities();
+    } catch (error) {
+        console.error('Error saving activity:', error);
+        alert('Error saving activity');
+    }
+}
+window.editActivity = async function(activityId) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    const activityRef = ref(database, `users/${userId}/events/${eventId}/activities/${activityId}`);
+    const snapshot = await get(activityRef);
+    const activity = snapshot.val();
+
+    if (activity) {
+        document.getElementById('activityTitle').value = activity.title;
+        document.getElementById('activityDate').value = activity.date || '';
+        const [hour, minute] = activity.time ? activity.time.split(':') : ['', ''];
+        document.getElementById('activityTimeHour').value = hour || '';
+        document.getElementById('activityTimeMinute').value = minute || '';
+        document.getElementById('activityTimePeriod').value = activity.period || '';
+        document.getElementById('activityLocation').value = activity.location || '';
+        document.getElementById('activityInfo').value = activity.info || '';
+        document.getElementById('activityTimezone').value = activity.timezone || 'America/Los_Angeles';
+        
+        currentEditingActivity = activityId;
+        showActivityModal(true);
+    }
+}
+
+window.deleteActivity = async function(activityId) {
+    if (!confirm('Are you sure you want to delete this activity?')) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    try {
+        await remove(ref(database, `users/${userId}/events/${eventId}/activities/${activityId}`));
+        await loadActivities();
+    } catch (error) {
+        console.error('Error deleting activity:', error);
+        alert('Error deleting activity');
+    }
+}
 // Date Formatting Functions
 function formatDateForDisplay(dateStr, timeStr = '', options = {}) {
     if (!dateStr) return '';
@@ -619,8 +828,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     await initializeEventTimezone();
     await loadEventData();
     populateTimezoneSelect();
+    document.getElementById('addActivityBtn')?.addEventListener('click', () => showActivityModal(false));
+    document.getElementById('activityForm')?.addEventListener('submit', handleActivitySubmit);
+    document.querySelector('.modal .secondary-button')?.addEventListener('click', closeActivityModal);
+    
+    // Initialize activities
+    initializeActivities();
 });
-
 
 // helper function
 function updateVoteIndicatorDisplay(indicator, vote) {

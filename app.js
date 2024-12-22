@@ -411,12 +411,14 @@ function setEventDetailsData(details) {
     document.getElementById('eventAdditionalComments').value = details.additionalComments || '';
     document.getElementById('includeRsvpSection').checked = details.includeRsvpSection || false; 
 }
-function validateEventPageSettings() {
+
+async function validateEventPageSettings() {
     const includeEventDetails = document.getElementById('includeEventDetails').checked;
     const includeDatePreferences = document.getElementById('includeDatePreferences').checked;
     const includeLocationPreferences = document.getElementById('includeLocationPreferences').checked;
+    const includeActivityDetails = document.getElementById('includeActivityDetails').checked;
 
-    if (!includeEventDetails && !includeDatePreferences && !includeLocationPreferences) {
+    if (!includeEventDetails && !includeDatePreferences && !includeLocationPreferences && !includeActivityDetails) {
         alert('You must include at least one section on your event page.');
         return false;
     }
@@ -431,6 +433,43 @@ function validateEventPageSettings() {
             alert('To include Event Details on the event page, you must enter both an event Start Date and Start Time in the Event Details section.');
             return false;
         }
+    }
+
+    // Check for date preferences in both database and selectedDates array
+    if (includeDatePreferences) {
+        console.log('Checking date preferences...');
+        console.log('Selected dates in memory:', selectedDates);
+        
+        // Check dates in form display
+        const dateTable = document.querySelector('.date-table');
+        const displayedDates = dateTable ? dateTable.getElementsByClassName('date-row').length : 0;
+        console.log('Dates displayed in form:', displayedDates);
+
+        let hasDateOptions = selectedDates.length > 0 || displayedDates > 0;
+        console.log('Has dates in memory or display:', hasDateOptions);
+        
+        if (editingEventId) {
+            const datesRef = ref(database, `users/${currentUser.uid}/events/${editingEventId}/dates`);
+            const datesSnap = await get(datesRef);
+            const datesData = datesSnap.val();
+            const databaseDates = datesData ? Object.keys(datesData).length : 0;
+            console.log('Dates in database:', databaseDates);
+            
+            hasDateOptions = hasDateOptions || databaseDates > 0;
+        }
+
+        console.log('Final hasDateOptions value:', hasDateOptions);
+
+        if (!hasDateOptions) {
+            alert("To include the Date Poll Section, you must first provide date options.");
+            return false;
+        }
+    }
+
+    // Check for location preferences
+    if (includeLocationPreferences && selectedLocations.length === 0) {
+        alert("To include the Location Poll Section, you must first provide location poll options.");
+        return false;
     }
 
     return true;
@@ -456,7 +495,7 @@ async function createEvent(e) {
         return;
     }
 
-     // Validate Date Poll Section
+     /* Validate Date Poll Section
      const includeDatePreferences = document.getElementById('includeDatePreferences').checked;
      if (includeDatePreferences) {
          if (eventId) {
@@ -476,7 +515,7 @@ async function createEvent(e) {
              }
          }
      }
- 
+ */
      // Validate Location Poll Section
      const includeLocationPreferences = document.getElementById('includeLocationPreferences').checked;
      if (includeLocationPreferences) {
@@ -506,6 +545,7 @@ async function createEvent(e) {
         includeEventDetails: document.getElementById('includeEventDetails').checked,
         includeDatePreferences: document.getElementById('includeDatePreferences').checked,
         includeLocationPreferences: document.getElementById('includeLocationPreferences').checked,
+        includeActivityDetails: document.getElementById('includeActivityDetails').checked,
         includeRsvpSection: document.getElementById('includeRsvpSection').checked,
         dates: selectedDates.map(dateRange => {
             if (dateRange.type === 'dayOfWeek') {
@@ -1471,7 +1511,7 @@ window.editEventDates = async function(eventId) {
         document.getElementById('includeEventDetails').checked = eventData.includeEventDetails || false;
         document.getElementById('includeDatePreferences').checked = eventData.includeDatePreferences || false;
         document.getElementById('includeLocationPreferences').checked = eventData.includeLocationPreferences || false;
-        
+        document.getElementById('includeActivityDetails').checked = eventData.includeActivityDetails || false;
         editingEventId = eventId;
         
         // Update form submit button text
@@ -2039,11 +2079,11 @@ function renderEventSettings() {
     const includeLocationPreferencesCheckbox = document.getElementById('includeLocationPreferences');
     const includeDatePreferencesCheckbox = document.getElementById('includeDatePreferences');
     const includeEventDetailsCheckbox = document.getElementById('includeEventDetails');
-
+    const includeActivityDetailsCheckbox = document.getElementById('includeActivityDetailsCheckbox');
     const includeLocationPreferences = selectedLocations.length > 0 || (includeLocationPreferencesCheckbox && includeLocationPreferencesCheckbox.checked);
     const includeDatePreferences = includeDatePreferencesCheckbox && includeDatePreferencesCheckbox.checked;
     const includeEventDetails = includeEventDetailsCheckbox && includeEventDetailsCheckbox.checked;
-
+    const includeActivityDetails = includeActivityDetailsCheckbox && includeActivityDetailsCheckbox.checked;
     eventSettingsContainer.innerHTML = `
         <div class="section-card">
             <h3>Event Page Settings</h3>
@@ -2065,6 +2105,11 @@ function renderEventSettings() {
                         <input type="checkbox" id="includeLocationPreferences" ${includeLocationPreferences ? 'checked' : ''}>
                         <span class="checkmark"></span>
                         Location Poll Section
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="includeActivityDetails" ${includeActivityDetails ? 'checked' : ''}>
+                        <span class="checkmark"></span>
+                        Activity Section
                     </label>
                 </div>
             </div>
