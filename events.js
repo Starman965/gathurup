@@ -1582,32 +1582,54 @@ function renderAssignments(assignments) {
     
     const sortedAssignments = sortAssignments(assignments);
 
-    assignmentsList.innerHTML = sortedAssignments.map(([id, assignment]) => `
-        <div class="assignment-card ${assignment.priority.toLowerCase()}-priority">
-            <div class="assignment-header">
-                <div class="assignment-title">${assignment.task}</div>
-                <div class="assignment-actions">
-                    <button onclick="editAssignment('${id}')" class="action-button edit">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-                        </svg>
-                    </button>
-                    <button onclick="deleteAssignment('${id}')" class="action-button delete">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                    </button>
+    assignmentsList.innerHTML = sortedAssignments.map(([id, assignment]) => {
+        const formattedDueDate = assignment.dueDate ? formatDateForDisplay(assignment.dueDate) : '';
+
+        const taskTypeIcon = assignment.taskType.toLowerCase() === 'to do' ? `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>` : `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2l1.5 1.5h9L18 2h-3.5L12 5.5 9.5 2H6z"></path>
+                <path d="M3 6h18v14H3z"></path>
+            </svg>`;
+
+        const priorityClass = assignment.priority.toLowerCase() === 'high' ? 'high-priority' : '';
+
+        return `
+            <div class="assignment-card ${assignment.priority.toLowerCase()}-priority">
+                <div class="assignment-header">
+                    <div class="assignment-title">${assignment.task}</div>
+                    <div class="assignment-actions">
+                        <button onclick="editAssignment('${id}')" class="action-button edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                            </svg>
+                        </button>
+                        <button onclick="deleteAssignment('${id}')" class="action-button delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6l-2 14H7L5 6"></path>
+                                <path d="M10 11v6"></path>
+                                <path d="M14 11v6"></path>
+                                <path d="M5 6l1-3h12l1 3"></path>
+                        </button>
+                    </div>
+                </div>
+                <div class="assignment-details">
+                    <div class="task-type ${assignment.taskType.toLowerCase()}">
+                        ${taskTypeIcon} ${assignment.taskType}
+                    </div>
+                    <div>Assigned to: ${assignment.assignedTo}</div>
+                    <div class="priority ${priorityClass}">
+                        ${assignment.priority}
+                    </div>
+                    ${formattedDueDate ? `<div>Due: ${formattedDueDate}</div>` : ''}
+                    <div>Status: ${assignment.status}</div>
                 </div>
             </div>
-            <div class="assignment-details">
-                <div class="task-type ${assignment.taskType.toLowerCase()}">${assignment.taskType}</div>
-                <div>Assigned to: ${assignment.assignedTo}</div>
-                <div>Priority: ${assignment.priority}</div>
-                ${assignment.dueDate ? `<div>Due: ${formatAssignmentDate(assignment.dueDate)}</div>` : ''}
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 window.editAssignment = async function(assignmentId) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -1624,6 +1646,7 @@ window.editAssignment = async function(assignmentId) {
         document.getElementById('assignedTo').value = assignment.assignedTo;
         document.getElementById('priority').value = assignment.priority;
         document.getElementById('dueDate').value = assignment.dueDate || '';
+        document.getElementById('assignmentStatus').value = assignment.status || 'Assigned'; // Populate status field
         
         currentEditingAssignment = assignmentId;
         showAssignmentModal(true);
@@ -1667,6 +1690,7 @@ async function handleAssignmentSubmit(e) {
         assignedTo: document.getElementById('assignedTo').value,
         priority: document.getElementById('priority').value,
         dueDate: document.getElementById('dueDate').value || null,
+        status: document.getElementById('assignmentStatus').value,
         createdAt: new Date().toISOString()
     };
 
@@ -1702,6 +1726,7 @@ window.editAssignment = async function(assignmentId) {
         document.getElementById('assignedTo').value = assignment.assignedTo;
         document.getElementById('priority').value = assignment.priority;
         document.getElementById('dueDate').value = assignment.dueDate || '';
+        document.getElementById('assignmentStatus').value = assignment.status || 'Assigned'; // Populate status field
         
         currentEditingAssignment = assignmentId;
         showAssignmentModal(true);

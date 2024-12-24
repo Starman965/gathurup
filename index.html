@@ -156,6 +156,17 @@
             border-radius: 50%;
             z-index: 1001;
         }
+                /* Restrict gallery item width and add border */
+        .gallery-item img {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin: 0 auto;
+        }
+        
         .prev, .next {
             cursor: pointer;
             position: absolute;
@@ -191,7 +202,11 @@
                 padding: 15px;
                 height: 50px;
             }
+            .gallery-item img {
+                max-width: 200px;
+            }
         }
+        
         /* Logo size adjustments */
         .logo-container img {
             max-width: 300px; /* Default size for desktop */
