@@ -241,13 +241,13 @@
          <!-- Activites Section -->
          <div id="activitiesCard" class="activities-card" style="display: none;">
             <div class="activities-header">
-                <h2 class="section-header">Activities</h2>
+                <h2 class="section-header">Agenda</h2>
                 <button id="addActivityBtn" class="add-activity-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
-                    Add Activity
+                    Agenda Item
                 </button>
             </div>
             <div id="activitiesList" class="activities-list">
@@ -258,13 +258,13 @@
         <!-- Assignments Section -->
             <div id="assignmentsCard" class="assignment-card" style="display: none;">
                 <div class="assignment-header">
-                    <h2 class="section-header">Assignments</h2>
+                    <h2 class="section-header">Tasks</h2>
                     <button id="addAssignmentBtn" class="add-assignment-button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        Add Assignment
+                        New Task
                     </button>
                 </div>
                 <div id="assignmentsList" class="assignments-list">
@@ -315,7 +315,7 @@
 <!-- Modal for adding/editing activities -->
 <div id="activityModal" class="modal">
     <div class="modal-content">
-        <h3 id="activityModalTitle">Add Activity</h3>
+        <h3 id="activityModalTitle">Add Agenda Item</h3>
         <form id="activityForm">
             <div class="form-group">
                 <label for="activityTitle">Title*</label>
@@ -398,7 +398,7 @@
                 </select>
             </div>
             <div class="modal-buttons">
-                <button type="submit" class="primary-button">Save Activity</button>
+                <button type="submit" class="primary-button">Save Agenda Item</button>
                 <button type="button" class="secondary-button" onclick="closeActivityModal()">Cancel</button>
             </div>
         </form>
@@ -407,7 +407,7 @@
 <!-- Assignments Modal -->
 <div id="assignmentModal" class="modal">
     <div class="modal-content">
-        <h2 id="assignmentModalTitle">Add Assignment</h2>
+        <h2 id="assignmentModalTitle">Add New Task</h2>
         <form id="assignmentForm">
             <div class="form-group">
                 <label for="assignmentTask">Task*</label>
