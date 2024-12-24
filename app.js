@@ -417,6 +417,9 @@ async function validateEventPageSettings() {
     const includeDatePreferences = document.getElementById('includeDatePreferences').checked;
     const includeLocationPreferences = document.getElementById('includeLocationPreferences').checked;
     const includeActivityDetails = document.getElementById('includeActivityDetails').checked;
+    const includePacking = document.getElementById('includePacking').checked;
+    const includeAssignments = document.getElementById('includeAssignments').checked;
+
 
     if (!includeEventDetails && !includeDatePreferences && !includeLocationPreferences && !includeActivityDetails) {
         alert('You must include at least one section on your event page.');
@@ -512,6 +515,8 @@ async function createEvent(e) {
         includeDatePreferences: document.getElementById('includeDatePreferences').checked,
         includeLocationPreferences: document.getElementById('includeLocationPreferences').checked,
         includeActivityDetails: document.getElementById('includeActivityDetails').checked,
+        includePacking: document.getElementById('includePacking').checked,
+        includeAssignments: document.getElementById('includeAssignments').checked,
         includeRsvpSection: document.getElementById('includeRsvpSection').checked,
         dates: selectedDates.map(dateRange => {
             if (dateRange.type === 'dayOfWeek') {
@@ -563,6 +568,14 @@ async function createEvent(e) {
             const existingActivities = existingEvent.activities || {};
             eventData.activities = { ...existingActivities };
 
+             // Preserve existing packing items
+    const existingPacking = existingEvent.packing || {};
+    eventData.packing = { ...existingPacking };
+
+    // Preserve existing assignments
+    const existingAssignments = existingEvent.assignments || {};
+    eventData.assignments = { ...existingAssignments };
+
             await set(eventRef, eventData);
             // Switch to events list view after update
             switchTab('events');
@@ -574,6 +587,7 @@ async function createEvent(e) {
             await set(eventRef, {
                 ...eventData,
                 participants: {}
+     
             });
 
             // Initialize RSVP data if the RSVP section is included
@@ -1482,6 +1496,8 @@ window.editEventDates = async function(eventId) {
         document.getElementById('includeDatePreferences').checked = eventData.includeDatePreferences || false;
         document.getElementById('includeLocationPreferences').checked = eventData.includeLocationPreferences || false;
         document.getElementById('includeActivityDetails').checked = eventData.includeActivityDetails || false;
+        document.getElementById('includePacking').checked = eventData.includePacking || false;
+        document.getElementById('includeAssignments').checked = eventData.includeAssignments || false;
         editingEventId = eventId;
         
         // Update form submit button text
@@ -2050,10 +2066,14 @@ function renderEventSettings() {
     const includeDatePreferencesCheckbox = document.getElementById('includeDatePreferences');
     const includeEventDetailsCheckbox = document.getElementById('includeEventDetails');
     const includeActivityDetailsCheckbox = document.getElementById('includeActivityDetailsCheckbox');
+    const includePackingCheckbox = document.getElementById('includePackingCheckbox');
+    const includeAssignmentsCheckbox = document.getElementById('includeAssignmentsCheckbox');
     const includeLocationPreferences = selectedLocations.length > 0 || (includeLocationPreferencesCheckbox && includeLocationPreferencesCheckbox.checked);
     const includeDatePreferences = includeDatePreferencesCheckbox && includeDatePreferencesCheckbox.checked;
     const includeEventDetails = includeEventDetailsCheckbox && includeEventDetailsCheckbox.checked;
     const includeActivityDetails = includeActivityDetailsCheckbox && includeActivityDetailsCheckbox.checked;
+    const includePacking = includePackingCheckbox && includePackingCheckbox.checked;
+    const includeAssignments = includeAssignmentsCheckbox && includeAssignmentsCheckbox.checked;
     eventSettingsContainer.innerHTML = `
         <div class="section-card">
             <h3>Event Page Settings</h3>
@@ -2080,6 +2100,16 @@ function renderEventSettings() {
                         <input type="checkbox" id="includeActivityDetails" ${includeActivityDetails ? 'checked' : ''}>
                         <span class="checkmark"></span>
                         Activity Section
+                    </label>
+                     <label class="checkbox">
+                        <input type="checkbox" id="includeAssignments" ${includeAssignments ? 'checked' : ''}>
+                        <span class="checkmark"></span>
+                        Assignment Section
+                    </label>
+                     <label class="checkbox">
+                        <input type="checkbox" id="includePacking" ${includePacking ? 'checked' : ''}>
+                        <span class="checkmark"></span>
+                        Packing Section
                     </label>
                 </div>
             </div>

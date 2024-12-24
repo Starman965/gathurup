@@ -878,12 +878,14 @@ body {
 
 /* Event Details Card */
 .event-details-card {
+    width: 100%;
+    margin-bottom: 1rem;
     background: white;
     border-radius: 0.5rem;
     padding: 1.5rem;
     border: 1px solid var(--border-color);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
+    box-sizing: border-box;
 }
 
 .event-details-card h2 {
@@ -1077,7 +1079,16 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 1.5rem;
 }
+.activities-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
 
+.activities-header h2 {
+    margin: 0;
+}
 .add-activity-button {
     display: flex;
     align-items: center;
@@ -1088,7 +1099,7 @@ body {
     border: none;
     border-radius: 0.375rem;
     cursor: pointer;
-    margin-bottom: 1rem;
+    transition: background-color 0.2s;
 }
 
 .add-activity-button:hover {
@@ -1101,14 +1112,6 @@ body {
     gap: 1rem;
 }
 
-.activity-card {
-    max-width: 100%;   /* Ensure activity cards don't exceed parent width */
-    background: #f8f9fa;
-    border: 1px solid var(--border-color);
-    border-radius: 0.375rem;
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
 .activity-header {
     display: flex;
     justify-content: space-between;
@@ -1193,7 +1196,6 @@ body {
     border-radius: 0.375rem;
     font-size: 1rem;
 }
-
 /* Activity Date Input */
 .activity-date-input {
     max-width: 200px;
@@ -1203,7 +1205,6 @@ body {
     border-radius: 0.375rem;
     font-size: 1rem;
 }
-
 /* Modal Form Groups */
 .modal .form-group {
     margin-bottom: 1rem;
@@ -1223,3 +1224,188 @@ body {
     border-radius: 0.375rem;
     font-size: 1rem;
 }
+/* Section Header Styles */
+.section-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    
+}
+
+/* Individual Card Styles */
+.activity-card,
+.assignment-card,
+.packing-card {
+    width: 100%;
+    margin-bottom: 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+/* Card Container Styles */
+.activities-container,
+.assignments-container,
+.packing-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+/* List Container Styles */
+#activitiesList,
+#assignmentsList,
+#packingList {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+
+.packing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.packing-header h2 {
+    margin: 0;
+}
+.add-packing-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--tiffany-blue);
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-packing-button:hover {
+    background: var(--tiffany-blue-hover);
+}
+
+.packing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.packing-card {
+    max-width: 100%;   /* Ensure packing cards don't exceed parent width */
+    background: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.packing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.packing-title {
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+
+.packing-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.packing-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.packing-creator {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+/* Assignments Section */
+
+.assignment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.assignment-header h2 {
+    margin: 0;
+}
+.add-assignment-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--tiffany-blue);
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-assignment-button:hover {
+    background: var(--tiffany-blue-hover);
+}
+.assignment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.assignment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.assignment-title {
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+
+.assignment-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.assignment-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.assignment-creator {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+

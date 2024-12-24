@@ -22,6 +22,8 @@ let eventData = null;
 let eventTimezoneCache = {};
 let currentEventData = null;
 let currentEditingActivity = null; // added for activity support
+let currentEditingPacking = null;
+let currentEditingAssignment = null;
 
 // Timezone Management
 async function initializeEventTimezone() {
@@ -69,7 +71,52 @@ async function loadActivities() {
 
     renderActivities(activities);
 }
+window.populateAssigneeSelect = async function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
 
+    console.log('Fetching tribe data for event:', eventId, 'user:', userId); // Debug log
+
+    // Get the tribeId for the event
+    const eventRef = ref(database, `users/${userId}/events/${eventId}`);
+    const eventSnapshot = await get(eventRef);
+    const eventData = eventSnapshot.val();
+    const tribeId = eventData.tribeId;
+
+    console.log('Tribe ID:', tribeId); // Debug log
+
+    // Get the members of the tribe
+    const tribeRef = ref(database, `users/${userId}/tribes/${tribeId}/members`);
+    const tribeSnapshot = await get(tribeRef);
+    const memberIds = tribeSnapshot.val() || [];
+
+    console.log('Member IDs:', memberIds); // Debug log
+
+    // Get the details of each member
+    const memberPromises = memberIds.map(memberId => get(ref(database, `users/${userId}/people/${memberId}`)));
+    const memberSnapshots = await Promise.all(memberPromises);
+    const members = memberSnapshots.map(snapshot => snapshot.val());
+
+    console.log('Members:', members); // Debug log
+
+    const assigneeSelect = document.getElementById('assignedTo');
+    assigneeSelect.innerHTML = '<option value="">Select Person</option>' +
+        members.map(member => 
+            `<option value="${member.firstName} ${member.lastName}">${member.firstName} ${member.lastName}</option>`
+        ).join('');
+
+    console.log('Assignee select populated:', assigneeSelect.innerHTML); // Debug log
+}
+
+// Ensure populateAssigneeSelect is called before showing modal
+window.showAssignmentModal = function(editing = false) {
+    const modal = document.getElementById('assignmentModal');
+    const modalTitle = document.getElementById('assignmentModalTitle');
+    modalTitle.textContent = editing ? 'Edit Assignment' : 'Add Assignment';
+    populateAssigneeSelect(); // Ensure this is called
+    modal.style.display = 'flex';
+}
 function renderActivities(activities) {
     const activitiesList = document.getElementById('activitiesList');
 
@@ -529,7 +576,13 @@ async function loadEventData() {
                 await renderResponseSummary(membersList.length, userId, eventId);
             }
         }
-
+  // Add new section initializations
+  if (eventData.includePacking) {
+    await initializePacking();
+}
+if (eventData.includeAssignments) {
+    await initializeAssignments();
+}
         // Handle location preferences if included
         if (eventData.includeLocationPreferences && eventData.locations) {
             document.getElementById('locationPreferencesSection').style.display = 'block';
@@ -828,12 +881,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     await initializeEventTimezone();
     await loadEventData();
     populateTimezoneSelect();
-    document.getElementById('addActivityBtn')?.addEventListener('click', () => showActivityModal(false));
-    document.getElementById('activityForm')?.addEventListener('submit', handleActivitySubmit);
-    document.querySelector('.modal .secondary-button')?.addEventListener('click', closeActivityModal);
     
-    // Initialize activities
+    // Setup all event listeners
+    setupEventListeners();
+    
+    // Initialize sections
     initializeActivities();
+    if (eventData.includePacking) {
+        initializePacking();
+    }
+    if (eventData.includeAssignments) {
+        initializeAssignments();
+    }
 });
 
 // helper function
@@ -1352,4 +1411,367 @@ function updateEventDetailsWithTimezone(timezone) {
             .toFormat('h:mm a') : 
         null;
 
+}
+
+// Initialize the packing section
+async function initializePacking() {
+    if (!eventData.includePacking) {
+        document.getElementById('packingCard').style.display = 'none';
+        return;
+    }
+
+    document.getElementById('packingCard').style.display = 'block';
+    await loadPacking();
+}
+
+// Load packing items from database
+async function loadPacking() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    const packingRef = ref(database, `users/${userId}/events/${eventId}/packing`);
+    const snapshot = await get(packingRef);
+    const packing = snapshot.val() || {};
+
+    renderPacking(packing);
+}
+
+// Render packing items
+function renderPacking(packing) {
+    const packingList = document.getElementById('packingList');
+    
+    const sortedPacking = Object.entries(packing).sort((a, b) => {
+        return a[1].category.localeCompare(b[1].category);
+    });
+    
+    packingList.innerHTML = sortedPacking.map(([id, item]) => `
+        <div class="packing-card">
+            <div class="packing-header">
+                <div class="packing-title">${item.item}</div>
+                <div class="packing-actions">
+                    <button onclick="editPacking('${id}')" class="action-button edit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                        </svg>
+                    </button>
+                    <button onclick="deletePacking('${id}')" class="action-button delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="packing-details">
+                <div>Category: ${item.category}</div>
+                ${item.description ? `<div>Description: ${item.description}</div>` : ''}
+            </div>
+            <div class="packing-creator">Suggested by ${item.suggestedBy}</div>
+        </div>
+    `).join('');
+}
+
+function showPackingModal(editing = false) {
+    const modal = document.getElementById('packingModal');
+    const modalTitle = document.getElementById('packingModalTitle');
+    modalTitle.textContent = editing ? 'Edit Packing Item' : 'Add Packing Item';
+    modal.style.display = 'flex';
+}
+
+window.closePackingModal = function() {
+    const modal = document.getElementById('packingModal');
+    const form = document.getElementById('packingForm');
+    modal.style.display = 'none';
+    form.reset();
+    currentEditingPacking = null;
+};
+
+async function handlePackingSubmit(e) {
+    e.preventDefault();
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+    
+    const packingItem = {
+        item: document.getElementById('packingItem').value,
+        description: document.getElementById('packingDescription').value || null,
+        category: document.getElementById('packingCategory').value,
+        suggestedBy: selectedFullName,
+        createdAt: new Date().toISOString()
+    };
+
+    try {
+        const packingRef = ref(database, `users/${userId}/events/${eventId}/packing`);
+        if (currentEditingPacking) {
+            await update(ref(database, `users/${userId}/events/${eventId}/packing/${currentEditingPacking}`), packingItem);
+        } else {
+            const newPackingRef = push(packingRef);
+            await set(newPackingRef, packingItem);
+        }
+        
+        closePackingModal();
+        await loadPacking();
+    } catch (error) {
+        console.error('Error saving packing item:', error);
+        alert('Error saving packing item');
+    }
+}
+
+window.editPacking = async function(packingId) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    const packingRef = ref(database, `users/${userId}/events/${eventId}/packing/${packingId}`);
+    const snapshot = await get(packingRef);
+    const packing = snapshot.val();
+
+    if (packing) {
+        document.getElementById('packingItem').value = packing.item;
+        document.getElementById('packingDescription').value = packing.description || '';
+        document.getElementById('packingCategory').value = packing.category;
+        
+        currentEditingPacking = packingId;
+        showPackingModal(true);
+    }
+}
+
+window.deletePacking = async function(packingId) {
+    if (!confirm('Are you sure you want to delete this packing item?')) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    try {
+        await remove(ref(database, `users/${userId}/events/${eventId}/packing/${packingId}`));
+        await loadPacking();
+    } catch (error) {
+        console.error('Error deleting packing item:', error);
+        alert('Error deleting packing item');
+    }
+}
+
+async function initializeAssignments() {
+    if (!eventData.includeAssignments) {
+        document.getElementById('assignmentsCard').style.display = 'none';
+        return;
+    }
+
+    document.getElementById('assignmentsCard').style.display = 'block';
+    await loadAssignments();
+}
+
+async function loadAssignments() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    const assignmentsRef = ref(database, `users/${userId}/events/${eventId}/assignments`);
+    const snapshot = await get(assignmentsRef);
+    const assignments = snapshot.val() || {};
+
+    renderAssignments(assignments);
+}
+
+
+function renderAssignments(assignments) {
+    const assignmentsList = document.getElementById('assignmentsList');
+    
+    const sortedAssignments = sortAssignments(assignments);
+
+    assignmentsList.innerHTML = sortedAssignments.map(([id, assignment]) => `
+        <div class="assignment-card ${assignment.priority.toLowerCase()}-priority">
+            <div class="assignment-header">
+                <div class="assignment-title">${assignment.task}</div>
+                <div class="assignment-actions">
+                    <button onclick="editAssignment('${id}')" class="action-button edit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                        </svg>
+                    </button>
+                    <button onclick="deleteAssignment('${id}')" class="action-button delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="assignment-details">
+                <div class="task-type ${assignment.taskType.toLowerCase()}">${assignment.taskType}</div>
+                <div>Assigned to: ${assignment.assignedTo}</div>
+                <div>Priority: ${assignment.priority}</div>
+                ${assignment.dueDate ? `<div>Due: ${formatAssignmentDate(assignment.dueDate)}</div>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+window.editAssignment = async function(assignmentId) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    const assignmentRef = ref(database, `users/${userId}/events/${eventId}/assignments/${assignmentId}`);
+    const snapshot = await get(assignmentRef);
+    const assignment = snapshot.val();
+
+    if (assignment) {
+        document.getElementById('assignmentTask').value = assignment.task;
+        document.getElementById('taskType').value = assignment.taskType;
+        document.getElementById('assignedTo').value = assignment.assignedTo;
+        document.getElementById('priority').value = assignment.priority;
+        document.getElementById('dueDate').value = assignment.dueDate || '';
+        
+        currentEditingAssignment = assignmentId;
+        showAssignmentModal(true);
+    }
+}
+
+window.deleteAssignment = async function(assignmentId) {
+    if (!confirm('Are you sure you want to delete this assignment?')) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    try {
+        await remove(ref(database, `users/${userId}/events/${eventId}/assignments/${assignmentId}`));
+        await loadAssignments();
+    } catch (error) {
+        console.error('Error deleting assignment:', error);
+        alert('Error deleting assignment');
+    }
+}
+
+window.closeAssignmentModal = function() {
+    const modal = document.getElementById('assignmentModal');
+    const form = document.getElementById('assignmentForm');
+    modal.style.display = 'none';
+    form.reset();
+    currentEditingAssignment = null;
+};
+
+async function handleAssignmentSubmit(e) {
+    e.preventDefault();
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+    
+    const assignment = {
+        task: document.getElementById('assignmentTask').value,
+        taskType: document.getElementById('taskType').value,
+        assignedTo: document.getElementById('assignedTo').value,
+        priority: document.getElementById('priority').value,
+        dueDate: document.getElementById('dueDate').value || null,
+        createdAt: new Date().toISOString()
+    };
+
+    try {
+        const assignmentsRef = ref(database, `users/${userId}/events/${eventId}/assignments`);
+        if (currentEditingAssignment) {
+            await update(ref(database, `users/${userId}/events/${eventId}/assignments/${currentEditingAssignment}`), assignment);
+        } else {
+            const newAssignmentRef = push(assignmentsRef);
+            await set(newAssignmentRef, assignment);
+        }
+        
+        closeAssignmentModal();
+        await loadAssignments();
+    } catch (error) {
+        console.error('Error saving assignment:', error);
+        alert('Error saving assignment');
+    }
+}
+
+window.editAssignment = async function(assignmentId) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    const assignmentRef = ref(database, `users/${userId}/events/${eventId}/assignments/${assignmentId}`);
+    const snapshot = await get(assignmentRef);
+    const assignment = snapshot.val();
+
+    if (assignment) {
+        document.getElementById('assignmentTask').value = assignment.task;
+        document.getElementById('taskType').value = assignment.taskType;
+        document.getElementById('assignedTo').value = assignment.assignedTo;
+        document.getElementById('priority').value = assignment.priority;
+        document.getElementById('dueDate').value = assignment.dueDate || '';
+        
+        currentEditingAssignment = assignmentId;
+        showAssignmentModal(true);
+    }
+}
+
+window.deleteAssignment = async function(assignmentId) {
+    if (!confirm('Are you sure you want to delete this assignment?')) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    try {
+        await remove(ref(database, `users/${userId}/events/${eventId}/assignments/${assignmentId}`));
+        await loadAssignments();
+    } catch (error) {
+        console.error('Error deleting assignment:', error);
+        alert('Error deleting assignment');
+    }
+}
+
+function sortAssignments(assignments) {
+    return Object.entries(assignments).sort((a, b) => {
+        const priorityOrder = { 'High': 1, 'Medium': 2, 'Low': 3 };
+        const priorityCompare = priorityOrder[a[1].priority] - priorityOrder[b[1].priority];
+        
+        if (priorityCompare !== 0) return priorityCompare;
+        
+        const dateA = a[1].dueDate || '9999-99-99';
+        const dateB = b[1].dueDate || '9999-99-99';
+        return dateA.localeCompare(dateB);
+    });
+}
+
+function formatAssignmentDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { 
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+}
+
+// Add section visibility toggle functions
+function togglePackingSection(show) {
+    const packingCard = document.getElementById('packingCard');
+    packingCard.style.display = show ? 'block' : 'none';
+}
+
+function toggleAssignmentSection(show) {
+    const assignmentCard = document.getElementById('assignmentsCard');
+    assignmentCard.style.display = show ? 'block' : 'none';
+}
+
+// Setup event listeners function
+function setupEventListeners() {
+    // Activity listeners
+    document.getElementById('addActivityBtn')?.addEventListener('click', () => showActivityModal(false));
+    document.getElementById('activityForm')?.addEventListener('submit', handleActivitySubmit);
+    document.querySelector('.modal .secondary-button')?.addEventListener('click', closeActivityModal);
+
+    // Packing listeners
+    document.getElementById('addPackingBtn')?.addEventListener('click', () => showPackingModal(false));
+    document.getElementById('packingForm')?.addEventListener('submit', handlePackingSubmit);
+    document.querySelector('#packingModal .secondary-button')?.addEventListener('click', closePackingModal);
+
+    // Assignment listeners
+    document.getElementById('addAssignmentBtn')?.addEventListener('click', () => showAssignmentModal(false));
+    document.getElementById('assignmentForm')?.addEventListener('submit', handleAssignmentSubmit);
+    document.querySelector('#assignmentModal .secondary-button')?.addEventListener('click', closeAssignmentModal);
 }

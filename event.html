@@ -54,7 +54,7 @@
     
         <!-- Event Details Card -->
         <div id="eventDetailsCard" class="event-details-card" style="display: none;">
-            <h2>Event Details</h2>
+            <h2 class="section-header">Event Details</h2>
             <div class="event-details-content">
                 <!-- Location Details -->
                 <div id="locationDetails" class="detail-item" style="display: none;">
@@ -239,19 +239,55 @@
         </div>
     </div>
          <!-- Activites Section -->
-<div id="activitiesCard" class="activities-card" style="display: none;">
-    <h2>Activities</h2>
-    <button id="addActivityBtn" class="add-activity-button">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-        Add Activity
-    </button>
-    <div id="activitiesList" class="activities-list">
-        <!-- Activities will be populated here -->
-    </div>
-</div>
+         <div id="activitiesCard" class="activities-card" style="display: none;">
+            <div class="activities-header">
+                <h2 class="section-header">Activities</h2>
+                <button id="addActivityBtn" class="add-activity-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add Activity
+                </button>
+            </div>
+            <div id="activitiesList" class="activities-list">
+                <!-- Activities will be populated here -->
+            </div>
+        </div>
+
+        <!-- Assignments Section -->
+            <div id="assignmentsCard" class="assignment-card" style="display: none;">
+                <div class="assignment-header">
+                    <h2 class="section-header">Assignments</h2>
+                    <button id="addAssignmentBtn" class="add-assignment-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Assignment
+                    </button>
+                </div>
+                <div id="assignmentsList" class="assignments-list">
+                    <!-- Assignments will be populated here -->
+                </div>
+            </div>
+        <!-- Packing Section -->
+         <div id="packingCard" class="packing-card" style="display: none;">
+            <div class="packing-header">
+                <h2 class="section-header">Packing List</h2>
+                <button id="addPackingBtn" class="add-packing-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add Packing Suggestion
+                </button>
+            </div>
+            <div id="packingList" class="packing-list">
+                <!-- Packing will be populated here -->
+            </div>
+        </div>
+
     <!-- Submit Button Container - Moved outside of locationPreferencesSection -->
     <div class="submit-container">
         <button id="submitButton" class="primary-button">
@@ -339,8 +375,8 @@
                 <textarea id="activityInfo"></textarea>
             </div>
             <div class="form-group">
-                <label for="activityTimezone">Event Timezone</label>
-                <select id="activityTimezone">
+                <label for="activityTimezone">Event Location Timezone</label>
+                <select id="activityTimezone" class="modern-select">
                     <option value="America/Los_Angeles">Pacific Time (PT)</option>
                     <option value="America/Denver">Mountain Time (MT)</option>
                     <option value="America/Chicago">Central Time (CT)</option>
@@ -368,5 +404,81 @@
         </form>
     </div>
 </div>
+<!-- Assignments Modal -->
+<div id="assignmentModal" class="modal">
+    <div class="modal-content">
+        <h2 id="assignmentModalTitle">Add Assignment</h2>
+        <form id="assignmentForm">
+            <div class="form-group">
+                <label for="assignmentTask">Task*</label>
+                <input type="text" id="assignmentTask" class="modern-input" required>
+            </div>
+            <div class="form-group">
+                <label for="taskType">Type*</label>
+                <select id="taskType" class="modern-select" required>
+                    <option value="">Select Type</option>
+                    <option value="To Do">To Do</option>
+                    <option value="To Bring">To Bring</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="assignedTo">Assigned To*</label>
+                <select id="assignedTo" class="modern-select" required>
+                    <option value="">Select Person</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="priority">Priority*</label>
+                <select id="priority" class="modern-select" required>
+                    <option value="">Select Priority</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="dueDate">Due Date</label>
+                <input type="date" id="dueDate" class="activity-date-input">
+            </div>
+            <div class="button-group">
+                <button type="submit" class="primary-button">Save</button>
+                <button type="button" class="secondary-button" onclick="closeAssignmentModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Packing Modal -->
+<div id="packingModal" class="modal">
+    <div class="modal-content">
+        <h2 id="packingModalTitle">Add Packing Item</h2>
+        <form id="packingForm">
+            <div class="form-group">
+                <label for="packingItem">Item Name*</label>
+                <input type="text" id="packingItem" class="modern-input" required>
+            </div>
+            <div class="form-group">
+                <label for="packingCategory">Category*</label>
+                <select id="packingCategory" class="modern-select" required>
+                    <option value="">Select Category</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Essentials">Essentials</option>
+                    <option value="Equipment">Equipment</option>
+                    <option value="Documents">Documents</option>
+                    <option value="Food">Food</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="packingDescription">Description (Optional)</label>
+                <textarea id="packingDescription" class="modern-input" rows="3"></textarea>
+            </div>
+            <div class="button-group">
+                <button type="submit" class="primary-button">Save</button>
+                <button type="button" class="secondary-button" onclick="closePackingModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 </body>
 </html>
