@@ -256,21 +256,21 @@
         </div>
 
         <!-- Assignments Section -->
-            <div id="assignmentsCard" class="assignment-card" style="display: none;">
-                <div class="assignment-header">
-                    <h2 class="section-header">Tasks</h2>
-                    <button id="addAssignmentBtn" class="add-assignment-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        New Task
-                    </button>
-                </div>
-                <div id="assignmentsList" class="assignments-list">
-                    <!-- Assignments will be populated here -->
-                </div>
+              <div id="assignmentsCard" class="assignment-card" style="display: none;">
+            <div class="assignment-header">
+                <h2 class="section-header">Tasks</h2>
+                <button id="addAssignmentBtn" class="add-assignment-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Task
+                </button>
             </div>
+            <div id="assignmentsList" class="assignments-list">
+                <!-- Assignments will be populated here -->
+            </div>
+        </div>
         <!-- Packing Section -->
          <div id="packingCard" class="packing-card" style="display: none;">
             <div class="packing-header">
@@ -404,6 +404,7 @@
         </form>
     </div>
 </div>
+
 <!-- Assignments Modal -->
 <div id="assignmentModal" class="modal">
     <div class="modal-content">
@@ -442,7 +443,7 @@
             </div>
             <div class="form-group">
                 <label for="assignmentStatus">Status</label>
-                <select id="assignmentStatus" name="assignmentStatus">
+                <select id="assignmentStatus" name="assignmentStatus" class = "modern-select">
                     <option value="assigned">Assigned</option>
                     <option value="in progress">In Progress</option>
                     <option value="completed">Completed</option>
@@ -469,8 +470,9 @@
                 <select id="packingCategory" class="modern-select" required>
                     <option value="">Select Category</option>
                     <option value="Clothing">Clothing</option>
-                    <option value="Essentials">Essentials</option>
+                    <option value="Sports Gear">Sports Gear</option>
                     <option value="Equipment">Equipment</option>
+                    <option value="Essentials">Essentials</option>
                     <option value="Documents">Documents</option>
                     <option value="Food">Food</option>
                     <option value="Other">Other</option>
@@ -479,6 +481,22 @@
             <div class="form-group">
                 <label for="packingDescription">Description (Optional)</label>
                 <textarea id="packingDescription" class="modern-input" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="packingQuantity">Suggested Quantity</label>
+                <select id="packingQuantity" class="modern-qty-select">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="See Description">See Description</option>
+                </select>
             </div>
             <div class="button-group">
                 <button type="submit" class="primary-button">Save</button>

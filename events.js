@@ -1032,16 +1032,22 @@ function formatTime(time) {
 // Update timezone change handler
 function populateTimezoneSelect() {
     const timezoneSelect = document.getElementById('timezoneSelect');
-    const timezones = [
-        "America/Los_Angeles", "America/New_York", "America/Chicago", "America/Denver",
-        "America/Phoenix", "America/Anchorage", "Pacific/Honolulu"
-    ];
+    const timezoneNames = {
+        "America/Los_Angeles": "Pacific Time",
+        "America/New_York": "Eastern Time",
+        "America/Chicago": "Central Time",
+        "America/Denver": "Mountain Time",
+        "America/Phoenix": "Mountain Time (no DST)",
+        "America/Anchorage": "Alaska Time",
+        "Pacific/Honolulu": "Hawaii-Aleutian Time"
+    };
+    const timezones = Object.keys(timezoneNames);
     
     timezoneSelect.innerHTML = '<option value="">Select Time Zone</option>';
     timezones.forEach(tz => {
         const option = document.createElement('option');
         option.value = tz;
-        option.textContent = tz.split('/')[1].replace('_', ' ');
+        option.textContent = timezoneNames[tz];
         if (tz === currentTimezone) {
             option.selected = true;
         }
@@ -1458,6 +1464,27 @@ async function loadPacking() {
 }
 
 // Render packing items
+function getPackingIcon(category) {
+    switch (category.toLowerCase()) {
+        case 'clothing':
+            return '👕'; // Gender-neutral icon for clothing (shirt)
+        case 'essentials':
+            return '🧳'; // Example icon for essentials
+        case 'sports gear':
+            return '🎾'; // Example icon for sports gear
+        case 'equipment':
+            return '💻'; // Example icon for equipment
+        case 'documents':
+            return '📄'; // Example icon for documents
+        case 'food':
+            return '🍎'; // Example icon for food
+        case 'other':
+            return '📦'; // Example icon for other
+        default:
+            return '📦'; // Default icon
+    }
+}
+
 function renderPacking(packing) {
     const packingList = document.getElementById('packingList');
     
@@ -1468,7 +1495,8 @@ function renderPacking(packing) {
     packingList.innerHTML = sortedPacking.map(([id, item]) => `
         <div class="packing-card">
             <div class="packing-header">
-                <div class="packing-title">${item.item}</div>
+                <div class="packing-icon">${getPackingIcon(item.category)}</div>
+                <div class="packing-category">${item.category}</div>
                 <div class="packing-actions">
                     <button onclick="editPacking('${id}')" class="action-button edit">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1483,10 +1511,9 @@ function renderPacking(packing) {
                     </button>
                 </div>
             </div>
-            <div class="packing-details">
-                <div>Category: ${item.category}</div>
-                ${item.description ? `<div>Description: ${item.description}</div>` : ''}
-            </div>
+            <div class="packing-title">${item.item}</div>
+            ${item.description ? `<div class="packing-description">${item.description}</div>` : ''}
+            ${item.quantity !== undefined ? `<div class="packing-quantity">Suggested Quantity: ${item.quantity}</div>` : ''}
             <div class="packing-creator">Suggested by ${item.suggestedBy}</div>
         </div>
     `).join('');
@@ -1518,6 +1545,7 @@ async function handlePackingSubmit(e) {
         item: document.getElementById('packingItem').value,
         description: document.getElementById('packingDescription').value || null,
         category: document.getElementById('packingCategory').value,
+        quantity: document.getElementById('packingQuantity').value || 1, // Default to 0 if empty
         suggestedBy: selectedFullName,
         createdAt: new Date().toISOString()
     };
@@ -1596,7 +1624,16 @@ async function loadAssignments() {
     renderAssignments(assignments);
 }
 
-
+function getTaskTypeIcon(taskType) {
+    switch (taskType.toLowerCase()) {
+        case 'to do':
+            return '✅'; // Example icon for "to do"
+        case 'to bring':
+            return '🧺'; // Example icon for "to bring"
+        default:
+            return '✅'; // Default icon
+    }
+}
 function renderAssignments(assignments) {
     const assignmentsList = document.getElementById('assignmentsList');
     
@@ -1619,17 +1656,15 @@ function renderAssignments(assignments) {
             }
         }
 
-        const taskTypeIcon = assignment.taskType.toLowerCase() === 'to do' ? `
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>` : `
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 2l1.5 1.5h9L18 2h-3.5L12 5.5 9.5 2H6z"></path>
-                <path d="M3 6h18v14H3z"></path>
-            </svg>`;
+        const taskTypeIcon = getTaskTypeIcon(assignment.taskType); // Use the new function
 
         const priorityClass = assignment.priority.toLowerCase() === 'high' ? 'high-priority' : '';
         const statusClass = assignment.status.toLowerCase() === 'completed' ? 'completed-status' : '';
+
+        // If the status is completed, override the due date class to be green
+        if (assignment.status.toLowerCase() === 'completed') {
+            dueDateClass = 'completed-status';
+        }
 
         return `
             <div class="assignment-card ${assignment.priority.toLowerCase()}-priority">
@@ -1647,20 +1682,19 @@ function renderAssignments(assignments) {
                         <button onclick="deleteAssignment('${id}')" class="action-button delete">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6l-2 14H7L5 6"></path>
-                                <path d="M10 11v6"></path>
-                                <path d="M14 11v6"></path>
-                                <path d="M5 6l1-3h12l1 3"></path>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         </button>
                     </div>
                 </div>
                 <div class="assignment-details">
                     <div class="task-type ${assignment.taskType.toLowerCase()}">
-                        ${taskTypeIcon} ${assignment.taskType}
+                        Type: ${taskTypeIcon} ${assignment.taskType}
                     </div>
                     <div>Assigned to: ${assignment.assignedTo}</div>
-                    ${formattedDueDate ? `<div class="due-date ${dueDateClass}">Due: ${formattedDueDate}</div>` : ''}
-                    <div class="status ${statusClass}">Status: ${assignment.status}</div>
+                    <div class="due-status-row">
+                        ${formattedDueDate ? `<div class="due-date ${dueDateClass}">Due: ${formattedDueDate}</div>` : ''}
+                        <div class="status ${statusClass}">Status: ${assignment.status}</div>
+                    </div>
                 </div>
             </div>
         `;
@@ -1790,17 +1824,20 @@ window.deleteAssignment = async function(assignmentId) {
 
 function sortAssignments(assignments) {
     return Object.entries(assignments).sort((a, b) => {
-        const priorityOrder = { 'High': 1, 'Medium': 2, 'Low': 3 };
-        const priorityCompare = priorityOrder[a[1].priority] - priorityOrder[b[1].priority];
-        
-        if (priorityCompare !== 0) return priorityCompare;
-        
+        const statusOrder = { 'assigned': 1, 'in progress': 2, 'completed': 3 };
+        const statusA = statusOrder[a[1].status.toLowerCase()] || 4;
+        const statusB = statusOrder[b[1].status.toLowerCase()] || 4;
+
+        if (statusA !== statusB) {
+            return statusA - statusB;
+        }
+
         const dateA = a[1].dueDate || '9999-99-99';
         const dateB = b[1].dueDate || '9999-99-99';
+
         return dateA.localeCompare(dateB);
     });
 }
-
 function formatAssignmentDate(dateStr) {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', { 
@@ -1839,3 +1876,28 @@ function setupEventListeners() {
     document.getElementById('assignmentForm')?.addEventListener('submit', handleAssignmentSubmit);
     document.querySelector('#assignmentModal .secondary-button')?.addEventListener('click', closeAssignmentModal);
 }
+
+// Add this function to save RSVP status
+async function saveRsvpStatus() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+    const rsvpStatus = document.getElementById('rsvpStatus').value;
+
+    try {
+        const rsvpRef = ref(database, `users/${userId}/events/${eventId}/rsvps/${selectedFullName}`);
+        await set(rsvpRef, { status: rsvpStatus });
+        console.log('RSVP status saved:', rsvpStatus); // Debug log
+    } catch (error) {
+        console.error('Error saving RSVP status:', error);
+        alert('Error saving RSVP status');
+    }
+}
+
+// Add event listener to RSVP field
+document.addEventListener('DOMContentLoaded', () => {
+    const rsvpField = document.getElementById('rsvpStatus');
+    if (rsvpField) {
+        rsvpField.addEventListener('change', saveRsvpStatus);
+    }
+});
