@@ -1068,7 +1068,20 @@ body {
     color: #666666; /* lighter shade for hover effect */
     text-decoration-color: #666666; /* lighter shade for hover effect */
 }
-/* Activities Section */
+
+
+/* Final Activities Section */
+
+.activity-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background: var(--background-color);
+    margin-bottom: 1rem;
+}
+
 .activities-card {
     max-width: 100%;   /* Ensure activity cards don't exceed parent width */
     margin: 0 auto;    /* Center the card */
@@ -1079,16 +1092,17 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 1.5rem;
 }
+
 .activities-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: flex-start; /* Align items to the start */
+    color: black;
+    margin-bottom: 0.5rem;
+    position: relative;
+    font-weight: bold; /* Make the text bold */
 }
 
-.activities-header h2 {
-    margin: 0;
-}
 .add-activity-button {
     display: flex;
     align-items: center;
@@ -1109,25 +1123,51 @@ body {
 .activities-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem; /* Reduce gap between elements */
+}
+.activity-card {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.activity-actions {
+    position: absolute;
+    top: 0.5rem;    /* Move down */
+    right: 0.5rem;  /* Move left */
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.activity-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    margin-top: 2rem;
 }
 
 .activity-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 0.5rem;
+}
+
+.activity-time {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem; /* Add space below time */
+    align-self: flex-start; /* Ensure left alignment */
 }
 
 .activity-title {
     font-weight: 600;
     font-size: 1.125rem;
     color: var(--text-primary);
-}
-
-.activity-actions {
-    display: flex;
-    gap: 0.5rem;
+    text-align: left;
+    margin-bottom: 0.5rem;
 }
 
 .activity-details {
@@ -1144,6 +1184,11 @@ body {
     margin-top: 0.5rem;
     font-style: italic;
 }
+
+.activity-card:last-child {
+    margin-bottom: 0.5rem; /* Reduce space after last activity in group */
+}
+
 
 /* Activity Modal Styles - Updated to match app */
 .modal {
@@ -1184,6 +1229,15 @@ body {
     min-width: 60px; /* Adjust as needed */
     text-align: right;
 }
+
+.activity-date-input {
+    max-width: 200px;
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    font-size: 1rem;
+}
 .activity-content {
     flex: 1;
 }
@@ -1206,15 +1260,7 @@ body {
     border-radius: 0.375rem;
     font-size: 1rem;
 }
-/* Activity Date Input */
-.activity-date-input {
-    max-width: 200px;
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.375rem;
-    font-size: 1rem;
-}
+
 /* Modal Form Groups */
 .modal .form-group {
     margin-bottom: 1rem;
@@ -1243,16 +1289,8 @@ body {
     padding-bottom: 0.5rem;
     
 }
-
-/* Individual Card Styles */
-.activity-card {
-    display: flex;
-    align-items: flex-start;
-    padding: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.375rem;
-    background: var(--background-color);
-    margin-bottom: 1rem;
+.task-type {
+    font-weight: bold; /* Make the text bold */
 }
 
 .assignment-card,
@@ -1265,7 +1303,7 @@ body {
 }
 
 /* Card Container Styles */
-.activities-container,
+
 .assignments-container,
 .packing-container {
     width: 100%;
@@ -1276,7 +1314,7 @@ body {
 }
 
 /* List Container Styles */
-#activitiesList,
+
 #assignmentsList,
 #packingList {
     width: 100%;
@@ -1286,41 +1324,16 @@ body {
 }
 
 
-.packing-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.packing-header h2 {
-    margin: 0;
-}
-.add-packing-button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: var(--tiffany-blue);
-    color: white;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
+/* Packing Styles */
 .add-packing-button:hover {
     background: var(--tiffany-blue-hover);
 }
-.task-type {
-    font-weight: bold; /* Make the text bold */
-}
+
 .packing-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
-
 .packing-card {
     max-width: 100%;   /* Ensure packing cards don't exceed parent width */
     background: #f8f9fa;
@@ -1335,7 +1348,35 @@ body {
     align-items: center;
     margin-bottom: 0.5rem;
 }
+.packing-list-header {
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: flex-start; /* Align items to the start */
+    color: black;
+    margin-bottom: 0.5rem;
+    position: relative;
+    font-weight: bold; /* Make the text bold */
+}
 
+.packing-list-header h2 {
+    margin: 0;
+}
+
+.add-packing-suggestion-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--tiffany-blue);
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.add-packing-suggestion-button:hover {
+    background: var(--tiffany-blue-hover);
+}
 .packing-category {
     flex: 1;
     font-weight: bold;
@@ -1373,7 +1414,9 @@ body {
     font-size: 1.5rem;
     margin-right: 0.5rem;
 }
-/* Assignments Section */
+
+
+/* Tasks/Assignments Section */
 .assignment-header {
     display: flex;
     flex-direction: column; /* Stack elements vertically */
@@ -1449,9 +1492,11 @@ body {
 }
 
 .date-group {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
-
+.date-group:last-child {
+    margin-bottom: 0; /* Remove margin from last date group */
+}
 .date-header {
     font-size: 1.5rem;
     font-weight: bold;
@@ -1518,4 +1563,31 @@ body {
 
 .expanded .toggle-button::after {
     content: '▼';
+}
+
+.date-header-container {
+    display: flex;
+    align-items: center;
+}
+
+.date-header-left {
+    text-align: center;
+    margin-right: 8px;
+}
+
+.date-header-month {
+    font-size: 0.75rem; /* Small font for month */
+    font-weight: bold;
+    margin-bottom: -0.75rem; /* Move month closer to the date */
+}
+
+.date-header-day {
+    font-size: 1.5rem; /* Larger font for day */
+    font-weight: bold;
+}
+
+.date-header-right {
+    font-size: 1.25rem; /* Larger font for weekday */
+    font-weight: bold;
+    margin-left: 0.25in; /* Move day of the week over */
 }

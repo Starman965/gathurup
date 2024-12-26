@@ -124,9 +124,19 @@ function formatDateHeader(dateStr) {
     
     // Create date object without timezone conversion
     const date = new Date(year, month - 1, day);
+    const monthAbbr = date.toLocaleDateString('en-US', { month: 'short' });
+    const dayOfMonth = date.getDate();
     const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
     
-    return `${weekday}, ${month}/${day}/${year}`;
+    return `
+        <div class="date-header-container">
+            <div class="date-header-left">
+                <div class="date-header-month">${monthAbbr.toUpperCase()}</div>
+                <div class="date-header-day">${dayOfMonth}</div>
+            </div>
+            <div class="date-header-right">${weekday}</div>
+        </div>
+    `;
 }
 function renderActivities(activities) {
     const activitiesList = document.getElementById('activitiesList');
@@ -170,28 +180,28 @@ function renderActivities(activities) {
             <h3 class="date-header">${formatDateHeader(date)}</h3>
             ${activitiesByDate[date].map(({ id, activity }) => `
                 <div class="activity-card">
-                    <div class="activity-time">
-                        ${activity.time ? formatActivityTime(activity.time, activity.period, activity.timezone) : ''}
+                    <div class="activity-actions">
+                        <button onclick="editActivity('${id}')" class="action-button edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                            </svg>
+                        </button>
+                        <button onclick="deleteActivity('${id}')" class="action-button delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6l-2 14H7L5 6"></path>
+                                <path d="M10 11v6"></path>
+                                <path d="M14 11v6"></path>
+                                <path d="M5 6l1-3h12l1 3"></path>
+                            </svg>
+                        </button>
                     </div>
                     <div class="activity-content">
+                        <div class="activity-time">
+                            ${activity.time ? formatActivityTime(activity.time, activity.period, activity.timezone) : ''}
+                        </div>
                         <div class="activity-header">
                             <div class="activity-title">${activity.title}</div>
-                            <div class="activity-actions">
-                                <button onclick="editActivity('${id}')" class="action-button edit">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-                                    </svg>
-                                </button>
-                                <button onclick="deleteActivity('${id}')" class="action-button delete">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6l-2 14H7L5 6"></path>
-                                        <path d="M10 11v6"></path>
-                                        <path d="M14 11v6"></path>
-                                        <path d="M5 6l1-3h12l1 3"></path>
-                                    </svg>
-                                </button>
-                            </div>
                         </div>
                         <div class="activity-details">
                             ${activity.location ? `<div>Location: ${activity.location}</div>` : ''}
