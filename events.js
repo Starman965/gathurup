@@ -269,7 +269,7 @@ function sortActivities(activities) {
         return 0;
     });
 }
-function closeActivityModal() {
+window.closeActivityModal = function () {
     const modal = document.getElementById('activityModal');
     modal.style.display = 'none';
     document.getElementById('activityForm').reset();
@@ -1943,3 +1943,19 @@ document.addEventListener('DOMContentLoaded', () => {
         rsvpField.addEventListener('change', saveRsvpStatus);
     }
 });
+
+function toggleSection(sectionId, buttonId) {
+    const section = document.getElementById(sectionId);
+    const button = document.getElementById(buttonId);
+    if (section.style.display === 'none') {
+        section.style.display = 'block';
+        button.textContent = 'Collapse Section';
+    } else {
+        section.style.display = 'none';
+        button.textContent = 'Expand Section';
+    }
+}
+
+document.getElementById('toggleActivitiesBtn').addEventListener('click', () => toggleSection('activitiesList', 'toggleActivitiesBtn'));
+document.getElementById('toggleAssignmentsBtn').addEventListener('click', () => toggleSection('assignmentsList', 'toggleAssignmentsBtn'));
+document.getElementById('togglePackingBtn').addEventListener('click', () => toggleSection('packingList', 'togglePackingBtn'));

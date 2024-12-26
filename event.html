@@ -238,55 +238,58 @@
             </div>
         </div>
     </div>
-         <!-- Activites Section -->
-         <div id="activitiesCard" class="activities-card" style="display: none;">
-            <div class="activities-header">
-                <h2 class="section-header">Agenda</h2>
-                <button id="addActivityBtn" class="add-activity-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Agenda Item
-                </button>
-            </div>
-            <div id="activitiesList" class="activities-list">
-                <!-- Activities will be populated here -->
-            </div>
-        </div>
+<!-- Activities Section -->
+<div id="activitiesCard" class="activities-card" style="display: none;">
+    <div class="activities-header">
+        <h2 class="section-header">Agenda</h2>
+        <button id="addActivityBtn" class="add-activity-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Agenda Item
+        </button>
+        <button id="toggleActivitiesBtn" class="toggle-button">Collapse Section</button>
+    </div>
+    <div id="activitiesList" class="activities-list">
+        <!-- Activities will be populated here -->
+    </div>
+</div>
 
-        <!-- Assignments Section -->
-              <div id="assignmentsCard" class="assignment-card" style="display: none;">
-            <div class="assignment-header">
-                <h2 class="section-header">Tasks</h2>
-                <button id="addAssignmentBtn" class="add-assignment-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    New Task
-                </button>
-            </div>
-            <div id="assignmentsList" class="assignments-list">
-                <!-- Assignments will be populated here -->
-            </div>
-        </div>
-        <!-- Packing Section -->
-        <div id="packingCard" class="packing-card" style="display: none;">
-            <div class="assignment-header">
-                <h2 class="section-header">Packing List</h2>
-                <button id="addPackingBtn" class="add-packing-suggestion-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Add Packing Suggestion
-                </button>
-            </div>
-            <div id="packingList" class="packing-list">
-                <!-- Packing will be populated here -->
-            </div>
-        </div>
+<!-- Assignments Section -->
+<div id="assignmentsCard" class="assignment-card" style="display: none;">
+    <div class="assignment-header">
+        <h2 class="section-header">Tasks</h2>
+        <button id="addAssignmentBtn" class="add-assignment-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New Task
+        </button>
+        <button id="toggleAssignmentsBtn" class="toggle-button">Collapse Section</button>
+    </div>
+    <div id="assignmentsList" class="assignments-list">
+        <!-- Assignments will be populated here -->
+    </div>
+</div>
+<!-- Packing Section -->
+<div id="packingCard" class="packing-card" style="display: none;">
+    <div class="packing-list-header">
+        <h2 class="section-header">Packing List</h2>
+        <button id="addPackingBtn" class="add-packing-suggestion-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Packing Suggestion
+        </button>
+        <button id="togglePackingBtn" class="toggle-button">Collapse Section</button>
+    </div>
+    <div id="packingList" class="packing-list">
+        <!-- Packing will be populated here -->
+    </div>
+</div>
 
     <!-- Submit Button Container - Moved outside of locationPreferencesSection -->
     <div class="submit-container">
