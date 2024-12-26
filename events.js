@@ -117,6 +117,17 @@ window.showAssignmentModal = function(editing = false) {
     populateAssigneeSelect(); // Ensure this is called
     modal.style.display = 'flex';
 }
+
+function formatDateHeader(dateStr) {
+    // Parse date parts directly from YYYY-MM-DD format
+    const [year, month, day] = dateStr.split('-');
+    
+    // Create date object without timezone conversion
+    const date = new Date(year, month - 1, day);
+    const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+    
+    return `${weekday}, ${month}/${day}/${year}`;
+}
 function renderActivities(activities) {
     const activitiesList = document.getElementById('activitiesList');
 
@@ -156,7 +167,7 @@ function renderActivities(activities) {
     // Render activities grouped by date
     activitiesList.innerHTML = Object.keys(activitiesByDate).map(date => `
         <div class="date-group">
-            <h3 class="date-header">${date}</h3>
+            <h3 class="date-header">${formatDateHeader(date)}</h3>
             ${activitiesByDate[date].map(({ id, activity }) => `
                 <div class="activity-card">
                     <div class="activity-time">
