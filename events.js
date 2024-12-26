@@ -120,17 +120,38 @@ window.showAssignmentModal = function(editing = false) {
 function renderActivities(activities) {
     const activitiesList = document.getElementById('activitiesList');
 
-    const sortedActivities = sortActivities(activities);
-
     // Group activities by date
-    const activitiesByDate = sortedActivities.reduce((acc, [id, activity]) => {
-        const date = activity.date ? formatDateForDisplay(activity.date) : 'No Date';
+    const activitiesByDate = Object.entries(activities).reduce((acc, [id, activity]) => {
+        const date = activity.date;
         if (!acc[date]) {
             acc[date] = [];
         }
         acc[date].push({ id, activity });
         return acc;
     }, {});
+
+    // Convert time to 24-hour format for sorting
+    function convertTo24Hour(time, period) {
+        if (!time) return '00:00';
+        let [hours, minutes] = time.split(':');
+        hours = parseInt(hours);
+        if (period === 'PM' && hours !== 12) {
+            hours += 12;
+        }
+        if (period === 'AM' && hours === 12) {
+            hours = 0;
+        }
+        return `${hours.toString().padStart(2, '0')}:${minutes}`;
+    }
+
+    // Sort activities within each date group
+    Object.keys(activitiesByDate).forEach(date => {
+        activitiesByDate[date].sort((a, b) => {
+            const timeA = convertTo24Hour(a.activity.time, a.activity.period);
+            const timeB = convertTo24Hour(b.activity.time, b.activity.period);
+            return timeA.localeCompare(timeB);
+        });
+    });
 
     // Render activities grouped by date
     activitiesList.innerHTML = Object.keys(activitiesByDate).map(date => `
@@ -218,13 +239,13 @@ function getTimezoneAbbreviation(timezone) {
 // Sort activities by date and time
 function sortActivities(activities) {
     return Object.entries(activities).sort((a, b) => {
-        const dateA = a[1].date || '9999-99-99';
-        const dateB = b[1].date || '9999-99-99';
-        const timeA = a[1].time || '99:99';
-        const timeB = b[1].time || '99:99';
-        
-        const compareDate = dateA.localeCompare(dateB);
-        return compareDate !== 0 ? compareDate : timeA.localeCompare(timeB);
+        const dateA = new Date(`${a[1].date}T${a[1].time || '00:00'}`);
+        const dateB = new Date(`${b[1].date}T${b[1].time || '00:00'}`);
+
+        if (dateA < dateB) return -1;
+        if (dateA > dateB) return 1;
+
+        return 0;
     });
 }
 function closeActivityModal() {
