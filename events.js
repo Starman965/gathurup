@@ -1723,7 +1723,7 @@ function renderAssignments(assignments) {
             <div class="assignment-card ${assignment.priority.toLowerCase()}-priority">
                 <div class="assignment-header">
                     <div class="priority ${priorityClass}">
-                        ${assignment.priority}
+                       ${assignment.priority} Priority
                     </div>
                     <div class="assignment-title">${assignment.task}</div>
                     <div class="assignment-actions">
