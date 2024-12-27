@@ -140,16 +140,24 @@ function formatDateHeader(dateStr) {
 }
 function renderActivities(activities) {
     const activitiesList = document.getElementById('activitiesList');
+    
+    // Sort dates using Luxon for consistent handling
+    const sortedDates = Object.keys(activities).sort((a, b) => {
+        const dateA = luxon.DateTime.fromISO(activities[a].date);
+        const dateB = luxon.DateTime.fromISO(activities[b].date);
+        return dateA.valueOf() - dateB.valueOf();
+    });
 
-    // Group activities by date
-    const activitiesByDate = Object.entries(activities).reduce((acc, [id, activity]) => {
-        const date = activity.date;
-        if (!acc[date]) {
-            acc[date] = [];
-        }
-        acc[date].push({ id, activity });
-        return acc;
-    }, {});
+ // Create grouped activities using sorted dates
+ const activitiesByDate = sortedDates.reduce((acc, id) => {
+    const activity = activities[id];
+    const date = activity.date;
+    if (!acc[date]) {
+        acc[date] = [];
+    }
+    acc[date].push({ id, activity });
+    return acc;
+}, {});
 
     // Convert time to 24-hour format for sorting
     function convertTo24Hour(time, period) {
@@ -257,18 +265,7 @@ const timezoneAbbreviations = {
 function getTimezoneAbbreviation(timezone) {
     return timezoneAbbreviations[timezone] || timezone.split('/').pop().match(/[A-Z]/g).join('');
 }
-// Sort activities by date and time
-function sortActivities(activities) {
-    return Object.entries(activities).sort((a, b) => {
-        const dateA = new Date(`${a[1].date}T${a[1].time || '00:00'}`);
-        const dateB = new Date(`${b[1].date}T${b[1].time || '00:00'}`);
 
-        if (dateA < dateB) return -1;
-        if (dateA > dateB) return 1;
-
-        return 0;
-    });
-}
 window.closeActivityModal = function () {
     const modal = document.getElementById('activityModal');
     modal.style.display = 'none';
@@ -1999,3 +1996,4 @@ function updateCalendarButton(eventData, timezone) {
         ></add-to-calendar-button>
     `;
 }
+
