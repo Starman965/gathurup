@@ -1600,4 +1600,8 @@ body {
 
 .toggle-button:hover {
     background: var(--tiffany-blue-hover);
-}.
+}
+
+#calendarButtonContainer {
+    margin-bottom: 1.5rem;
+}

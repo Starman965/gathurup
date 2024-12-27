@@ -1300,10 +1300,12 @@ async function populateEventDetails(eventData) {
     if (!eventData.includeEventDetails || !eventData.eventDetails) {
         eventDetailsCard.style.display = 'none';
         rsvpCard.style.display = 'none';
+        updateCalendarButton(eventData, currentTimezone);
         return;
     }
 
     eventDetailsCard.style.display = 'block';
+    updateCalendarButton(eventData, currentTimezone);
 
     // Show RSVP card if includeRsvpSection is true
     if (eventData.includeRsvpSection) {
@@ -1959,3 +1961,41 @@ function toggleSection(sectionId, buttonId) {
 document.getElementById('toggleActivitiesBtn').addEventListener('click', () => toggleSection('activitiesList', 'toggleActivitiesBtn'));
 document.getElementById('toggleAssignmentsBtn').addEventListener('click', () => toggleSection('assignmentsList', 'toggleAssignmentsBtn'));
 document.getElementById('togglePackingBtn').addEventListener('click', () => toggleSection('packingList', 'togglePackingBtn'));
+
+
+function updateCalendarButton(eventData, timezone) {
+    console.log('Updating calendar button:', eventData, timezone); // Debug
+    const calendarContainer = document.getElementById('addToCalendarContainer');
+    if (!calendarContainer) {
+        console.error('Calendar container not found');
+        return;
+    }
+
+    if (!eventData.eventDetails || !eventData.eventDetails.startDate) {
+        console.error('Event details or start date missing');
+        return;
+    }
+
+    const startDateTime = luxon.DateTime.fromISO(
+        `${eventData.eventDetails.startDate}T${eventData.eventDetails.startTime || '00:00'}`
+    ).setZone(timezone);
+    
+    const endDateTime = luxon.DateTime.fromISO(
+        `${eventData.eventDetails.endDate || eventData.eventDetails.startDate}T${eventData.eventDetails.endTime || eventData.eventDetails.startTime || '00:00'}`
+    ).setZone(timezone);
+
+    calendarContainer.innerHTML = `
+        <add-to-calendar-button
+            name="${eventData.title || ''}"
+            description="${eventData.description || ''}"
+            startDate="${startDateTime.toFormat('yyyy-MM-dd')}"
+            startTime="${startDateTime.toFormat('HH:mm')}"
+            endDate="${endDateTime.toFormat('yyyy-MM-dd')}"
+            endTime="${endDateTime.toFormat('HH:mm')}"
+            timeZone="${timezone}"
+            location="${eventData.eventDetails.location || ''}"
+            options="'Apple','Google','iCal','Microsoft365','Outlook.com','Yahoo'"
+            lightMode="dark"
+        ></add-to-calendar-button>
+    `;
+}
