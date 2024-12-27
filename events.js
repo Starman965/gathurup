@@ -24,6 +24,7 @@ let currentEventData = null;
 let currentEditingActivity = null; // added for activity support
 let currentEditingPacking = null;
 let currentEditingAssignment = null;
+let showingPastActivities = true;
 
 // Timezone Management
 async function initializeEventTimezone() {
@@ -182,10 +183,19 @@ function renderActivities(activities) {
         });
     });
 
+        // Filter past dates if not showing past activities
+        const today = luxon.DateTime.now().startOf('day');
+        const filteredDates = Object.keys(activitiesByDate).filter(date => {
+            if (showingPastActivities) return true;
+            const dateTime = luxon.DateTime.fromISO(date);
+            return dateTime >= today;
+        });
+    
+
     // Render activities grouped by date
-    activitiesList.innerHTML = Object.keys(activitiesByDate).map(date => `
+    activitiesList.innerHTML = filteredDates.map(date => `
         <div class="date-group">
-            <h3 class="date-header">${formatDateHeader(date)}</h3>
+            <h3 class="date-header" data-date="${date}">${formatDateHeader(date)}</h3>
             ${activitiesByDate[date].map(({ id, activity }) => `
                 <div class="activity-card">
                     <div class="activity-actions">
@@ -222,6 +232,8 @@ function renderActivities(activities) {
         </div>
     `).join('');
 }
+
+
 // Add activity modal functions
 function showActivityModal(editing = false) {
     const modal = document.getElementById('activityModal');
@@ -1916,6 +1928,10 @@ function setupEventListeners() {
     document.getElementById('addAssignmentBtn')?.addEventListener('click', () => showAssignmentModal(false));
     document.getElementById('assignmentForm')?.addEventListener('submit', handleAssignmentSubmit);
     document.querySelector('#assignmentModal .secondary-button')?.addEventListener('click', closeAssignmentModal);
+
+    // Show/hide past activities
+    document.getElementById('hidePriorBtn').addEventListener('click', togglePastActivities);
+
 }
 
 // Add this function to save RSVP status
@@ -1997,3 +2013,9 @@ function updateCalendarButton(eventData, timezone) {
     `;
 }
 
+function togglePastActivities() {
+    const button = document.getElementById('hidePriorBtn');
+    showingPastActivities = !showingPastActivities;
+    button.textContent = showingPastActivities ? 'Hide Prior' : 'Show All';
+    renderActivities(currentEventData.activities);
+}

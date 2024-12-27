@@ -1093,27 +1093,38 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.activities-header {
+.activities-header,
+.assignment-header,
+.packing-list-header {
     display: flex;
-    flex-direction: column; /* Stack elements vertically */
-    align-items: flex-start; /* Align items to the start */
-    color: black;
-    margin-bottom: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 1rem;
     position: relative;
-    font-weight: bold; /* Make the text bold */
 }
 
-.add-activity-button {
+.add-activity-button,
+.add-assignment-button,
+.add-packing-suggestion-button {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0.375rem;
+    border: none;
     background: var(--tiffany-blue);
     color: white;
-    border: none;
-    border-radius: 0.375rem;
     cursor: pointer;
     transition: background-color 0.2s;
+}
+
+.add-activity-button svg,
+.add-assignment-button svg,
+.add-packing-suggestion-button svg {
+    width: 16px;
+    height: 16px;
 }
 
 .add-activity-button:hover {
@@ -1348,32 +1359,12 @@ body {
     align-items: center;
     margin-bottom: 0.5rem;
 }
-.packing-list-header {
-    display: flex;
-    flex-direction: column; /* Stack elements vertically */
-    align-items: flex-start; /* Align items to the start */
-    color: black;
-    margin-bottom: 0.5rem;
-    position: relative;
-    font-weight: bold; /* Make the text bold */
-}
+
 
 .packing-list-header h2 {
     margin: 0;
 }
 
-.add-packing-suggestion-button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: var(--tiffany-blue);
-    color: white;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
 .add-packing-suggestion-button:hover {
     background: var(--tiffany-blue-hover);
 }
@@ -1417,16 +1408,6 @@ body {
 
 
 /* Tasks/Assignments Section */
-.assignment-header {
-    display: flex;
-    flex-direction: column; /* Stack elements vertically */
-    align-items: flex-start; /* Align items to the start */
-    color: black;
-    margin-bottom: 0.5rem;
-    position: relative;
-    font-weight: bold; /* Make the text bold */
-}
-
 
 .priority {
     font-weight: bold;
@@ -1505,19 +1486,6 @@ body {
 }
 
 
-.add-assignment-button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: var(--tiffany-blue);
-    color: white;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
 .add-assignment-button:hover {
     background: var(--tiffany-blue-hover);
 }
@@ -1545,17 +1513,7 @@ body {
     box-shadow: 0 0 0 3px var(--focus-shadow-color);
 }
 
-.collapsed .assignments-list {
-    display: none;
-}
 
-.collapsed .toggle-button::after {
-    content: '►';
-}
-
-.expanded .toggle-button::after {
-    content: '▼';
-}
 
 .date-header-container {
     display: flex;
@@ -1584,17 +1542,15 @@ body {
     margin-left: 0.25in; /* Move day of the week over */
 }
 .toggle-button {
-    position: absolute;
-    top: 1rem; /* Position at the top */
-    right: 1rem; /* Position at the right */
     background: var(--tiffany-blue);
     color: white;
     border: none;
     border-radius: 0.375rem;
     cursor: pointer;
-    padding: 0.25rem 0.5rem; /* Reduced padding */
-    font-size: 0.75rem; /* Smaller font size */
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
     transition: background-color 0.2s;
+    white-space: nowrap;
 }
 
 
@@ -1604,4 +1560,10 @@ body {
 
 #calendarButtonContainer {
     margin-bottom: 1.5rem;
+}
+.button-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    margin-left: auto;
 }
