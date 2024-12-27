@@ -1918,7 +1918,7 @@ function setupEventListeners() {
     document.getElementById('addActivityBtn')?.addEventListener('click', () => showActivityModal(false));
     document.getElementById('activityForm')?.addEventListener('submit', handleActivitySubmit);
     document.querySelector('.modal .secondary-button')?.addEventListener('click', closeActivityModal);
-
+    document.getElementById('addActivityBtnBottom')?.addEventListener('click', () => showActivityModal(false));
     // Packing listeners
     document.getElementById('addPackingBtn')?.addEventListener('click', () => showPackingModal(false));
     document.getElementById('packingForm')?.addEventListener('submit', handlePackingSubmit);
@@ -1931,7 +1931,7 @@ function setupEventListeners() {
 
     // Show/hide past activities
     document.getElementById('hidePriorBtn').addEventListener('click', togglePastActivities);
-
+   
 }
 
 // Add this function to save RSVP status
@@ -1962,20 +1962,26 @@ document.addEventListener('DOMContentLoaded', () => {
 function toggleSection(sectionId, buttonId) {
     const section = document.getElementById(sectionId);
     const button = document.getElementById(buttonId);
+    const parentCard = section.closest('.activities-card, .assignment-card, .packing-card');
+    
     if (section.style.display === 'none') {
         section.style.display = 'block';
         button.textContent = 'Collapse Section';
+        if (parentCard) {
+            parentCard.classList.remove('collapsed');
+        }
     } else {
         section.style.display = 'none';
         button.textContent = 'Expand Section';
+        if (parentCard) {
+            parentCard.classList.add('collapsed');
+        }
     }
 }
 
 document.getElementById('toggleActivitiesBtn').addEventListener('click', () => toggleSection('activitiesList', 'toggleActivitiesBtn'));
 document.getElementById('toggleAssignmentsBtn').addEventListener('click', () => toggleSection('assignmentsList', 'toggleAssignmentsBtn'));
 document.getElementById('togglePackingBtn').addEventListener('click', () => toggleSection('packingList', 'togglePackingBtn'));
-
-
 function updateCalendarButton(eventData, timezone) {
     console.log('Updating calendar button:', eventData, timezone); // Debug
     const calendarContainer = document.getElementById('addToCalendarContainer');

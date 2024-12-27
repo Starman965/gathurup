@@ -1583,3 +1583,18 @@ body {
     margin-left: auto;
     align-items: center;
 }
+.bottom-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    transition: opacity 0.3s ease;
+}
+
+.activities-card.collapsed .bottom-button-container {
+    display: none;
+}
+
+.activities-card.collapsed .activities-list {
+    display: none;
+}
