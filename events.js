@@ -24,7 +24,7 @@ let currentEventData = null;
 let currentEditingActivity = null; // added for activity support
 let currentEditingPacking = null;
 let currentEditingAssignment = null;
-let showingPastActivities = true;
+let showingPastActivities = false;
 
 // Timezone Management
 async function initializeEventTimezone() {
@@ -1966,13 +1966,13 @@ function toggleSection(sectionId, buttonId) {
     
     if (section.style.display === 'none') {
         section.style.display = 'block';
-        button.textContent = 'Collapse Section';
+        button.textContent = 'Collapse';
         if (parentCard) {
             parentCard.classList.remove('collapsed');
         }
     } else {
         section.style.display = 'none';
-        button.textContent = 'Expand Section';
+        button.textContent = 'Expand';
         if (parentCard) {
             parentCard.classList.add('collapsed');
         }
@@ -2022,6 +2022,6 @@ function updateCalendarButton(eventData, timezone) {
 function togglePastActivities() {
     const button = document.getElementById('hidePriorBtn');
     showingPastActivities = !showingPastActivities;
-    button.textContent = showingPastActivities ? 'Hide Prior' : 'Show All';
+    button.textContent = showingPastActivities ? 'Hide Past' : 'Show All';
     renderActivities(currentEventData.activities);
 }
