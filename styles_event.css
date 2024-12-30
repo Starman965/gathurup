@@ -1108,7 +1108,7 @@ body {
     color: white;
     cursor: pointer;
     transition: background-color 0.2s;
-    height: 24px; /* Fixed height */
+    height: 25px; /* Fixed height */
 }
 
 /* Make all SVG icons consistent size */
