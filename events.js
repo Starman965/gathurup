@@ -2085,8 +2085,8 @@ async function loadInviteeList() {
             }
             return `
                 <div class="invitee">
-                    <span>${member.firstName} ${member.lastName}</span>
-                    <span>${status}</span>
+                    <span class="name">${member.firstName} ${member.lastName}</span>
+                    <span class="status">${status}</span>
                     <span class="status-icon">${icon}</span>
                 </div>
             `;

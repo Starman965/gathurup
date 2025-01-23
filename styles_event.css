@@ -1645,8 +1645,12 @@ body {
     align-items: center;
 }
 
-.invitee span {
-    flex: 1;
+.invitee .name {
+    flex: 2; /* Give more width to the name column */
+}
+
+.invitee .status {
+    flex: 1.5; /* Give more width to the status column */
 }
 
 .invitee .status-icon {
@@ -1656,7 +1660,15 @@ body {
 }
 
 .see-whos-coming-link {
-    margin-left: 1rem;
+    color: black; /* Change text color to black */
+    cursor: pointer;
+    text-decoration: underline;
+}
+.see-whos-coming-container {
+    margin-top: 1rem; /* Add spacing above the link */
+}
+
+.see-whos-coming-link {
     color: black; /* Change text color to black */
     cursor: pointer;
     text-decoration: underline;

@@ -169,29 +169,31 @@
     </div>
 </div>
                 <!-- RSVP Card -->
-<div id="rsvpCard" class="event-details-card" style="display: none;">
-    <div class="event-details-header">
-        <h2>Your RSVP</h2>
-        <select id="rsvpStatus" class="event-input">
-            <option value="" disabled selected>Please RSVP</option>
-            <option value="attending">Attending</option>
-            <option value="not-attending">Not Attending</option>
-            <option value="maybe">Maybe</option>
-        </select>
-        <a href="#" id="seeWhosComingLink" class="see-whos-coming-link">See Who's Coming</a>
-    </div>
-</div>
-
-<!-- Modal for showing invitee list -->
-<div id="inviteeModal" class="modal">
-    <div class="modal-content">
-        <h2>Who's Coming</h2>
-        <div id="inviteeList" class="invitee-list">
-            <!-- Invitee list will be populated here -->
-        </div>
-        <button class="secondary-button" onclick="closeInviteeModal()">Close</button>
-    </div>
-</div>
+                <div id="rsvpCard" class="event-details-card" style="display: none;">
+                    <div class="event-details-header">
+                        <h2>Your RSVP</h2>
+                        <select id="rsvpStatus" class="event-input">
+                            <option value="" disabled selected>Please RSVP</option>
+                            <option value="attending">Attending</option>
+                            <option value="not-attending">Not Attending</option>
+                            <option value="maybe">Maybe</option>
+                        </select>
+                        <div>
+                            <a href="#" id="seeWhosComingLink" class="see-whos-coming-link">See Who's Coming</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal for showing invitee list -->
+                <div id="inviteeModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Who's Coming</h2>
+                        <div id="inviteeList" class="invitee-list">
+                            <!-- Invitee list will be populated here -->
+                        </div>
+                        <button class="secondary-button" onclick="closeInviteeModal()">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
