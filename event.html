@@ -178,20 +178,6 @@
                             <option value="not-attending">Not Attending</option>
                             <option value="maybe">Maybe</option>
                         </select>
-                        <div>
-                            <a href="#" id="seeWhosComingLink" class="see-whos-coming-link">See Who's Coming</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Modal for showing invitee list -->
-                <div id="inviteeModal" class="modal">
-                    <div class="modal-content">
-                        <h2>Who's Coming</h2>
-                        <div id="inviteeList" class="invitee-list">
-                            <!-- Invitee list will be populated here -->
-                        </div>
-                        <button class="secondary-button" onclick="closeInviteeModal()">Close</button>
                     </div>
                 </div>
             </div>
@@ -266,10 +252,10 @@
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Item
+            Agenda Item
         </button>
-            <button id="hidePriorBtn" class="toggle-button">Show All</button>
-            <button id="toggleActivitiesBtn" class="toggle-button">Collapse</button>
+            <button id="hidePriorBtn" class="toggle-button">Hide Prior</button>
+            <button id="toggleActivitiesBtn" class="toggle-button">Collapse Section</button>
         </div>
     </div>
     <div id="activitiesList" class="activities-list">
@@ -281,7 +267,7 @@
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Item
+            Agenda Item
         </button>
 </div>
 
@@ -295,9 +281,9 @@
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Task
+            New Task
         </button>
-            <button id="toggleAssignmentsBtn" class="toggle-button">Collapse</button>
+            <button id="toggleAssignmentsBtn" class="toggle-button">Collapse Section</button>
         </div>
     </div>
     <div id="assignmentsList" class="assignments-list">
@@ -315,9 +301,9 @@
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Item
+            New Packing Item
         </button>
-        <button id="togglePackingBtn" class="toggle-button">Collapse</button>
+        <button id="togglePackingBtn" class="toggle-button">Collapse Section</button>
         </div>
     </div>
     <div id="packingList" class="packing-list">
@@ -337,7 +323,7 @@
         <div class="modal-content">
             <h2>Welcome!</h2>
             <p id="loadingText">Loading...</p>
-            <div id="nameSelectContainer"> 
+            <div id="nameSelectContainer" style="display: none;">
                 <p>Please select your name to continue</p>
                 <select id="nameSelect" class="name-select modern-select">
                     <option value="">Choose your name...</option>
