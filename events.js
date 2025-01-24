@@ -21,10 +21,10 @@ let currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 let eventData = null;
 let eventTimezoneCache = {};
 let currentEventData = null;
-let currentEditingActivity = null; // added for activity support
+let currentEditingActivity = null; 
 let currentEditingPacking = null;
 let currentEditingAssignment = null;
-let showingPastActivities = true;
+let showingPastActivities = false;
 
 // Timezone Management
 async function initializeEventTimezone() {
@@ -50,28 +50,7 @@ async function initializeEventTimezone() {
     return currentTimezone;
 }
 
-// function to initialize activities
-async function initializeActivities() {
-    if (!eventData.includeActivityDetails) {
-        document.getElementById('activitiesCard').style.display = 'none';
-        return;
-    }
 
-    document.getElementById('activitiesCard').style.display = 'block';
-    await loadActivities();
-}
-//  functions for activity management
-async function loadActivities() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const eventId = urlParams.get('event');
-    const userId = urlParams.get('user');
-
-    const activitiesRef = ref(database, `users/${userId}/events/${eventId}/activities`);
-    const snapshot = await get(activitiesRef);
-    const activities = snapshot.val() || {};
-
-    renderActivities(activities);
-}
 window.populateAssigneeSelect = async function() {
     const urlParams = new URLSearchParams(window.location.search);
     const eventId = urlParams.get('event');
@@ -949,20 +928,49 @@ document.getElementById('submitButton').addEventListener('click', submitPreferen
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
-    await initializeEventTimezone();
-    await loadEventData();
-    populateTimezoneSelect();
+    console.log('DOMContentLoaded event fired');
     
-    // Setup all event listeners
-    setupEventListeners();
-    
-    // Initialize sections
-    initializeActivities();
-    if (eventData.includePacking) {
-        initializePacking();
-    }
-    if (eventData.includeAssignments) {
-        initializeAssignments();
+    try {
+        console.log('Initializing event timezone...');
+        await initializeEventTimezone();
+        console.log('Event timezone initialized');
+
+        console.log('Loading event data...');
+        await loadEventData();
+        console.log('Event data loaded');
+
+        console.log('Populating timezone select...');
+        populateTimezoneSelect();
+        console.log('Timezone select populated');
+        
+        // Show the name modal first
+        console.log('Showing name modal...');
+        await window.confirmName();
+        console.log('Name modal shown');
+
+        // Setup all event listeners
+        console.log('Setting up event listeners...');
+        setupEventListeners();
+        console.log('Event listeners set up');
+        
+        // Initialize sections
+        console.log('Initializing activities...');
+        initializeActivities();
+        console.log('Activities initialized');
+
+        if (eventData.includePacking) {
+            console.log('Initializing packing...');
+            initializePacking();
+            console.log('Packing initialized');
+        }
+
+        if (eventData.includeAssignments) {
+            console.log('Initializing assignments...');
+            initializeAssignments();
+            console.log('Assignments initialized');
+        }
+    } catch (error) {
+        console.error('Error during initialization:', error);
     }
 });
 
@@ -1966,13 +1974,13 @@ function toggleSection(sectionId, buttonId) {
     
     if (section.style.display === 'none') {
         section.style.display = 'block';
-        button.textContent = 'Collapse Section';
+        button.textContent = 'Collapse';
         if (parentCard) {
             parentCard.classList.remove('collapsed');
         }
     } else {
         section.style.display = 'none';
-        button.textContent = 'Expand Section';
+        button.textContent = 'Expand';
         if (parentCard) {
             parentCard.classList.add('collapsed');
         }
@@ -2022,6 +2030,105 @@ function updateCalendarButton(eventData, timezone) {
 function togglePastActivities() {
     const button = document.getElementById('hidePriorBtn');
     showingPastActivities = !showingPastActivities;
-    button.textContent = showingPastActivities ? 'Hide Prior' : 'Show All';
+    button.textContent = showingPastActivities ? 'Hide Past' : 'Show All';
     renderActivities(currentEventData.activities);
+}
+
+// Function to show invitee modal
+window.showInviteeModal = function() {
+    const modal = document.getElementById('inviteeModal');
+    modal.style.display = 'flex';
+    loadInviteeList();
+}
+
+// Function to close invitee modal
+window.closeInviteeModal = function() {
+    const modal = document.getElementById('inviteeModal');
+    modal.style.display = 'none';
+}
+
+// Function to load invitee list
+async function loadInviteeList() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    const inviteeList = document.getElementById('inviteeList');
+    inviteeList.innerHTML = 'Loading...';
+
+    try {
+        const eventRef = ref(database, `users/${userId}/events/${eventId}`);
+        const eventSnapshot = await get(eventRef);
+        const eventData = eventSnapshot.val();
+        const tribeId = eventData.tribeId;
+
+        const tribeRef = ref(database, `users/${userId}/tribes/${tribeId}/members`);
+        const tribeSnapshot = await get(tribeRef);
+        const memberIds = tribeSnapshot.val() || [];
+
+        const memberPromises = memberIds.map(memberId => get(ref(database, `users/${userId}/people/${memberId}`)));
+        const memberSnapshots = await Promise.all(memberPromises);
+        const members = memberSnapshots.map(snapshot => snapshot.val());
+
+        const rsvpRef = ref(database, `users/${userId}/events/${eventId}/rsvps`);
+        const rsvpSnapshot = await get(rsvpRef);
+        const rsvps = rsvpSnapshot.val() || {};
+
+        inviteeList.innerHTML = members.map(member => {
+            const fullName = `${member.firstName} ${member.lastName}`;
+            const status = rsvps[fullName]?.status || 'No Response';
+            let icon;
+            switch (status) {
+                case 'attending':
+                    icon = '👍'; // Thumbs up icon
+                    break;
+                case 'not-attending':
+                    icon = '👎'; // Thumbs down icon
+                    break;
+                case 'maybe':
+                    icon = '❓'; // Question mark icon
+                    break;
+                default:
+                    icon = '❓'; // Default to question mark
+            }
+            return `
+                <div class="invitee">
+                    <span>${member.firstName} ${member.lastName}</span>
+                    <span>${status}</span>
+                    <span class="status-icon">${icon}</span>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading invitee list:', error);
+        inviteeList.innerHTML = 'Error loading invitee list.';
+    }
+}
+
+// Add event listener to "See Who's Coming" link
+document.getElementById('seeWhosComingLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    showInviteeModal();
+});
+// function to initialize activities
+async function initializeActivities() {
+    if (!eventData.includeActivityDetails) {
+        document.getElementById('activitiesCard').style.display = 'none';
+        return;
+    }
+
+    document.getElementById('activitiesCard').style.display = 'block';
+    await loadActivities();
+}
+//  functions for activity management
+async function loadActivities() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    const activitiesRef = ref(database, `users/${userId}/events/${eventId}/activities`);
+    const snapshot = await get(activitiesRef);
+    const activities = snapshot.val() || {};
+
+    renderActivities(activities);
 }

@@ -40,7 +40,7 @@ let selectedLocations = [];
 let currentEditingTribeId = null;
 let currentUser = null;
 let editingEventId = null;
-let lastSelectedDate = null; // Add this line
+let lastSelectedDate = null; 
 let editingLocationIndex = null;
 
 // Utility Functions
@@ -371,7 +371,6 @@ function getEventDetailsData() {
         attireComments: document.getElementById('eventAttireComments').value.trim() || null,
         food: document.getElementById('eventFood').value.trim(),
         additionalComments: document.getElementById('eventAdditionalComments').value.trim() || null,
-        includeRsvpSection: document.getElementById('includeRsvpSection').checked
     };
 }
 
@@ -409,7 +408,6 @@ function setEventDetailsData(details) {
     document.getElementById('eventAttireComments').value = details.attireComments || '';
     document.getElementById('eventFood').value = details.food || '';
     document.getElementById('eventAdditionalComments').value = details.additionalComments || '';
-    document.getElementById('includeRsvpSection').checked = details.includeRsvpSection || false; 
 }
 
 async function validateEventPageSettings() {
@@ -1491,13 +1489,14 @@ window.editEventDates = async function(eventId) {
         selectedLocations = eventData.locations || [];
         renderLocations();
         
-        // Set includeDatePreferences and includeLocationPreferences checkboxes
+        // Set Event Page Setting checkboxes
         document.getElementById('includeEventDetails').checked = eventData.includeEventDetails || false;
         document.getElementById('includeDatePreferences').checked = eventData.includeDatePreferences || false;
         document.getElementById('includeLocationPreferences').checked = eventData.includeLocationPreferences || false;
         document.getElementById('includeActivityDetails').checked = eventData.includeActivityDetails || false;
         document.getElementById('includePacking').checked = eventData.includePacking || false;
         document.getElementById('includeAssignments').checked = eventData.includeAssignments || false;
+        document.getElementById('includeRsvpSection').checked = eventData.includeRsvpSection || false;
         editingEventId = eventId;
         
         // Update form submit button text
@@ -2068,12 +2067,15 @@ function renderEventSettings() {
     const includeActivityDetailsCheckbox = document.getElementById('includeActivityDetailsCheckbox');
     const includePackingCheckbox = document.getElementById('includePackingCheckbox');
     const includeAssignmentsCheckbox = document.getElementById('includeAssignmentsCheckbox');
+    const includeRsvpSectionCheckbox = document.getElementById('includeRsvpSection'); 
+
     const includeLocationPreferences = selectedLocations.length > 0 || (includeLocationPreferencesCheckbox && includeLocationPreferencesCheckbox.checked);
     const includeDatePreferences = includeDatePreferencesCheckbox && includeDatePreferencesCheckbox.checked;
     const includeEventDetails = includeEventDetailsCheckbox && includeEventDetailsCheckbox.checked;
     const includeActivityDetails = includeActivityDetailsCheckbox && includeActivityDetailsCheckbox.checked;
     const includePacking = includePackingCheckbox && includePackingCheckbox.checked;
     const includeAssignments = includeAssignmentsCheckbox && includeAssignmentsCheckbox.checked;
+    const includeRsvpSection = includeRsvpSectionCheckbox && includeRsvpSectionCheckbox.checked;
     eventSettingsContainer.innerHTML = `
         <div class="section-card">
             <h3>Event Page Settings</h3>
@@ -2085,6 +2087,11 @@ function renderEventSettings() {
                         <input type="checkbox" id="includeEventDetails" ${includeEventDetails ? 'checked' : ''}>
                         <span class="checkmark"></span>
                         Event Details & Add to Calendar
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="includeRsvpSection" ${includeRsvpSection ? 'checked' : ''}>
+                        <span class="checkmark"></span>
+                        RSVP Menu
                     </label>
                     <label class="checkbox">
                         <input type="checkbox" id="includeDatePreferences" ${includeDatePreferences ? 'checked' : ''}>
@@ -2122,6 +2129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEventSettings();
     // ...existing code...
 });
+
 
 async function renderDatesList(dates, userId, eventId) {
     const datesList = document.getElementById('datesList');
