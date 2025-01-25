@@ -21,10 +21,10 @@ let currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 let eventData = null;
 let eventTimezoneCache = {};
 let currentEventData = null;
-let currentEditingActivity = null; 
+let currentEditingActivity = null; // added for activity support
 let currentEditingPacking = null;
 let currentEditingAssignment = null;
-let showingPastActivities = false;
+let showingPastActivities = true;
 
 // Timezone Management
 async function initializeEventTimezone() {
@@ -50,7 +50,28 @@ async function initializeEventTimezone() {
     return currentTimezone;
 }
 
+// function to initialize activities
+async function initializeActivities() {
+    if (!eventData.includeActivityDetails) {
+        document.getElementById('activitiesCard').style.display = 'none';
+        return;
+    }
 
+    document.getElementById('activitiesCard').style.display = 'block';
+    await loadActivities();
+}
+//  functions for activity management
+async function loadActivities() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+    const userId = urlParams.get('user');
+
+    const activitiesRef = ref(database, `users/${userId}/events/${eventId}/activities`);
+    const snapshot = await get(activitiesRef);
+    const activities = snapshot.val() || {};
+
+    renderActivities(activities);
+}
 window.populateAssigneeSelect = async function() {
     const urlParams = new URLSearchParams(window.location.search);
     const eventId = urlParams.get('event');
@@ -928,49 +949,20 @@ document.getElementById('submitButton').addEventListener('click', submitPreferen
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('DOMContentLoaded event fired');
+    await initializeEventTimezone();
+    await loadEventData();
+    populateTimezoneSelect();
     
-    try {
-        console.log('Initializing event timezone...');
-        await initializeEventTimezone();
-        console.log('Event timezone initialized');
-
-        console.log('Loading event data...');
-        await loadEventData();
-        console.log('Event data loaded');
-
-        console.log('Populating timezone select...');
-        populateTimezoneSelect();
-        console.log('Timezone select populated');
-        
-        // Show the name modal first
-        console.log('Showing name modal...');
-        await window.confirmName();
-        console.log('Name modal shown');
-
-        // Setup all event listeners
-        console.log('Setting up event listeners...');
-        setupEventListeners();
-        console.log('Event listeners set up');
-        
-        // Initialize sections
-        console.log('Initializing activities...');
-        initializeActivities();
-        console.log('Activities initialized');
-
-        if (eventData.includePacking) {
-            console.log('Initializing packing...');
-            initializePacking();
-            console.log('Packing initialized');
-        }
-
-        if (eventData.includeAssignments) {
-            console.log('Initializing assignments...');
-            initializeAssignments();
-            console.log('Assignments initialized');
-        }
-    } catch (error) {
-        console.error('Error during initialization:', error);
+    // Setup all event listeners
+    setupEventListeners();
+    
+    // Initialize sections
+    initializeActivities();
+    if (eventData.includePacking) {
+        initializePacking();
+    }
+    if (eventData.includeAssignments) {
+        initializeAssignments();
     }
 });
 
@@ -1974,13 +1966,13 @@ function toggleSection(sectionId, buttonId) {
     
     if (section.style.display === 'none') {
         section.style.display = 'block';
-        button.textContent = 'Collapse';
+        button.textContent = 'Collapse Section';
         if (parentCard) {
             parentCard.classList.remove('collapsed');
         }
     } else {
         section.style.display = 'none';
-        button.textContent = 'Expand';
+        button.textContent = 'Expand Section';
         if (parentCard) {
             parentCard.classList.add('collapsed');
         }
@@ -2030,23 +2022,9 @@ function updateCalendarButton(eventData, timezone) {
 function togglePastActivities() {
     const button = document.getElementById('hidePriorBtn');
     showingPastActivities = !showingPastActivities;
-    button.textContent = showingPastActivities ? 'Hide Past' : 'Show All';
+    button.textContent = showingPastActivities ? 'Hide Prior' : 'Show All';
     renderActivities(currentEventData.activities);
 }
-
-// Function to show invitee modal
-window.showInviteeModal = function() {
-    const modal = document.getElementById('inviteeModal');
-    modal.style.display = 'flex';
-    loadInviteeList();
-}
-
-// Function to close invitee modal
-window.closeInviteeModal = function() {
-    const modal = document.getElementById('inviteeModal');
-    modal.style.display = 'none';
-}
-
 // Function to load invitee list
 async function loadInviteeList() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -2110,25 +2088,15 @@ document.getElementById('seeWhosComingLink').addEventListener('click', (e) => {
     e.preventDefault();
     showInviteeModal();
 });
-// function to initialize activities
-async function initializeActivities() {
-    if (!eventData.includeActivityDetails) {
-        document.getElementById('activitiesCard').style.display = 'none';
-        return;
-    }
-
-    document.getElementById('activitiesCard').style.display = 'block';
-    await loadActivities();
+// Function to show invitee modal
+window.showInviteeModal = function() {
+    const modal = document.getElementById('inviteeModal');
+    modal.style.display = 'flex';
+    loadInviteeList();
 }
-//  functions for activity management
-async function loadActivities() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const eventId = urlParams.get('event');
-    const userId = urlParams.get('user');
 
-    const activitiesRef = ref(database, `users/${userId}/events/${eventId}/activities`);
-    const snapshot = await get(activitiesRef);
-    const activities = snapshot.val() || {};
-
-    renderActivities(activities);
+// Function to close invitee modal
+window.closeInviteeModal = function() {
+    const modal = document.getElementById('inviteeModal');
+    modal.style.display = 'none';
 }
