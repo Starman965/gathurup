@@ -1508,7 +1508,7 @@ window.editEventDates = async function(eventId) {
             const cancelBtn = document.createElement('button');
             cancelBtn.type = 'button';
             cancelBtn.className = 'cancel-edit-btn secondary-button';
-            cancelBtn.textContent = 'Cancel Edit';
+            cancelBtn.textContent = 'Cancel';
             cancelBtn.onclick = cancelEventEdit;
             submitBtn.parentNode.insertBefore(cancelBtn, submitBtn);
         }
