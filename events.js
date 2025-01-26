@@ -1451,6 +1451,18 @@ async function populateEventDetails(eventData) {
     } else {
         additionalDetails.style.display = 'none';
     }
+
+     // Hide submit button if no preferences to submit
+     const datePrefsSection = document.getElementById('datePreferencesSection');
+     const locationPrefsSection = document.getElementById('locationPreferencesSection');
+     const submitContainer = document.querySelector('.submit-container');
+ 
+     if ((!eventData.includeDatePreferences || datePrefsSection.style.display === 'none') && 
+         (!eventData.includeLocationPreferences || locationPrefsSection.style.display === 'none')) {
+         submitContainer.style.display = 'none';
+     } else {
+         submitContainer.style.display = 'block';
+     }
 }
 
 // Add this new function
@@ -2058,22 +2070,22 @@ async function loadInviteeList() {
             let icon;
             switch (status) {
                 case 'attending':
-                    icon = '👍'; // Thumbs up icon
+                    icon = '👍';
                     break;
                 case 'not-attending':
-                    icon = '👎'; // Thumbs down icon
+                    icon = '👎';
                     break;
                 case 'maybe':
-                    icon = '❓'; // Question mark icon
+                    icon = '❓';
                     break;
                 default:
-                    icon = '❓'; // Default to question mark
+                    icon = '❓';
             }
             return `
                 <div class="invitee">
                     <span>${member.firstName} ${member.lastName}</span>
-                    <span>${status}</span>
                     <span class="status-icon">${icon}</span>
+                    <span class="status-text">${status}</span>
                 </div>
             `;
         }).join('');

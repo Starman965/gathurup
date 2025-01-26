@@ -1501,7 +1501,7 @@ window.editEventDates = async function(eventId) {
         
         // Update form submit button text
         const submitBtn = document.querySelector('#eventForm button[type="submit"]');
-        submitBtn.textContent = 'Update Event';
+        submitBtn.textContent = 'Update';
         
         // Show cancel button if not already present
         if (!document.querySelector('.cancel-edit-btn')) {
@@ -2086,12 +2086,12 @@ function renderEventSettings() {
                      <label class="checkbox">
                         <input type="checkbox" id="includeEventDetails" ${includeEventDetails ? 'checked' : ''}>
                         <span class="checkmark"></span>
-                        Event Details & Add to Calendar
+                        Event Details Section
                     </label>
                     <label class="checkbox">
                         <input type="checkbox" id="includeRsvpSection" ${includeRsvpSection ? 'checked' : ''}>
                         <span class="checkmark"></span>
-                        RSVP Menu
+                        RSVP Section
                     </label>
                     <label class="checkbox">
                         <input type="checkbox" id="includeDatePreferences" ${includeDatePreferences ? 'checked' : ''}>
@@ -2162,3 +2162,10 @@ async function renderDatesList(dates, userId, eventId) {
         datesList.appendChild(dateCard);
     });
 }
+window.previewEvent = function() {
+    if (editingEventId) {
+        openEventLink(editingEventId);
+    } else {
+        alert('Please save the event first before previewing');
+    }
+};
